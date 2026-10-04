@@ -1,0 +1,1 @@
+export default function Icon({name,size=20}:{name:string;size?:number}) {return <img className="icon" src={`/stencils/${name}.svg`} alt="" width={size} height={size} aria-hidden="true" draggable={false}/>;}
