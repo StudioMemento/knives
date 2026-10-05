@@ -15,7 +15,7 @@ export const MATERIALS: Record<MaterialId,{label:string;roughness:number;metalne
  polymer:{label:'Matte polymer',roughness:.88,metalness:.02},
 };
 export const STENCILS = ['compass','bolt','mountain','wave-sine','leaf','flame','diamond','laurel-wreath','anchor','sparkles'];
-const HANDLE_COLORS = ['#303238','#e4b52c','#426359','#76503d'];
+const HANDLE_COLORS = ['#202327','#202327','#202327','#c5c9cb','#202327'];
 export function originalConfiguration(index:number):Configuration {return {preset:0,blade:{material:'original',color:'#c5c9cb'},handle:{material:'original',color:HANDLE_COLORS[index]},decorations:[]};}
 export function applyPreset(knifeIndex:number,preset:number,current:Configuration):Configuration {
  if(preset===0)return {...originalConfiguration(knifeIndex),decorations:current.decorations};

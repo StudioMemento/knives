@@ -6,10 +6,10 @@ import Icon from './Icon';
 import MaterialSwatches from './MaterialSwatches';
 import LaserControls,{type LaserProps} from './LaserControls';
 type Category='blade'|'handle'|'finishes'|'symbols'|'text'|'section';
-type Props={knife:Knife;knifeIndex:number;config:Configuration;onChange:(config:Configuration)=>void;activeId:string|null;onActive:(id:string|null)=>void;placing:boolean;onPlace:(value:boolean)=>void;defaultAnchor:(surface:Surface)=>Anchor|null;preview:(color:string)=>Record<MaterialId,string>|null;laser:LaserProps;onSection:(active:boolean)=>void;disabled:boolean};
+type Props={initialCategory?:Category;initialSurface?:Surface;compact?:boolean;knife:Knife;knifeIndex:number;config:Configuration;onChange:(config:Configuration)=>void;activeId:string|null;onActive:(id:string|null)=>void;placing:boolean;onPlace:(value:boolean)=>void;defaultAnchor:(surface:Surface)=>Anchor|null;preview:(color:string)=>Record<MaterialId,string>|null;laser:LaserProps;onSection:(active:boolean)=>void;disabled:boolean};
 const categories:readonly [Category,string,string][]=[['blade','Blade','blade'],['handle','Handle','grip'],['finishes','Finishes','materials'],['symbols','Symbols','diamond'],['text','Text','text-size'],['section','Section','section']];
 export default function Configurator(p:Props){
- const [category,setCategory]=useState<Category|null>(null),[sub,setSub]=useState<'material'|'colour'>('material'),[surface,setSurface]=useState<Surface>('blade'),[text,setText]=useState('');
+ const [category,setCategory]=useState<Category|null>(p.initialCategory??null),[sub,setSub]=useState<'material'|'colour'>('material'),[surface,setSurface]=useState<Surface>(p.initialSurface??'blade'),[text,setText]=useState('');
  const active=p.config.decorations.find(d=>d.id===p.activeId),finish=p.config[surface];
  const updateLayer=(patch:Partial<Decoration>)=>p.onChange({...p.config,decorations:p.config.decorations.map(d=>d.id===p.activeId?{...d,...patch}:d)});
  const choose=(next:Category|null)=>{setCategory(next);p.onPlace(false);p.onSection(next==='section');if(next==='blade'||next==='handle'){setSurface(next);setSub('material');}};
@@ -41,6 +41,6 @@ export default function Configurator(p:Props){
     </div>}
    </div>}
   </section>}
-  <nav className="config-categories" aria-label="Configure your knife">{categories.map(([id,label,icon])=><button key={id} aria-expanded={category===id} aria-controls="configuration-options" disabled={p.disabled} onClick={()=>choose(category===id?null:id)}><Icon name={icon} size={23}/><span>{label}</span></button>)}</nav>
+  <nav className="config-categories" aria-label="Configure your knife">{categories.filter(([id])=>!p.compact||['finishes','symbols','text'].includes(id)).map(([id,label,icon])=><button key={id} aria-expanded={category===id} aria-controls="configuration-options" disabled={p.disabled} onClick={()=>choose(category===id?null:id)}><Icon name={icon} size={23}/><span>{label}</span></button>)}</nav>
  </div>;
 }

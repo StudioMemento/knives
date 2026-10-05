@@ -1,4 +1,4 @@
-export type KnifeId = "combat" | "folding" | "pocket" | "gerber";
+export type KnifeId = "combat" | "folding" | "pocket" | "gerber" | "hyper";
 type ChapterId = "blade" | "handle" | "section" | "configuration" | "return";
 
 type KnifeStat = { label: string; value: number; code: string };
@@ -12,6 +12,8 @@ export type Knife = {
   worldNote: string;
   model: string;
   folding?: boolean;
+  pricePending?: boolean;
+  description?: string;
   accent: string;
   materialTitle: string;
   materialCopy: string;
@@ -21,12 +23,13 @@ export type Knife = {
 };
 
 export const CHAPTERS: Array<{ id: ChapterId; label: string }> = [
- {id:'blade',label:'Blade'},{id:'handle',label:'Handle'},{id:'configuration',label:'Configure'},{id:'return',label:'Collection'},
+ {id:'blade',label:'Blade'},{id:'handle',label:'Handle'},{id:'configuration',label:'Inspect'},{id:'return',label:'Details'},
 ];
 
 export const KNIVES: Knife[] = [
   {
     id: "combat",
+    description: "Lama fissa con dorso dentellato, guardia trasversale e impugnatura scanalata. Profilo allungato e costruzione continua.",
     index: "01",
     name: "M9 Sentinel",
     family: "Combat system",
@@ -56,6 +59,7 @@ export const KNIVES: Knife[] = [
   },
   {
     id: "folding",
+    description: "Lama pieghevole con filo sagomato. Impugnatura curva con guancette testurizzate, snodo centrale e clip da tasca.",
     index: "02",
     name: "Folding Knife",
     family: "Folding collection",
@@ -86,6 +90,7 @@ export const KNIVES: Knife[] = [
   },
   {
     id: "pocket",
+    description: "Lama sagomata con apertura ovale. Impugnatura con inserti testurizzati, struttura in metallo e meccanismo pieghevole.",
     index: "03",
     name: "Pocket Knife",
     family: "Pocket collection",
@@ -116,6 +121,7 @@ export const KNIVES: Knife[] = [
   },
   {
     id: "gerber",
+    description: "Lama pieghevole con perno di apertura. Impugnatura a telaio aperto, elementi di fissaggio a vista e clip da tasca.",
     index: "04",
     name: "Gerber Pocket Knife",
     family: "Gerber collection",
@@ -143,5 +149,15 @@ export const KNIVES: Knife[] = [
       { name: "Champagne", note: "Warm satin", color: "#c8a978", price: 349 },
       { name: "Copper Veil", note: "Rose polish", color: "#aa6648", price: 369 },
     ],
+  },
+  {
+    id: "hyper", index: "05", name: "Hyper", family: "Memento collection",
+    world: "Void", worldNote: "Metal / light", model: "/models/hyper/hyper.optimized.gltf",
+    folding: true, pricePending: true, accent: "#dbb680",
+    description: "Lama pieghevole e impugnatura a guancette separate. Pivot, cuscinetti, clip e viteria visibili nella vista esplosa.",
+    materialTitle: "Hyper", materialCopy: "",
+    materials: [{label:"Blade",value:"Folding blade",note:"Articulated pivot"},{label:"Handle",value:"Layered handle",note:"Exposed hardware"},{label:"Mechanism",value:"Folding blade",note:"Open / close"}],
+    stats: [],
+    finishes: [{name:"Original",note:"Original materials",color:"#b9bec1",price:0},{name:"Graphite",note:"Dark satin",color:"#303238",price:0},{name:"Champagne",note:"Warm satin",color:"#bda57f",price:0}],
   },
 ];

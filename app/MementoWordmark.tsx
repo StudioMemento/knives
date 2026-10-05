@@ -1,12 +1,13 @@
 type WordmarkProps = {
   className?: string;
+  monogram?: boolean;
 };
 
-export default function MementoWordmark({ className }: WordmarkProps) {
+export default function MementoWordmark({ className, monogram }: WordmarkProps) {
   return (
     <svg
       className={className}
-      viewBox="0 0 1600 100"
+      viewBox={monogram?"24 4 92 92":"0 0 1600 100"}
       role="img"
       aria-label="Memento Design Studio"
       preserveAspectRatio="xMidYMid meet"

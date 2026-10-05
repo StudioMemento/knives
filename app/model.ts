@@ -4,7 +4,7 @@ import {MATERIALS,type Configuration} from './configuration';
 export function canonicalMatrix(index:number){
  const m=new THREE.Matrix4();
  if(index===0)m.set(0,-1,0,0,0,0,1,0,-1,0,0,0,0,0,0,1);
- else if(index===1||index===2)m.makeRotationZ(-Math.PI/2);
+ else if(index===1||index===2||index===4)m.makeRotationZ(-Math.PI/2);
  else m.makeRotationZ(-.43).multiply(new THREE.Matrix4().makeRotationX(-Math.PI/2));
  return m;
 }
@@ -18,7 +18,7 @@ export function calibrateModel(source:THREE.Object3D,index:number){
  const rig=source.userData.mementoRig;
  // Gerber's authored open pose has its spine below its edge. Turn the real
  // geometry around its length, including the hinge axis; never mirror UVs.
- source.updateMatrixWorld(true);const frame=rig?(index===3?new THREE.Matrix4().makeRotationY(Math.PI):new THREE.Matrix4()):canonicalMatrix(index);const model=new THREE.Group();
+ source.updateMatrixWorld(true);const frame=rig?(index===3?new THREE.Matrix4().makeRotationY(Math.PI):index===4?canonicalMatrix(4):new THREE.Matrix4()):canonicalMatrix(index);const model=new THREE.Group();
  source.traverse(o=>{
   if(!(o instanceof THREE.Mesh))return;
   const geometry=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();
@@ -27,14 +27,34 @@ export function calibrateModel(source:THREE.Object3D,index:number){
   const a=geometry.attributes.position;const part=new Float32Array(a.count);const v=new THREE.Vector3(),vertex=new THREE.Vector3();
   for(let i=0;i<a.count;i+=3){v.set(0,0,0);for(let j=0;j<3;j++)v.add(vertex.fromBufferAttribute(a,i+j).applyMatrix4(o.matrixWorld));v.multiplyScalar(1/3);const region=rig?(o.userData.knifePart??0):surfacePart(index,o.name,v);part[i]=part[i+1]=part[i+2]=region;}
   geometry.setAttribute('knifePart',new THREE.BufferAttribute(part,1));
-  geometry.applyMatrix4(new THREE.Matrix4().multiplyMatrices(frame,o.matrixWorld));
+  const bakedMatrix=new THREE.Matrix4().multiplyMatrices(frame,o.matrixWorld);
+  // Preserve front-face winding when an authored component has negative scale.
+  if(bakedMatrix.determinant()<0)for(const attribute of Object.values(geometry.attributes) as THREE.BufferAttribute[]){
+   for(let i=0;i<attribute.count;i+=3)for(let component=0;component<attribute.itemSize;component++){
+    const a=attribute.getComponent(i+1,component),b=attribute.getComponent(i+2,component);
+    attribute.setComponent(i+1,component,b);attribute.setComponent(i+2,component,a);
+   }
+  }
+  geometry.applyMatrix4(bakedMatrix);
   const original=Array.isArray(o.material)?o.material:[o.material];const materials=original.map(m=>m.clone());
   const mesh=new THREE.Mesh(geometry,Array.isArray(o.material)?materials:materials[0]);mesh.name=o.name;mesh.userData={...o.userData,knifeSurface:true};model.add(mesh);
  });
  const box=new THREE.Box3().setFromObject(model);const center=box.getCenter(new THREE.Vector3());const size=box.getSize(new THREE.Vector3());const scale=4.5/size.y;
  const normalization=new THREE.Matrix4().makeScale(scale,scale,scale).multiply(new THREE.Matrix4().makeTranslation(-center.x,-center.y,-center.z));
  model.children.forEach(o=>{const mesh=o as THREE.Mesh;mesh.geometry.applyMatrix4(normalization);mesh.geometry.computeBoundingBox();mesh.geometry.computeBoundingSphere();});
+ // Component separation works in the calibrated frame and returns exactly to
+ // the original transform. UVs, vertices and the real hinge stay unchanged.
+ model.children.forEach((o,i)=>{
+  const mesh=o as THREE.Mesh,center=mesh.geometry.boundingBox!.getCenter(new THREE.Vector3());
+  const side=Math.abs(center.z)>.012?Math.sign(center.z):(i%2===0?1:-1);
+  mesh.userData.assemblyOffset=mesh.userData.movingBlade?new THREE.Vector3(0,.28,0):new THREE.Vector3(0,0,side*(.26+Math.min(.22,Math.abs(center.z))));
+ });
  model.userData.calibration={length:4.5,index};
+ const tip=new THREE.Vector3(0,-Infinity,0);
+ for(const child of model.children){const positions=(child as THREE.Mesh).geometry.attributes.position;
+  for(let i=0;i<positions.count;i++)if(positions.getY(i)>tip.y)tip.fromBufferAttribute(positions,i);
+ }
+ model.userData.tip=tip;
  if(rig)model.userData.rig={pivot:new THREE.Vector3(...rig.pivot as [number,number,number]).applyMatrix4(frame).applyMatrix4(normalization),axis:new THREE.Vector3(...rig.axis as [number,number,number]).transformDirection(frame),closedAngle:rig.closedAngle};
  return model;
 }
@@ -51,6 +71,17 @@ export function updateFold(model:THREE.Group,amount:number){
  if(!model.userData.rig)return;
  const pose=foldMatrix(model,amount);
  model.traverse(o=>{if(o instanceof THREE.Mesh&&o.userData.movingBlade){o.matrixAutoUpdate=false;o.matrix.copy(pose);o.matrixWorldNeedsUpdate=true;}});
+}
+export function updateAssembly(model:THREE.Group,fold:number,explosion:number){
+ const folded=foldMatrix(model,fold);
+ const separation=new THREE.Matrix4();
+ model.traverse(o=>{
+  if(!(o instanceof THREE.Mesh)||!o.userData.assemblyOffset)return;
+  const offset=o.userData.assemblyOffset as THREE.Vector3;
+  o.matrixAutoUpdate=false;o.matrix.copy(o.userData.movingBlade?folded:new THREE.Matrix4());
+  separation.makeTranslation(offset.x*explosion,offset.y*explosion,offset.z*explosion);
+  o.matrix.premultiply(separation);o.matrixWorldNeedsUpdate=true;
+ });
 }
 /** Snapshot the knife surfaces before decoration groups are attached to the scene. */
 export function getKnifeMeshes(model:THREE.Group):THREE.Mesh[]{

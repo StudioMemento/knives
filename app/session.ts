@@ -7,7 +7,7 @@ const vector=(x:unknown):x is [number,number,number]=>Array.isArray(x)&&x.length
 export function restoreConfiguration(value:unknown,index:number):Configuration {
  const result=originalConfiguration(index);if(!object(value))return result;
  if(Number.isInteger(value.preset)&&Number(value.preset)>=-1&&Number(value.preset)<3)result.preset=Number(value.preset);
- for(const part of ['blade','handle'] as const){const finish=value[part];if(object(finish)&&typeof finish.material==='string'&&Object.hasOwn(MATERIALS,finish.material)&&color(finish.color))result[part]={material:finish.material as Configuration['blade']['material'],color:finish.color};}
+ for(const part of ['blade','handle'] as const){const finish=value[part];if(object(finish)&&typeof finish.material==='string'&&Object.hasOwn(MATERIALS,finish.material)&&color(finish.color))result[part]={material:finish.material as Configuration['blade']['material'],color:finish.material==='original'?result[part].color:finish.color};}
  if(Array.isArray(value.decorations))for(const d of value.decorations.slice(0,8)){
   if(!object(d)||typeof d.id!=='string'||d.id.length>100||!['symbol','text'].includes(String(d.type))||typeof d.content!=='string'||d.content.length>28||!['stencil','sticker'].includes(String(d.treatment))||!color(d.color)||!['sans','serif','mono'].includes(String(d.font))||typeof d.width!=='number'||!Number.isFinite(d.width)||d.width<.15||d.width>2.5||typeof d.rotation!=='number'||!Number.isFinite(d.rotation)||Math.abs(d.rotation)>180)continue;
   if(d.type==='symbol'&&!STENCILS.includes(d.content))continue;
