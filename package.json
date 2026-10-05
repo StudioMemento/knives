@@ -1,12 +1,13 @@
 {
   "name": "knifeshowroom",
-  "version": "0.45.0",
+  "version": "0.45.1",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "next build",
     "start": "next start",
-    "dev": "next dev"
+    "dev": "next dev",
+    "prebuild": "node scripts/verify-assets.mjs"
   },
   "engines": {
     "node": ">=22.13.0"
