@@ -1,0 +1,7 @@
+{
+  "name": "memento-hyper-v48-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {"optimize": "node optimize.mjs", "verify": "node verify.mjs"},
+  "dependencies": {"meshoptimizer": "1.1.1", "three": "0.185.1"}
+}

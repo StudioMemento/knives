@@ -1,0 +1,49 @@
+{
+  "viewports": [
+    [
+      2752,
+      1008
+    ],
+    [
+      1363,
+      936
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "note": "Uses the production fitBoundsScale helper and real GLB hierarchy/animations. Projects all eight corners of every mesh bounding box in each tested pose.",
+  "models": [
+    {
+      "model": "HYPER",
+      "scenarios": 1296,
+      "projectedBoundsCorners": 539136,
+      "maxOverflow": 0
+    },
+    {
+      "model": "VERTEX",
+      "scenarios": 1296,
+      "projectedBoundsCorners": 134784,
+      "maxOverflow": 0
+    },
+    {
+      "model": "QUAD",
+      "scenarios": 1296,
+      "projectedBoundsCorners": 217728,
+      "maxOverflow": 0
+    },
+    {
+      "model": "EDGE",
+      "scenarios": 1296,
+      "projectedBoundsCorners": 155520,
+      "maxOverflow": 0
+    },
+    {
+      "model": "TRIS",
+      "scenarios": 1296,
+      "projectedBoundsCorners": 673920,
+      "maxOverflow": 0
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "clipPixelsIdentical": true,
+  "overallMeanAbsoluteRGB255": 0.001813888888888889,
+  "overallChangedPixelsPct": 0.09027777777777778,
+  "overallPixelsDeltaAbove10Pct": 0.0030555555555555553,
+  "renderEngine": "Blender Cycles CPU, 64 samples, no denoising",
+  "resolutionOverall": [
+    1200,
+    600
+  ],
+  "resolutionClip": [
+    1200,
+    480
+  ],
+  "note": "Same camera/materials/light/seed. CPU render is asset evidence, not a live-browser performance measurement."
+}

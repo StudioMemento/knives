@@ -1,0 +1,477 @@
+{
+  "id": "VERTEX",
+  "url": "/models/v46/vertex.glb",
+  "sourceFilename": "VERTEX.fbx",
+  "sourceBytes": 1944460,
+  "sourceSha256": "0dedc02cee6a00c5450fbeaec0d91305ec1ffbec81f629e9cf5290df9dea1022",
+  "outputBytes": 590548,
+  "meshCount": 13,
+  "trianglesBefore": 16561,
+  "triangles": 16561,
+  "bounds": {
+    "min": [
+      -0.127831664,
+      -0.027128876,
+      -0.008922562
+    ],
+    "max": [
+      0.122168344,
+      0.015405728,
+      0.009479528
+    ],
+    "center": [
+      -0.00283166,
+      -0.005861574,
+      0.000278483
+    ],
+    "size": [
+      0.250000007,
+      0.042534605,
+      0.01840209
+    ]
+  },
+  "coordinateSystem": {
+    "tip": "+X",
+    "spine": "+Y",
+    "thickness": "Z",
+    "nominalLengthM": 0.25
+  },
+  "hinge": {
+    "name": "VERTEX__BLADE_HINGE",
+    "position": [
+      0,
+      0,
+      0
+    ]
+  },
+  "materialNames": [
+    "VERTEX__HARDWARE",
+    "VERTEX__HANDLE",
+    "VERTEX__BLADE"
+  ],
+  "motion": {
+    "openCloseClip": "VERTEX__OPEN_CLOSE_QA_FAILED",
+    "openTime": 0,
+    "closedTime": 6,
+    "reopenedTime": 12,
+    "explodeClip": "VERTEX__EXPLODE_QA_FAILED",
+    "explodePeakTime": 5.2,
+    "explodeDuration": 10.399999618530273,
+    "combinedClip": "VERTEX__COMBINED_QA_FAILED"
+  },
+  "sourceMotionQA": "source_motion_qa_failed",
+  "sourceLimitations": [
+    "Source reports component intersections during closure and explosion path."
+  ],
+  "derivativeNotes": [
+    "Geometry indexed/welded only; source triangles retained.",
+    "This conversion does not repair source motion intersections."
+  ],
+  "clips": [
+    {
+      "name": "VERTEX__COMBINED_QA_FAILED",
+      "duration": 16,
+      "tracks": 18,
+      "keys": 1330,
+      "originalKeys": 8658
+    },
+    {
+      "name": "VERTEX__EXPLODE_QA_FAILED",
+      "duration": 10.399999618530273,
+      "tracks": 13,
+      "keys": 256,
+      "originalKeys": 4069
+    },
+    {
+      "name": "VERTEX__OPEN_CLOSE_QA_FAILED",
+      "duration": 12,
+      "tracks": 5,
+      "keys": 1141,
+      "originalKeys": 1805
+    }
+  ],
+  "animationReductionValidation": {
+    "maxPositionErrorM": 1.4901161193847656e-8,
+    "maxAngularErrorRad": 0.0000011301329866563555
+  },
+  "roundTripValidation": {
+    "maxNodePositionErrorM": 0,
+    "maxMatrixElementError": 0,
+    "samples": [
+      {
+        "openTime": 0,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.027128876,
+            -0.008922562
+          ],
+          "max": [
+            0.122168344,
+            0.015405728,
+            0.009479528
+          ],
+          "center": [
+            -0.00283166,
+            -0.005861574,
+            0.000278483
+          ],
+          "size": [
+            0.250000007,
+            0.042534605,
+            0.01840209
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.029222958,
+            -0.008922559
+          ],
+          "max": [
+            0.014615474,
+            0.015405728,
+            0.009479528
+          ],
+          "center": [
+            -0.056608095,
+            -0.006908615,
+            0.000278485
+          ],
+          "size": [
+            0.142447138,
+            0.044628686,
+            0.018402087
+          ]
+        }
+      },
+      {
+        "openTime": 12,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.027128876,
+            -0.008922562
+          ],
+          "max": [
+            0.122168344,
+            0.015405728,
+            0.009479528
+          ],
+          "center": [
+            -0.00283166,
+            -0.005861574,
+            0.000278483
+          ],
+          "size": [
+            0.250000007,
+            0.042534605,
+            0.01840209
+          ]
+        }
+      },
+      {
+        "openTime": 0,
+        "explodeTime": 5.2,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.027128887,
+            -0.146590143
+          ],
+          "max": [
+            0.177168317,
+            0.015405739,
+            0.166030673
+          ],
+          "center": [
+            0.024668327,
+            -0.005861574,
+            0.009720265
+          ],
+          "size": [
+            0.304999981,
+            0.042534626,
+            0.312620816
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 5.2,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.029222958,
+            -0.146590143
+          ],
+          "max": [
+            0.061868182,
+            0.015405739,
+            0.166030673
+          ],
+          "center": [
+            -0.032981741,
+            -0.006908609,
+            0.009720265
+          ],
+          "size": [
+            0.189699845,
+            0.044628697,
+            0.312620816
+          ]
+        }
+      },
+      {
+        "openTime": 3,
+        "explodeTime": 2.6,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127831664,
+            -0.12288532,
+            -0.146590143
+          ],
+          "max": [
+            0.021092673,
+            0.015405728,
+            0.166030673
+          ],
+          "center": [
+            -0.053369496,
+            -0.053739796,
+            0.009720265
+          ],
+          "size": [
+            0.148924336,
+            0.138291049,
+            0.312620816
+          ]
+        }
+      }
+    ]
+  },
+  "parts": [
+    {
+      "name": "VERTEX__clip_screw_01__low",
+      "role": "metals",
+      "trianglesBefore": 548,
+      "triangles": 548,
+      "vertices": 394,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__stop_pin__low",
+      "role": "metals",
+      "trianglesBefore": 284,
+      "triangles": 284,
+      "vertices": 242,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__handle_R__low",
+      "role": "handle",
+      "trianglesBefore": 4872,
+      "triangles": 4872,
+      "vertices": 3382,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__clip_screw_02__low",
+      "role": "metals",
+      "trianglesBefore": 548,
+      "triangles": 548,
+      "vertices": 396,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__handle_pin_02__low",
+      "role": "metals",
+      "trianglesBefore": 958,
+      "triangles": 958,
+      "vertices": 793,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__thumb_stud__low",
+      "role": "metals",
+      "trianglesBefore": 636,
+      "triangles": 636,
+      "vertices": 490,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__blade__low",
+      "role": "blade",
+      "trianglesBefore": 340,
+      "triangles": 340,
+      "vertices": 439,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__handle_pin_03__low",
+      "role": "metals",
+      "trianglesBefore": 958,
+      "triangles": 958,
+      "vertices": 793,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__pivot_L__low",
+      "role": "metals",
+      "trianglesBefore": 234,
+      "triangles": 234,
+      "vertices": 154,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__pivot_R__low",
+      "role": "metals",
+      "trianglesBefore": 768,
+      "triangles": 768,
+      "vertices": 754,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__clip__low",
+      "role": "metals",
+      "trianglesBefore": 419,
+      "triangles": 419,
+      "vertices": 320,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__handle_pin_01__low",
+      "role": "metals",
+      "trianglesBefore": 958,
+      "triangles": 958,
+      "vertices": 793,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "VERTEX__handle_L__low",
+      "role": "handle",
+      "trianglesBefore": 5038,
+      "triangles": 5038,
+      "vertices": 3551,
+      "relativeSimplificationError": 0
+    }
+  ],
+  "roleBounds": {
+    "blade": {
+      "min": [
+        -0.005180539330467582,
+        -0.014742096994974533,
+        -0.0029007859394355557
+      ],
+      "max": [
+        0.12216834351420403,
+        0.012865960154252364,
+        0.0012685541604089152
+      ],
+      "center": [
+        0.05849390209186822,
+        -0.0009380684203610847,
+        -0.0008161158895133203
+      ],
+      "size": [
+        0.1273488828446716,
+        0.027608057149226897,
+        0.004169340099844471
+      ]
+    },
+    "handle": {
+      "min": [
+        -0.12783166393637657,
+        -0.027128876011598056,
+        -0.006827454411098437
+      ],
+      "max": [
+        0.01461547426879406,
+        0.015405728127240628,
+        0.005405167069957573
+      ],
+      "center": [
+        -0.056608094833791256,
+        -0.005861573942178714,
+        -0.0007111436705704317
+      ],
+      "size": [
+        0.14244713820517063,
+        0.04253460413883868,
+        0.01223262148105601
+      ]
+    },
+    "metals": {
+      "min": [
+        -0.12353348731994628,
+        -0.017016570830623266,
+        -0.008922561615596866
+      ],
+      "max": [
+        0.02003007009625435,
+        0.013305306236433782,
+        0.009479526606247127
+      ],
+      "center": [
+        -0.05175170861184596,
+        -0.0018556322970947423,
+        0.0002784824953251308
+      ],
+      "size": [
+        0.14356355741620064,
+        0.030321877067057048,
+        0.01840208822184399
+      ]
+    }
+  },
+  "focusPoints": {
+    "assembled": [
+      -0.00283166,
+      -0.005861574,
+      0.000278483
+    ],
+    "blade": [
+      0.05849390209186822,
+      -0.0009380684203610847,
+      -0.0008161158895133203
+    ],
+    "handle": [
+      -0.056608094833791256,
+      -0.005861573942178714,
+      -0.0007111436705704317
+    ],
+    "metals": [
+      0,
+      0,
+      0
+    ]
+  },
+  "bufferValidation": {
+    "id": "vertex",
+    "meshes": 13,
+    "triangles": 16561,
+    "vertices": 12501,
+    "normalLengthMin": 0.999999960023036,
+    "normalLengthMax": 1.0000000390176869,
+    "finite": true,
+    "indexRangesValid": true,
+    "positiveDeterminants": true,
+    "materials": [
+      "VERTEX__HARDWARE",
+      "VERTEX__HANDLE",
+      "VERTEX__BLADE"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "cases": 600,
+  "maxRailError": 8.95090418262362e-16,
+  "legacyError": 4.249453162296738,
+  "holdSeconds": 7.4,
+  "turnRadians": 6.283185307179586,
+  "wheelGestureMoves": 1
+}

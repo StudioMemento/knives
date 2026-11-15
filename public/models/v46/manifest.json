@@ -1,0 +1,3198 @@
+{
+  "version": 46,
+  "generatedAt": "2026-11-08T15:50:39.449Z",
+  "models": [
+    {
+      "id": "HYPER",
+      "url": "/models/v46/hyper.glb",
+      "sourceFilename": "HYPER(1).fbx",
+      "sourceBytes": 85144764,
+      "sourceSha256": "4989f059b0a988e08d34569a152bd7179102f53766325fced3f233631417c9ce",
+      "outputBytes": 5142168,
+      "meshCount": 52,
+      "trianglesBefore": 1124760,
+      "triangles": 163776,
+      "bounds": {
+        "min": [
+          -0.129725426,
+          -0.01611866,
+          -0.007105117
+        ],
+        "max": [
+          0.12027458,
+          0.016118289,
+          0.008553683
+        ],
+        "center": [
+          -0.004725423,
+          -1.86e-7,
+          0.000724283
+        ],
+        "size": [
+          0.250000006,
+          0.032236949,
+          0.0156588
+        ]
+      },
+      "coordinateSystem": {
+        "tip": "+X",
+        "spine": "+Y",
+        "thickness": "Z",
+        "nominalLengthM": 0.25
+      },
+      "hinge": {
+        "name": "HYPER__BLADE_HINGE",
+        "position": [
+          -1e-9,
+          9e-9,
+          0
+        ]
+      },
+      "materialNames": [
+        "HYPER__HARDWARE",
+        "HYPER__HANDLE",
+        "HYPER__BLADE"
+      ],
+      "motion": {
+        "openCloseClip": "HYPER__OPEN_CLOSE",
+        "openTime": 0,
+        "closedTime": 6,
+        "reopenedTime": 12,
+        "explodeClip": "HYPER__EXPLODE",
+        "explodePeakTime": 10.4,
+        "explodeDuration": 20.799999237060547,
+        "combinedClip": "HYPER__COMBINED"
+      },
+      "sourceMotionQA": "source_motion_pass",
+      "sourceLimitations": [],
+      "derivativeNotes": [
+        "Hardware geometry simplified with meshoptimizer; blade and handle triangle topology retained.",
+        "All moving parts, named hierarchy, UVs, normals and independent motion channels retained.",
+        "This web derivative does not re-certify collision clearance."
+      ],
+      "clips": [
+        {
+          "name": "HYPER__OPEN_CLOSE",
+          "duration": 12,
+          "tracks": 3,
+          "keys": 585,
+          "originalKeys": 1083
+        },
+        {
+          "name": "HYPER__EXPLODE",
+          "duration": 20.799999237060547,
+          "tracks": 52,
+          "keys": 1295,
+          "originalKeys": 32500
+        },
+        {
+          "name": "HYPER__COMBINED",
+          "duration": 16,
+          "tracks": 55,
+          "keys": 1348,
+          "originalKeys": 26455
+        }
+      ],
+      "animationReductionValidation": {
+        "maxPositionErrorM": 1.1175870895385742e-8,
+        "maxAngularErrorRad": 0.0000010237433932613048
+      },
+      "roundTripValidation": {
+        "maxNodePositionErrorM": 0,
+        "maxMatrixElementError": 0,
+        "samples": [
+          {
+            "openTime": 0,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.129725084,
+                -0.01611866,
+                -0.007105117
+              ],
+              "max": [
+                0.12027458,
+                0.016118289,
+                0.008553683
+              ],
+              "center": [
+                -0.004725252,
+                -1.86e-7,
+                0.000724283
+              ],
+              "size": [
+                0.249999664,
+                0.032236949,
+                0.0156588
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.129725084,
+                -0.016124111,
+                -0.007105117
+              ],
+              "max": [
+                0.013374098,
+                0.016169027,
+                0.008553683
+              ],
+              "center": [
+                -0.058175493,
+                0.000022458,
+                0.000724283
+              ],
+              "size": [
+                0.143099182,
+                0.032293138,
+                0.0156588
+              ]
+            }
+          },
+          {
+            "openTime": 12,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.129725084,
+                -0.01611866,
+                -0.007105117
+              ],
+              "max": [
+                0.12027458,
+                0.016118289,
+                0.008553683
+              ],
+              "center": [
+                -0.004725252,
+                -1.86e-7,
+                0.000724283
+              ],
+              "size": [
+                0.249999664,
+                0.032236949,
+                0.0156588
+              ]
+            }
+          },
+          {
+            "openTime": 0,
+            "explodeTime": 10.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.184725083,
+                -0.054648351,
+                -0.137105112
+              ],
+              "max": [
+                0.175274527,
+                0.071116504,
+                0.137165381
+              ],
+              "center": [
+                -0.004725278,
+                0.008234076,
+                0.000030135
+              ],
+              "size": [
+                0.359999611,
+                0.125764855,
+                0.274270494
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 10.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.184725083,
+                -0.054648351,
+                -0.137105112
+              ],
+              "max": [
+                0.068374056,
+                0.071116504,
+                0.137165381
+              ],
+              "center": [
+                -0.058175514,
+                0.008234076,
+                0.000030135
+              ],
+              "size": [
+                0.25309914,
+                0.125764855,
+                0.274270494
+              ]
+            }
+          },
+          {
+            "openTime": 3,
+            "explodeTime": 5.2,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.184725083,
+                -0.120278077,
+                -0.137105112
+              ],
+              "max": [
+                0.016121192,
+                0.016116504,
+                0.137165381
+              ],
+              "center": [
+                -0.084301946,
+                -0.052080786,
+                0.000030135
+              ],
+              "size": [
+                0.200846275,
+                0.136394581,
+                0.274270494
+              ]
+            }
+          }
+        ]
+      },
+      "parts": [
+        {
+          "name": "HYPER__ball_L_06__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 542,
+          "vertices": 296,
+          "relativeSimplificationError": 0.007730240933597088
+        },
+        {
+          "name": "HYPER__screw_04__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4672,
+          "vertices": 3197,
+          "relativeSimplificationError": 0.0019994163885712624
+        },
+        {
+          "name": "HYPER__ball_L_08__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 538,
+          "vertices": 297,
+          "relativeSimplificationError": 0.007983853109180927
+        },
+        {
+          "name": "HYPER__joint_04__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6422,
+          "vertices": 3558,
+          "relativeSimplificationError": 0.001995650352910161
+        },
+        {
+          "name": "HYPER__joint_05__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6390,
+          "vertices": 3502,
+          "relativeSimplificationError": 0.0019901415798813105
+        },
+        {
+          "name": "HYPER__ball_L_10__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 544,
+          "vertices": 298,
+          "relativeSimplificationError": 0.007739695254713297
+        },
+        {
+          "name": "HYPER__handle_R__low",
+          "role": "handle",
+          "trianglesBefore": 14906,
+          "triangles": 14906,
+          "vertices": 15162,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "HYPER__ball_R_01__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 522,
+          "vertices": 288,
+          "relativeSimplificationError": 0.007978410460054874
+        },
+        {
+          "name": "HYPER__screw_01__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4630,
+          "vertices": 3190,
+          "relativeSimplificationError": 0.001993929734453559
+        },
+        {
+          "name": "HYPER__screw_05__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4646,
+          "vertices": 3184,
+          "relativeSimplificationError": 0.0019862554036080837
+        },
+        {
+          "name": "HYPER__thrust_R__low",
+          "role": "metals",
+          "trianglesBefore": 6912,
+          "triangles": 1500,
+          "vertices": 971,
+          "relativeSimplificationError": 0.001726598828099668
+        },
+        {
+          "name": "HYPER__ball_R_11__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 542,
+          "vertices": 298,
+          "relativeSimplificationError": 0.007882009260356426
+        },
+        {
+          "name": "HYPER__ball_L_04__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 546,
+          "vertices": 299,
+          "relativeSimplificationError": 0.007830927148461342
+        },
+        {
+          "name": "HYPER__ball_L_01__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 510,
+          "vertices": 281,
+          "relativeSimplificationError": 0.007989811711013317
+        },
+        {
+          "name": "HYPER__spacer_front__low",
+          "role": "metals",
+          "trianglesBefore": 44896,
+          "triangles": 1500,
+          "vertices": 1076,
+          "relativeSimplificationError": 0.00037554180016741157
+        },
+        {
+          "name": "HYPER__ball_R_04__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 534,
+          "vertices": 294,
+          "relativeSimplificationError": 0.007783283945173025
+        },
+        {
+          "name": "HYPER__ball_R_02__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 544,
+          "vertices": 300,
+          "relativeSimplificationError": 0.007815873250365257
+        },
+        {
+          "name": "HYPER__ball_L_03__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 534,
+          "vertices": 295,
+          "relativeSimplificationError": 0.00798463448882103
+        },
+        {
+          "name": "HYPER__ball_L_02__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 514,
+          "vertices": 284,
+          "relativeSimplificationError": 0.00798693299293518
+        },
+        {
+          "name": "HYPER__ball_R_12__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 792,
+          "vertices": 854,
+          "relativeSimplificationError": 0.007986198179423809
+        },
+        {
+          "name": "HYPER__pivot_R__low",
+          "role": "metals",
+          "trianglesBefore": 21248,
+          "triangles": 2500,
+          "vertices": 1788,
+          "relativeSimplificationError": 0.0018420758424326777
+        },
+        {
+          "name": "HYPER__ball_L_05__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 530,
+          "vertices": 292,
+          "relativeSimplificationError": 0.007987793534994125
+        },
+        {
+          "name": "HYPER__ball_L_07__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 538,
+          "vertices": 328,
+          "relativeSimplificationError": 0.007985410280525684
+        },
+        {
+          "name": "HYPER__ball_R_10__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 530,
+          "vertices": 291,
+          "relativeSimplificationError": 0.007853930816054344
+        },
+        {
+          "name": "HYPER__ball_R_06__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 546,
+          "vertices": 299,
+          "relativeSimplificationError": 0.007774581201374531
+        },
+        {
+          "name": "HYPER__spacer_rear__low",
+          "role": "metals",
+          "trianglesBefore": 46944,
+          "triangles": 1500,
+          "vertices": 1143,
+          "relativeSimplificationError": 0.0018244371749460697
+        },
+        {
+          "name": "HYPER__blade__low",
+          "role": "blade",
+          "trianglesBefore": 10218,
+          "triangles": 10218,
+          "vertices": 9946,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "HYPER__joint_06__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6732,
+          "vertices": 4403,
+          "relativeSimplificationError": 0.0019979923963546753
+        },
+        {
+          "name": "HYPER__screw_06__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4638,
+          "vertices": 3231,
+          "relativeSimplificationError": 0.001999182626605034
+        },
+        {
+          "name": "HYPER__ball_R_05__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 520,
+          "vertices": 285,
+          "relativeSimplificationError": 0.007986951619386673
+        },
+        {
+          "name": "HYPER__ball_L_11__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 520,
+          "vertices": 286,
+          "relativeSimplificationError": 0.007986935786902905
+        },
+        {
+          "name": "HYPER__tail_spacer__low",
+          "role": "metals",
+          "trianglesBefore": 33844,
+          "triangles": 1500,
+          "vertices": 1707,
+          "relativeSimplificationError": 0.0016440560575574636
+        },
+        {
+          "name": "HYPER__bearing_R__low",
+          "role": "metals",
+          "trianglesBefore": 46080,
+          "triangles": 5530,
+          "vertices": 3554,
+          "relativeSimplificationError": 0.0019788844510912895
+        },
+        {
+          "name": "HYPER__clip_screw__low",
+          "role": "metals",
+          "trianglesBefore": 74832,
+          "triangles": 2720,
+          "vertices": 1538,
+          "relativeSimplificationError": 0.001992433099076152
+        },
+        {
+          "name": "HYPER__ball_R_09__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 534,
+          "vertices": 293,
+          "relativeSimplificationError": 0.00797603651881218
+        },
+        {
+          "name": "HYPER__clip__low",
+          "role": "metals",
+          "trianglesBefore": 112848,
+          "triangles": 4500,
+          "vertices": 6824,
+          "relativeSimplificationError": 0.0006116422009654343
+        },
+        {
+          "name": "HYPER__screw_02__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4660,
+          "vertices": 3194,
+          "relativeSimplificationError": 0.0019857962615787983
+        },
+        {
+          "name": "HYPER__pivot_L__low",
+          "role": "metals",
+          "trianglesBefore": 21248,
+          "triangles": 2500,
+          "vertices": 1805,
+          "relativeSimplificationError": 0.0019436944276094437
+        },
+        {
+          "name": "HYPER__handle_L__low",
+          "role": "handle",
+          "trianglesBefore": 21304,
+          "triangles": 21304,
+          "vertices": 20825,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "HYPER__ball_L_09__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 530,
+          "vertices": 292,
+          "relativeSimplificationError": 0.007983913645148277
+        },
+        {
+          "name": "HYPER__screw_03__low",
+          "role": "metals",
+          "trianglesBefore": 53284,
+          "triangles": 4630,
+          "vertices": 3186,
+          "relativeSimplificationError": 0.0019975786563009024
+        },
+        {
+          "name": "HYPER__joint_01__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6622,
+          "vertices": 3611,
+          "relativeSimplificationError": 0.001952165039256215
+        },
+        {
+          "name": "HYPER__thrust_L__low",
+          "role": "metals",
+          "trianglesBefore": 6912,
+          "triangles": 1500,
+          "vertices": 971,
+          "relativeSimplificationError": 0.0017318145837634802
+        },
+        {
+          "name": "HYPER__ball_L_12__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 536,
+          "vertices": 294,
+          "relativeSimplificationError": 0.007939472794532776
+        },
+        {
+          "name": "HYPER__joint_03__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6622,
+          "vertices": 3660,
+          "relativeSimplificationError": 0.0019851902034133673
+        },
+        {
+          "name": "HYPER__joint_02__low",
+          "role": "metals",
+          "trianglesBefore": 23334,
+          "triangles": 6658,
+          "vertices": 3912,
+          "relativeSimplificationError": 0.001997132785618305
+        },
+        {
+          "name": "HYPER__ball_R_03__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 546,
+          "vertices": 299,
+          "relativeSimplificationError": 0.007978394627571106
+        },
+        {
+          "name": "HYPER__stop_pin__low",
+          "role": "metals",
+          "trianglesBefore": 6784,
+          "triangles": 1500,
+          "vertices": 961,
+          "relativeSimplificationError": 0.00046277118963189423
+        },
+        {
+          "name": "HYPER__ball_R_07__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 534,
+          "vertices": 293,
+          "relativeSimplificationError": 0.007980030961334705
+        },
+        {
+          "name": "HYPER__bearing_L__low",
+          "role": "metals",
+          "trianglesBefore": 46332,
+          "triangles": 5714,
+          "vertices": 3774,
+          "relativeSimplificationError": 0.001998576335608959
+        },
+        {
+          "name": "HYPER__tail_insert__low",
+          "role": "metals",
+          "trianglesBefore": 74864,
+          "triangles": 4500,
+          "vertices": 3058,
+          "relativeSimplificationError": 0.0015048289205878973
+        },
+        {
+          "name": "HYPER__ball_R_08__low",
+          "role": "metals",
+          "trianglesBefore": 3120,
+          "triangles": 536,
+          "vertices": 295,
+          "relativeSimplificationError": 0.007791380397975445
+        }
+      ],
+      "roleBounds": {
+        "blade": {
+          "min": [
+            -0.013367058872287396,
+            -0.016116474023787394,
+            -0.0026403899586925554
+          ],
+          "max": [
+            0.12027457992076385,
+            0.016118288372708855,
+            0.0026403878533608517
+          ],
+          "center": [
+            0.053453760524238225,
+            9.071744607302284e-7,
+            -1.052665851838594e-9
+          ],
+          "size": [
+            0.13364163879305124,
+            0.03223476239649625,
+            0.0052807778120534075
+          ]
+        },
+        "handle": {
+          "min": [
+            -0.12969809770584106,
+            -0.016118659883015987,
+            -0.006859944805253783
+          ],
+          "max": [
+            0.013364226557314396,
+            0.01611643236738041,
+            0.00697507414466677
+          ],
+          "center": [
+            -0.058166935574263334,
+            -0.0000011137578177881913,
+            0.000057564669706493786
+          ],
+          "size": [
+            0.14306232426315546,
+            0.0322350922503964,
+            0.013835018949920553
+          ]
+        },
+        "metals": {
+          "min": [
+            -0.12972508370876312,
+            -0.01611520841919524,
+            -0.007105116935619804
+          ],
+          "max": [
+            0.006602001376450062,
+            0.016116504041705348,
+            0.008553682134792785
+          ],
+          "center": [
+            -0.06156154116615653,
+            6.478112550539067e-7,
+            0.0007242825995864904
+          ],
+          "size": [
+            0.13632708508521318,
+            0.03223171246090059,
+            0.015658799070412587
+          ]
+        }
+      },
+      "focusPoints": {
+        "assembled": [
+          -0.004725423,
+          -1.86e-7,
+          0.000724283
+        ],
+        "blade": [
+          0.053453760524238225,
+          9.071744607302284e-7,
+          -1.052665851838594e-9
+        ],
+        "handle": [
+          -0.058166935574263334,
+          -0.0000011137578177881913,
+          0.000057564669706493786
+        ],
+        "metals": [
+          -1e-9,
+          9e-9,
+          0
+        ]
+      },
+      "bufferValidation": {
+        "id": "hyper",
+        "meshes": 52,
+        "triangles": 163776,
+        "vertices": 124562,
+        "normalLengthMin": 0.9999999495326529,
+        "normalLengthMax": 1.0000000510781093,
+        "finite": true,
+        "indexRangesValid": true,
+        "positiveDeterminants": true,
+        "materials": [
+          "HYPER__HARDWARE",
+          "HYPER__HANDLE",
+          "HYPER__BLADE"
+        ]
+      }
+    },
+    {
+      "id": "VERTEX",
+      "url": "/models/v46/vertex.glb",
+      "sourceFilename": "VERTEX.fbx",
+      "sourceBytes": 1944460,
+      "sourceSha256": "0dedc02cee6a00c5450fbeaec0d91305ec1ffbec81f629e9cf5290df9dea1022",
+      "outputBytes": 590548,
+      "meshCount": 13,
+      "trianglesBefore": 16561,
+      "triangles": 16561,
+      "bounds": {
+        "min": [
+          -0.127831664,
+          -0.027128876,
+          -0.008922562
+        ],
+        "max": [
+          0.122168344,
+          0.015405728,
+          0.009479528
+        ],
+        "center": [
+          -0.00283166,
+          -0.005861574,
+          0.000278483
+        ],
+        "size": [
+          0.250000007,
+          0.042534605,
+          0.01840209
+        ]
+      },
+      "coordinateSystem": {
+        "tip": "+X",
+        "spine": "+Y",
+        "thickness": "Z",
+        "nominalLengthM": 0.25
+      },
+      "hinge": {
+        "name": "VERTEX__BLADE_HINGE",
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialNames": [
+        "VERTEX__HARDWARE",
+        "VERTEX__HANDLE",
+        "VERTEX__BLADE"
+      ],
+      "motion": {
+        "openCloseClip": "VERTEX__OPEN_CLOSE_QA_FAILED",
+        "openTime": 0,
+        "closedTime": 6,
+        "reopenedTime": 12,
+        "explodeClip": "VERTEX__EXPLODE_QA_FAILED",
+        "explodePeakTime": 5.2,
+        "explodeDuration": 10.399999618530273,
+        "combinedClip": "VERTEX__COMBINED_QA_FAILED"
+      },
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceLimitations": [
+        "Source reports component intersections during closure and explosion path."
+      ],
+      "derivativeNotes": [
+        "Geometry indexed/welded only; source triangles retained.",
+        "This conversion does not repair source motion intersections."
+      ],
+      "clips": [
+        {
+          "name": "VERTEX__COMBINED_QA_FAILED",
+          "duration": 16,
+          "tracks": 18,
+          "keys": 1330,
+          "originalKeys": 8658
+        },
+        {
+          "name": "VERTEX__EXPLODE_QA_FAILED",
+          "duration": 10.399999618530273,
+          "tracks": 13,
+          "keys": 256,
+          "originalKeys": 4069
+        },
+        {
+          "name": "VERTEX__OPEN_CLOSE_QA_FAILED",
+          "duration": 12,
+          "tracks": 5,
+          "keys": 1141,
+          "originalKeys": 1805
+        }
+      ],
+      "animationReductionValidation": {
+        "maxPositionErrorM": 1.4901161193847656e-8,
+        "maxAngularErrorRad": 0.0000011301329866563555
+      },
+      "roundTripValidation": {
+        "maxNodePositionErrorM": 0,
+        "maxMatrixElementError": 0,
+        "samples": [
+          {
+            "openTime": 0,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.027128876,
+                -0.008922562
+              ],
+              "max": [
+                0.122168344,
+                0.015405728,
+                0.009479528
+              ],
+              "center": [
+                -0.00283166,
+                -0.005861574,
+                0.000278483
+              ],
+              "size": [
+                0.250000007,
+                0.042534605,
+                0.01840209
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.029222958,
+                -0.008922559
+              ],
+              "max": [
+                0.014615474,
+                0.015405728,
+                0.009479528
+              ],
+              "center": [
+                -0.056608095,
+                -0.006908615,
+                0.000278485
+              ],
+              "size": [
+                0.142447138,
+                0.044628686,
+                0.018402087
+              ]
+            }
+          },
+          {
+            "openTime": 12,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.027128876,
+                -0.008922562
+              ],
+              "max": [
+                0.122168344,
+                0.015405728,
+                0.009479528
+              ],
+              "center": [
+                -0.00283166,
+                -0.005861574,
+                0.000278483
+              ],
+              "size": [
+                0.250000007,
+                0.042534605,
+                0.01840209
+              ]
+            }
+          },
+          {
+            "openTime": 0,
+            "explodeTime": 5.2,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.027128887,
+                -0.146590143
+              ],
+              "max": [
+                0.177168317,
+                0.015405739,
+                0.166030673
+              ],
+              "center": [
+                0.024668327,
+                -0.005861574,
+                0.009720265
+              ],
+              "size": [
+                0.304999981,
+                0.042534626,
+                0.312620816
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 5.2,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.029222958,
+                -0.146590143
+              ],
+              "max": [
+                0.061868182,
+                0.015405739,
+                0.166030673
+              ],
+              "center": [
+                -0.032981741,
+                -0.006908609,
+                0.009720265
+              ],
+              "size": [
+                0.189699845,
+                0.044628697,
+                0.312620816
+              ]
+            }
+          },
+          {
+            "openTime": 3,
+            "explodeTime": 2.6,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127831664,
+                -0.12288532,
+                -0.146590143
+              ],
+              "max": [
+                0.021092673,
+                0.015405728,
+                0.166030673
+              ],
+              "center": [
+                -0.053369496,
+                -0.053739796,
+                0.009720265
+              ],
+              "size": [
+                0.148924336,
+                0.138291049,
+                0.312620816
+              ]
+            }
+          }
+        ]
+      },
+      "parts": [
+        {
+          "name": "VERTEX__clip_screw_01__low",
+          "role": "metals",
+          "trianglesBefore": 548,
+          "triangles": 548,
+          "vertices": 394,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__stop_pin__low",
+          "role": "metals",
+          "trianglesBefore": 284,
+          "triangles": 284,
+          "vertices": 242,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__handle_R__low",
+          "role": "handle",
+          "trianglesBefore": 4872,
+          "triangles": 4872,
+          "vertices": 3382,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__clip_screw_02__low",
+          "role": "metals",
+          "trianglesBefore": 548,
+          "triangles": 548,
+          "vertices": 396,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__handle_pin_02__low",
+          "role": "metals",
+          "trianglesBefore": 958,
+          "triangles": 958,
+          "vertices": 793,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__thumb_stud__low",
+          "role": "metals",
+          "trianglesBefore": 636,
+          "triangles": 636,
+          "vertices": 490,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__blade__low",
+          "role": "blade",
+          "trianglesBefore": 340,
+          "triangles": 340,
+          "vertices": 439,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__handle_pin_03__low",
+          "role": "metals",
+          "trianglesBefore": 958,
+          "triangles": 958,
+          "vertices": 793,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__pivot_L__low",
+          "role": "metals",
+          "trianglesBefore": 234,
+          "triangles": 234,
+          "vertices": 154,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__pivot_R__low",
+          "role": "metals",
+          "trianglesBefore": 768,
+          "triangles": 768,
+          "vertices": 754,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__clip__low",
+          "role": "metals",
+          "trianglesBefore": 419,
+          "triangles": 419,
+          "vertices": 320,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__handle_pin_01__low",
+          "role": "metals",
+          "trianglesBefore": 958,
+          "triangles": 958,
+          "vertices": 793,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "VERTEX__handle_L__low",
+          "role": "handle",
+          "trianglesBefore": 5038,
+          "triangles": 5038,
+          "vertices": 3551,
+          "relativeSimplificationError": 0
+        }
+      ],
+      "roleBounds": {
+        "blade": {
+          "min": [
+            -0.005180539330467582,
+            -0.014742096994974533,
+            -0.0029007859394355557
+          ],
+          "max": [
+            0.12216834351420403,
+            0.012865960154252364,
+            0.0012685541604089152
+          ],
+          "center": [
+            0.05849390209186822,
+            -0.0009380684203610847,
+            -0.0008161158895133203
+          ],
+          "size": [
+            0.1273488828446716,
+            0.027608057149226897,
+            0.004169340099844471
+          ]
+        },
+        "handle": {
+          "min": [
+            -0.12783166393637657,
+            -0.027128876011598056,
+            -0.006827454411098437
+          ],
+          "max": [
+            0.01461547426879406,
+            0.015405728127240628,
+            0.005405167069957573
+          ],
+          "center": [
+            -0.056608094833791256,
+            -0.005861573942178714,
+            -0.0007111436705704317
+          ],
+          "size": [
+            0.14244713820517063,
+            0.04253460413883868,
+            0.01223262148105601
+          ]
+        },
+        "metals": {
+          "min": [
+            -0.12353348731994628,
+            -0.017016570830623266,
+            -0.008922561615596866
+          ],
+          "max": [
+            0.02003007009625435,
+            0.013305306236433782,
+            0.009479526606247127
+          ],
+          "center": [
+            -0.05175170861184596,
+            -0.0018556322970947423,
+            0.0002784824953251308
+          ],
+          "size": [
+            0.14356355741620064,
+            0.030321877067057048,
+            0.01840208822184399
+          ]
+        }
+      },
+      "focusPoints": {
+        "assembled": [
+          -0.00283166,
+          -0.005861574,
+          0.000278483
+        ],
+        "blade": [
+          0.05849390209186822,
+          -0.0009380684203610847,
+          -0.0008161158895133203
+        ],
+        "handle": [
+          -0.056608094833791256,
+          -0.005861573942178714,
+          -0.0007111436705704317
+        ],
+        "metals": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bufferValidation": {
+        "id": "vertex",
+        "meshes": 13,
+        "triangles": 16561,
+        "vertices": 12501,
+        "normalLengthMin": 0.999999960023036,
+        "normalLengthMax": 1.0000000390176869,
+        "finite": true,
+        "indexRangesValid": true,
+        "positiveDeterminants": true,
+        "materials": [
+          "VERTEX__HARDWARE",
+          "VERTEX__HANDLE",
+          "VERTEX__BLADE"
+        ]
+      }
+    },
+    {
+      "id": "QUAD",
+      "url": "/models/v46/quad.glb",
+      "sourceFilename": "QUAD.fbx",
+      "sourceBytes": 2648508,
+      "sourceSha256": "f83a6bdb57fe65e270e09ea6a990ee15f2d79cef919e802ae2af863b880edc2e",
+      "outputBytes": 1076388,
+      "meshCount": 21,
+      "trianglesBefore": 20794,
+      "triangles": 20794,
+      "bounds": {
+        "min": [
+          -0.131539669,
+          -0.026849457,
+          -0.011320486
+        ],
+        "max": [
+          0.11846035,
+          0.019216969,
+          0.010478918
+        ],
+        "center": [
+          -0.00653966,
+          -0.003816244,
+          -0.000420784
+        ],
+        "size": [
+          0.250000019,
+          0.046066427,
+          0.021799404
+        ]
+      },
+      "coordinateSystem": {
+        "tip": "+X",
+        "spine": "+Y",
+        "thickness": "Z",
+        "nominalLengthM": 0.25
+      },
+      "hinge": {
+        "name": "QUAD__BLADE_HINGE",
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialNames": [
+        "QUAD__HARDWARE",
+        "QUAD__HANDLE",
+        "QUAD__BLADE"
+      ],
+      "motion": {
+        "openCloseClip": "QUAD__OPEN_CLOSE_QA_FAILED",
+        "openTime": 0,
+        "closedTime": 6,
+        "reopenedTime": 12,
+        "explodeClip": "QUAD__EXPLODE_QA_FAILED",
+        "explodePeakTime": 8.4,
+        "explodeDuration": 16.799999237060547,
+        "combinedClip": "QUAD__COMBINED_QA_FAILED"
+      },
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceLimitations": [
+        "Source reports component intersections during closure and explosion path."
+      ],
+      "derivativeNotes": [
+        "Geometry indexed/welded only; source triangles retained.",
+        "This conversion does not repair source motion intersections."
+      ],
+      "clips": [
+        {
+          "name": "QUAD__COMBINED_QA_FAILED",
+          "duration": 16,
+          "tracks": 28,
+          "keys": 1667,
+          "originalKeys": 13468
+        },
+        {
+          "name": "QUAD__EXPLODE_QA_FAILED",
+          "duration": 16.799999237060547,
+          "tracks": 21,
+          "keys": 503,
+          "originalKeys": 10605
+        },
+        {
+          "name": "QUAD__OPEN_CLOSE_QA_FAILED",
+          "duration": 12,
+          "tracks": 7,
+          "keys": 1458,
+          "originalKeys": 2527
+        }
+      ],
+      "animationReductionValidation": {
+        "maxPositionErrorM": 1.4901161193847656e-8,
+        "maxAngularErrorRad": 0.0000011725613816324642
+      },
+      "roundTripValidation": {
+        "maxNodePositionErrorM": 0,
+        "maxMatrixElementError": 0,
+        "samples": [
+          {
+            "openTime": 0,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.026849457,
+                -0.011320486
+              ],
+              "max": [
+                0.11846035,
+                0.019216969,
+                0.010478918
+              ],
+              "center": [
+                -0.00653966,
+                -0.003816244,
+                -0.000420784
+              ],
+              "size": [
+                0.250000019,
+                0.046066427,
+                0.021799404
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.032534095,
+                -0.011320486
+              ],
+              "max": [
+                0.018297549,
+                0.019216969,
+                0.010478918
+              ],
+              "center": [
+                -0.05662106,
+                -0.006658563,
+                -0.000420784
+              ],
+              "size": [
+                0.149837218,
+                0.051751064,
+                0.021799404
+              ]
+            }
+          },
+          {
+            "openTime": 12,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.026849457,
+                -0.011320486
+              ],
+              "max": [
+                0.11846035,
+                0.019216969,
+                0.010478918
+              ],
+              "center": [
+                -0.00653966,
+                -0.003816244,
+                -0.000420784
+              ],
+              "size": [
+                0.250000019,
+                0.046066427,
+                0.021799404
+              ]
+            }
+          },
+          {
+            "openTime": 0,
+            "explodeTime": 8.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.026849468,
+                -0.151320493
+              ],
+              "max": [
+                0.173460297,
+                0.01921698,
+                0.1675917
+              ],
+              "center": [
+                0.020960314,
+                -0.003816244,
+                0.008135604
+              ],
+              "size": [
+                0.304999966,
+                0.046066448,
+                0.318912193
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 8.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.032534095,
+                -0.151320493
+              ],
+              "max": [
+                0.065394872,
+                0.01921698,
+                0.1675917
+              ],
+              "center": [
+                -0.033072399,
+                -0.006658557,
+                0.008135604
+              ],
+              "size": [
+                0.196934541,
+                0.051751075,
+                0.318912193
+              ]
+            }
+          },
+          {
+            "openTime": 3,
+            "explodeTime": 4.2,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.131539669,
+                -0.119304633,
+                -0.151320493
+              ],
+              "max": [
+                0.025180547,
+                0.019216969,
+                0.1675917
+              ],
+              "center": [
+                -0.053179561,
+                -0.050043832,
+                0.008135604
+              ],
+              "size": [
+                0.156720216,
+                0.138521603,
+                0.318912193
+              ]
+            }
+          }
+        ]
+      },
+      "parts": [
+        {
+          "name": "QUAD__spacer_02__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__tail_screw_L__low",
+          "role": "metals",
+          "trianglesBefore": 276,
+          "triangles": 276,
+          "vertices": 695,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__pivot_R__low",
+          "role": "metals",
+          "trianglesBefore": 176,
+          "triangles": 176,
+          "vertices": 227,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__pivot_mount_R__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__stop_screw_R__low",
+          "role": "metals",
+          "trianglesBefore": 56,
+          "triangles": 56,
+          "vertices": 120,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__tail_screw_R__low",
+          "role": "metals",
+          "trianglesBefore": 276,
+          "triangles": 276,
+          "vertices": 727,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__spacer_01__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__pivot_L__low",
+          "role": "metals",
+          "trianglesBefore": 324,
+          "triangles": 324,
+          "vertices": 809,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__pivot_mount_L__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__handle_L__low",
+          "role": "handle",
+          "trianglesBefore": 5510,
+          "triangles": 5510,
+          "vertices": 8733,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__thumb_stud_R__low",
+          "role": "metals",
+          "trianglesBefore": 656,
+          "triangles": 656,
+          "vertices": 1060,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__thumb_stud_L__low",
+          "role": "metals",
+          "trianglesBefore": 656,
+          "triangles": 656,
+          "vertices": 1060,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__blade__low",
+          "role": "blade",
+          "trianglesBefore": 1642,
+          "triangles": 1642,
+          "vertices": 1074,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__middle_screw_L__low",
+          "role": "metals",
+          "trianglesBefore": 276,
+          "triangles": 276,
+          "vertices": 737,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__middle_screw_R__low",
+          "role": "metals",
+          "trianglesBefore": 276,
+          "triangles": 276,
+          "vertices": 750,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__liner_L__low",
+          "role": "metals",
+          "trianglesBefore": 2936,
+          "triangles": 2936,
+          "vertices": 1772,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__clip__low",
+          "role": "metals",
+          "trianglesBefore": 1788,
+          "triangles": 1788,
+          "vertices": 2543,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__clip_screw_02__low",
+          "role": "metals",
+          "trianglesBefore": 300,
+          "triangles": 300,
+          "vertices": 730,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__handle_R__low",
+          "role": "handle",
+          "trianglesBefore": 5186,
+          "triangles": 5186,
+          "vertices": 3801,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__clip_screw_01__low",
+          "role": "metals",
+          "trianglesBefore": 300,
+          "triangles": 300,
+          "vertices": 709,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "QUAD__spacer_03__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        }
+      ],
+      "roleBounds": {
+        "blade": {
+          "min": [
+            -0.008223631302826107,
+            -0.01710221353544632,
+            -0.0026066222144542216
+          ],
+          "max": [
+            0.11846034973859787,
+            0.017726237710262705,
+            0.0017816745156506641
+          ],
+          "center": [
+            0.05511835921788588,
+            0.0003120120874081922,
+            -0.00041247384940177874
+          ],
+          "size": [
+            0.12668398104142398,
+            0.034828451245709026,
+            0.004388296730104886
+          ]
+        },
+        "handle": {
+          "min": [
+            -0.13153966888785362,
+            -0.02684945729033363,
+            -0.01074207797918458
+          ],
+          "max": [
+            0.018297549337148673,
+            0.019216968987297238,
+            0.005985071184986831
+          ],
+          "center": [
+            -0.05662105977535248,
+            -0.0038162441515181954,
+            -0.0023785033970988743
+          ],
+          "size": [
+            0.1498372182250023,
+            0.04606642627763087,
+            0.01672714916417141
+          ]
+        },
+        "metals": {
+          "min": [
+            -0.13153966516256332,
+            -0.026646718522539473,
+            -0.011320485055272686
+          ],
+          "max": [
+            0.026491696015000343,
+            0.019092729175454577,
+            0.010478917321890073
+          ],
+          "center": [
+            -0.05252398457378149,
+            -0.003776994673542448,
+            -0.0004207838666913065
+          ],
+          "size": [
+            0.15803136117756367,
+            0.045739447697994054,
+            0.02179940237716276
+          ]
+        }
+      },
+      "focusPoints": {
+        "assembled": [
+          -0.00653966,
+          -0.003816244,
+          -0.000420784
+        ],
+        "blade": [
+          0.05511835921788588,
+          0.0003120120874081922,
+          -0.00041247384940177874
+        ],
+        "handle": [
+          -0.05662105977535248,
+          -0.0038162441515181954,
+          -0.0023785033970988743
+        ],
+        "metals": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bufferValidation": {
+        "id": "quad",
+        "meshes": 21,
+        "triangles": 20794,
+        "vertices": 25717,
+        "normalLengthMin": 0.9999999572970077,
+        "normalLengthMax": 1.0000000432972955,
+        "finite": true,
+        "indexRangesValid": true,
+        "positiveDeterminants": true,
+        "materials": [
+          "QUAD__HARDWARE",
+          "QUAD__HANDLE",
+          "QUAD__BLADE"
+        ]
+      }
+    },
+    {
+      "id": "EDGE",
+      "url": "/models/v46/edge.glb",
+      "sourceFilename": "EDGE.fbx",
+      "sourceBytes": 5099468,
+      "sourceSha256": "a9f7f69fe3473e3dd8badbe4198c57c378b17a9fec37701360753f939670a465",
+      "outputBytes": 1981496,
+      "meshCount": 15,
+      "trianglesBefore": 55424,
+      "triangles": 55424,
+      "bounds": {
+        "min": [
+          -0.135035016,
+          -0.029838288,
+          -0.007364211
+        ],
+        "max": [
+          0.114964958,
+          0.01968456,
+          0.00605953
+        ],
+        "center": [
+          -0.010035029,
+          -0.005076864,
+          -0.000652341
+        ],
+        "size": [
+          0.249999974,
+          0.049522848,
+          0.013423741
+        ]
+      },
+      "coordinateSystem": {
+        "tip": "+X",
+        "spine": "+Y",
+        "thickness": "Z",
+        "nominalLengthM": 0.25
+      },
+      "hinge": {
+        "name": "EDGE__BLADE_HINGE",
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialNames": [
+        "EDGE__HANDLE",
+        "EDGE__HARDWARE",
+        "EDGE__BLADE"
+      ],
+      "motion": {
+        "openCloseClip": "EDGE__OPEN_CLOSE_QA_FAILED",
+        "openTime": 0,
+        "closedTime": 6,
+        "reopenedTime": 12,
+        "explodeClip": "EDGE__EXPLODE_QA_FAILED",
+        "explodePeakTime": 6,
+        "explodeDuration": 12,
+        "combinedClip": "EDGE__COMBINED_QA_FAILED"
+      },
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceLimitations": [
+        "Source reports component intersections during closure and explosion path."
+      ],
+      "derivativeNotes": [
+        "Geometry indexed/welded only; source triangles retained.",
+        "This conversion does not repair source motion intersections."
+      ],
+      "clips": [
+        {
+          "name": "EDGE__OPEN_CLOSE_QA_FAILED",
+          "duration": 12,
+          "tracks": 3,
+          "keys": 564,
+          "originalKeys": 1083
+        },
+        {
+          "name": "EDGE__EXPLODE_QA_FAILED",
+          "duration": 12,
+          "tracks": 15,
+          "keys": 331,
+          "originalKeys": 5415
+        },
+        {
+          "name": "EDGE__COMBINED_QA_FAILED",
+          "duration": 16,
+          "tracks": 18,
+          "keys": 872,
+          "originalKeys": 8658
+        }
+      ],
+      "animationReductionValidation": {
+        "maxPositionErrorM": 1.4901161193847656e-8,
+        "maxAngularErrorRad": 0.0000010254770835688973
+      },
+      "roundTripValidation": {
+        "maxNodePositionErrorM": 0,
+        "maxMatrixElementError": 0,
+        "samples": [
+          {
+            "openTime": 0,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.135035016,
+                -0.029838288,
+                -0.007364211
+              ],
+              "max": [
+                0.114964958,
+                0.01968456,
+                0.00605953
+              ],
+              "center": [
+                -0.010035029,
+                -0.005076864,
+                -0.000652341
+              ],
+              "size": [
+                0.249999974,
+                0.049522848,
+                0.013423741
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.135035016,
+                -0.029838288,
+                -0.007364211
+              ],
+              "max": [
+                0.013183441,
+                0.01968456,
+                0.00605953
+              ],
+              "center": [
+                -0.060925787,
+                -0.005076864,
+                -0.000652341
+              ],
+              "size": [
+                0.148218457,
+                0.049522848,
+                0.013423741
+              ]
+            }
+          },
+          {
+            "openTime": 12,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.135035016,
+                -0.029838288,
+                -0.007364211
+              ],
+              "max": [
+                0.114964958,
+                0.01968456,
+                0.00605953
+              ],
+              "center": [
+                -0.010035029,
+                -0.005076864,
+                -0.000652341
+              ],
+              "size": [
+                0.249999974,
+                0.049522848,
+                0.013423741
+              ]
+            }
+          },
+          {
+            "openTime": 0,
+            "explodeTime": 6,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.190035015,
+                -0.029838295,
+                -0.147308103
+              ],
+              "max": [
+                0.169964958,
+                0.019684568,
+                0.146059522
+              ],
+              "center": [
+                -0.010035029,
+                -0.005076864,
+                -0.000624291
+              ],
+              "size": [
+                0.359999973,
+                0.049522863,
+                0.293367626
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 6,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.190035015,
+                -0.029838295,
+                -0.147308103
+              ],
+              "max": [
+                0.067540597,
+                0.019684568,
+                0.146059522
+              ],
+              "center": [
+                -0.061247209,
+                -0.005076864,
+                -0.000624291
+              ],
+              "size": [
+                0.257575612,
+                0.049522863,
+                0.293367626
+              ]
+            }
+          },
+          {
+            "openTime": 3,
+            "explodeTime": 3,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.135035023,
+                -0.115434474,
+                -0.147308103
+              ],
+              "max": [
+                0.022231534,
+                0.01968456,
+                0.146059522
+              ],
+              "center": [
+                -0.056401745,
+                -0.047874957,
+                -0.000624291
+              ],
+              "size": [
+                0.157266557,
+                0.135119034,
+                0.293367626
+              ]
+            }
+          }
+        ]
+      },
+      "parts": [
+        {
+          "name": "EDGE__handle_L__low",
+          "role": "handle",
+          "trianglesBefore": 8920,
+          "triangles": 8920,
+          "vertices": 7656,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__liner_R__low",
+          "role": "metals",
+          "trianglesBefore": 9074,
+          "triangles": 9074,
+          "vertices": 9000,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__screw_tail_R__low",
+          "role": "metals",
+          "trianglesBefore": 1818,
+          "triangles": 1818,
+          "vertices": 2002,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__tail_loop__low",
+          "role": "metals",
+          "trianglesBefore": 2176,
+          "triangles": 2176,
+          "vertices": 2066,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__screw_middle_R__low",
+          "role": "metals",
+          "trianglesBefore": 1818,
+          "triangles": 1818,
+          "vertices": 1977,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__lock_pin__low",
+          "role": "metals",
+          "trianglesBefore": 40,
+          "triangles": 40,
+          "vertices": 46,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__screw_tail_L__low",
+          "role": "metals",
+          "trianglesBefore": 1818,
+          "triangles": 1818,
+          "vertices": 1890,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__screw_middle_L__low",
+          "role": "metals",
+          "trianglesBefore": 1818,
+          "triangles": 1818,
+          "vertices": 1882,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__blade__low",
+          "role": "blade",
+          "trianglesBefore": 4168,
+          "triangles": 4168,
+          "vertices": 3920,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__pivot_R__low",
+          "role": "metals",
+          "trianglesBefore": 574,
+          "triangles": 574,
+          "vertices": 425,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__tail_spacer__low",
+          "role": "metals",
+          "trianglesBefore": 1636,
+          "triangles": 1636,
+          "vertices": 1603,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__pivot_L__low",
+          "role": "metals",
+          "trianglesBefore": 1762,
+          "triangles": 1762,
+          "vertices": 1695,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__lock_bar__low",
+          "role": "metals",
+          "trianglesBefore": 1808,
+          "triangles": 1808,
+          "vertices": 1786,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__handle_R__low",
+          "role": "handle",
+          "trianglesBefore": 8920,
+          "triangles": 8920,
+          "vertices": 7224,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "EDGE__liner_L__low",
+          "role": "metals",
+          "trianglesBefore": 9074,
+          "triangles": 9074,
+          "vertices": 6016,
+          "relativeSimplificationError": 0
+        }
+      ],
+      "roleBounds": {
+        "blade": {
+          "min": [
+            -0.011418489972129464,
+            -0.017130970913352358,
+            -0.0016549500724780967
+          ],
+          "max": [
+            0.11496495828032494,
+            0.018729408288751217,
+            0.0022222888425805862
+          ],
+          "center": [
+            0.051773234154097736,
+            0.0007992186876994295,
+            0.00028366938505124475
+          ],
+          "size": [
+            0.1263834482524544,
+            0.035860379202103575,
+            0.003877238915058683
+          ]
+        },
+        "handle": {
+          "min": [
+            -0.1294405497610569,
+            -0.028286520229833263,
+            -0.006065881411383709
+          ],
+          "max": [
+            0.011643119156360633,
+            0.018132447922544453,
+            0.004808569044693541
+          ],
+          "center": [
+            -0.05889871530234814,
+            -0.0050770361536444045,
+            -0.0006286561833450839
+          ],
+          "size": [
+            0.14108366891741753,
+            0.04641896815237771,
+            0.01087445045607725
+          ]
+        },
+        "metals": {
+          "min": [
+            -0.13503501564264297,
+            -0.029838287787973684,
+            -0.007364210346714616
+          ],
+          "max": [
+            0.01318344101309777,
+            0.019684560069831925,
+            0.006059528794208846
+          ],
+          "center": [
+            -0.060925787314772606,
+            -0.00507686385907088,
+            -0.0006523407762528848
+          ],
+          "size": [
+            0.14821845665574074,
+            0.04952284785780561,
+            0.013423739140923461
+          ]
+        }
+      },
+      "focusPoints": {
+        "assembled": [
+          -0.010035029,
+          -0.005076864,
+          -0.000652341
+        ],
+        "blade": [
+          0.051773234154097736,
+          0.0007992186876994295,
+          0.00028366938505124475
+        ],
+        "handle": [
+          -0.05889871530234814,
+          -0.0050770361536444045,
+          -0.0006286561833450839
+        ],
+        "metals": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bufferValidation": {
+        "id": "edge",
+        "meshes": 15,
+        "triangles": 55424,
+        "vertices": 49188,
+        "normalLengthMin": 0.9999999554318774,
+        "normalLengthMax": 1.000000044767362,
+        "finite": true,
+        "indexRangesValid": true,
+        "positiveDeterminants": true,
+        "materials": [
+          "EDGE__HANDLE",
+          "EDGE__HARDWARE",
+          "EDGE__BLADE"
+        ]
+      }
+    },
+    {
+      "id": "TRIS",
+      "url": "/models/v46/tris.glb",
+      "sourceFilename": "TRIS.fbx",
+      "sourceBytes": 5942876,
+      "sourceSha256": "5f18960401884e542f762bcf0cf1c962c12e73ccc4d9cfaae4da48aeecac9078",
+      "outputBytes": 1873764,
+      "meshCount": 65,
+      "trianglesBefore": 59186,
+      "triangles": 59186,
+      "bounds": {
+        "min": [
+          -0.123958986,
+          -0.039603616,
+          -0.005692076
+        ],
+        "max": [
+          0.126041014,
+          0.02357771,
+          0.009854316
+        ],
+        "center": [
+          0.001041014,
+          -0.008012953,
+          0.00208112
+        ],
+        "size": [
+          0.25,
+          0.063181326,
+          0.015546391
+        ]
+      },
+      "coordinateSystem": {
+        "tip": "+X",
+        "spine": "+Y",
+        "thickness": "Z",
+        "nominalLengthM": 0.25
+      },
+      "hinge": {
+        "name": "TRIS__BLADE_HINGE",
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialNames": [
+        "TRIS__HANDLE",
+        "TRIS__HARDWARE",
+        "TRIS__BLADE"
+      ],
+      "motion": {
+        "openCloseClip": "TRIS__OPEN_CLOSE_QA_FAILED",
+        "openTime": 0,
+        "closedTime": 6,
+        "reopenedTime": 12,
+        "explodeClip": "TRIS__EXPLODE_QA_FAILED",
+        "explodePeakTime": 8.4,
+        "explodeDuration": 16.799999237060547,
+        "combinedClip": "TRIS__COMBINED_QA_FAILED"
+      },
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceLimitations": [
+        "Source reports closed blade protrusion (~1.745 mm) and pivot/spacer intersections."
+      ],
+      "derivativeNotes": [
+        "Geometry indexed/welded only; source triangles retained.",
+        "This conversion does not repair source motion intersections."
+      ],
+      "clips": [
+        {
+          "name": "TRIS__OPEN_CLOSE_QA_FAILED",
+          "duration": 12,
+          "tracks": 3,
+          "keys": 639,
+          "originalKeys": 1083
+        },
+        {
+          "name": "TRIS__COMBINED_QA_FAILED",
+          "duration": 16,
+          "tracks": 68,
+          "keys": 1632,
+          "originalKeys": 32708
+        },
+        {
+          "name": "TRIS__EXPLODE_QA_FAILED",
+          "duration": 16.799999237060547,
+          "tracks": 65,
+          "keys": 1580,
+          "originalKeys": 32825
+        }
+      ],
+      "animationReductionValidation": {
+        "maxPositionErrorM": 1.0244548320770264e-8,
+        "maxAngularErrorRad": 0.0000011309186196929531
+      },
+      "roundTripValidation": {
+        "maxNodePositionErrorM": 0,
+        "maxMatrixElementError": 0,
+        "samples": [
+          {
+            "openTime": 0,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.123958986,
+                -0.039603616,
+                -0.005692076
+              ],
+              "max": [
+                0.126041014,
+                0.02357771,
+                0.009854316
+              ],
+              "center": [
+                0.001041014,
+                -0.008012953,
+                0.00208112
+              ],
+              "size": [
+                0.25,
+                0.063181326,
+                0.015546391
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.127489295,
+                -0.04261279,
+                -0.005692076
+              ],
+              "max": [
+                0.0170424,
+                0.02357771,
+                0.009854316
+              ],
+              "center": [
+                -0.055223447,
+                -0.00951754,
+                0.00208112
+              ],
+              "size": [
+                0.144531695,
+                0.0661905,
+                0.015546391
+              ]
+            }
+          },
+          {
+            "openTime": 12,
+            "explodeTime": 0,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.123958986,
+                -0.039603616,
+                -0.005692076
+              ],
+              "max": [
+                0.126041014,
+                0.02357771,
+                0.009854316
+              ],
+              "center": [
+                0.001041014,
+                -0.008012953,
+                0.00208112
+              ],
+              "size": [
+                0.25,
+                0.063181326,
+                0.015546391
+              ]
+            }
+          },
+          {
+            "openTime": 0,
+            "explodeTime": 8.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.123958986,
+                -0.039603624,
+                -0.145692078
+              ],
+              "max": [
+                0.181040961,
+                0.023577721,
+                0.168322617
+              ],
+              "center": [
+                0.028540988,
+                -0.008012951,
+                0.01131527
+              ],
+              "size": [
+                0.304999948,
+                0.063181345,
+                0.314014694
+              ]
+            }
+          },
+          {
+            "openTime": 6,
+            "explodeTime": 8.4,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.123958986,
+                -0.04261279,
+                -0.145692078
+              ],
+              "max": [
+                0.062330533,
+                0.023577721,
+                0.168322617
+              ],
+              "center": [
+                -0.030814227,
+                -0.009517534,
+                0.01131527
+              ],
+              "size": [
+                0.186289519,
+                0.066190511,
+                0.314014694
+              ]
+            }
+          },
+          {
+            "openTime": 3,
+            "explodeTime": 4.2,
+            "maxNodePositionErrorM": 0,
+            "bounds": {
+              "min": [
+                -0.123958986,
+                -0.127225373,
+                -0.145692078
+              ],
+              "max": [
+                0.032212691,
+                0.02357771,
+                0.168322617
+              ],
+              "center": [
+                -0.045873148,
+                -0.051823831,
+                0.01131527
+              ],
+              "size": [
+                0.156171678,
+                0.150803083,
+                0.314014694
+              ]
+            }
+          }
+        ]
+      },
+      "parts": [
+        {
+          "name": "TRIS__handle_R_surface_030__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_016__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_064__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_032__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_001__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_033__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_013__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_025__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_023__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_026__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_03_R__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_018__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_008__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__spacer_01__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__clip_back__low",
+          "role": "metals",
+          "trianglesBefore": 1000,
+          "triangles": 1000,
+          "vertices": 567,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_015__low",
+          "role": "handle",
+          "trianglesBefore": 1216,
+          "triangles": 1216,
+          "vertices": 807,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_029__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_028__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_020__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_062__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_01_R__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_003__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_009__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__clip_screw_01__low",
+          "role": "metals",
+          "trianglesBefore": 234,
+          "triangles": 234,
+          "vertices": 230,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_021__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_035__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__spacer_02__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__clip_front__low",
+          "role": "metals",
+          "trianglesBefore": 1000,
+          "triangles": 1000,
+          "vertices": 567,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_R_socket__low",
+          "role": "metals",
+          "trianglesBefore": 776,
+          "triangles": 776,
+          "vertices": 940,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__stop_pin_cap_L__low",
+          "role": "metals",
+          "trianglesBefore": 180,
+          "triangles": 180,
+          "vertices": 125,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_027__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__spacer_03__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_024__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_007__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_011__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_L__low",
+          "role": "metals",
+          "trianglesBefore": 4622,
+          "triangles": 4622,
+          "vertices": 3389,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_R__low",
+          "role": "metals",
+          "trianglesBefore": 4622,
+          "triangles": 4622,
+          "vertices": 3369,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_019__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_R_socket_floor__low",
+          "role": "metals",
+          "trianglesBefore": 2,
+          "triangles": 2,
+          "vertices": 4,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_014__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__clip_edge__low",
+          "role": "metals",
+          "trianglesBefore": 792,
+          "triangles": 792,
+          "vertices": 857,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__clip_screw_02__low",
+          "role": "metals",
+          "trianglesBefore": 234,
+          "triangles": 234,
+          "vertices": 230,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_01_L__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_034__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_004__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__stop_pin__low",
+          "role": "metals",
+          "trianglesBefore": 32,
+          "triangles": 32,
+          "vertices": 34,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_005__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_012__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_L_socket_floor__low",
+          "role": "metals",
+          "trianglesBefore": 2,
+          "triangles": 2,
+          "vertices": 4,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_022__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L__low",
+          "role": "handle",
+          "trianglesBefore": 13066,
+          "triangles": 13066,
+          "vertices": 7565,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_03_L__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_axle__low",
+          "role": "metals",
+          "trianglesBefore": 200,
+          "triangles": 200,
+          "vertices": 206,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__blade__low",
+          "role": "blade",
+          "trianglesBefore": 2682,
+          "triangles": 2682,
+          "vertices": 1911,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_006__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 240,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_02_L__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__stop_pin_cap_R__low",
+          "role": "metals",
+          "trianglesBefore": 180,
+          "triangles": 180,
+          "vertices": 125,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__pivot_L_socket__low",
+          "role": "metals",
+          "trianglesBefore": 776,
+          "triangles": 776,
+          "vertices": 967,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_065__low",
+          "role": "handle",
+          "trianglesBefore": 1216,
+          "triangles": 1216,
+          "vertices": 807,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_063__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_002__low",
+          "role": "handle",
+          "trianglesBefore": 256,
+          "triangles": 256,
+          "vertices": 180,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_L_surface_010__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__screw_02_R__low",
+          "role": "metals",
+          "trianglesBefore": 108,
+          "triangles": 108,
+          "vertices": 229,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R_surface_031__low",
+          "role": "handle",
+          "trianglesBefore": 384,
+          "triangles": 384,
+          "vertices": 260,
+          "relativeSimplificationError": 0
+        },
+        {
+          "name": "TRIS__handle_R__low",
+          "role": "handle",
+          "trianglesBefore": 13066,
+          "triangles": 13066,
+          "vertices": 7565,
+          "relativeSimplificationError": 0
+        }
+      ],
+      "roleBounds": {
+        "blade": {
+          "min": [
+            -0.0037299818359315395,
+            -0.019302122302387963,
+            -0.002015199367015564
+          ],
+          "max": [
+            0.1260410137474537,
+            0.0215794971997101,
+            0.0019232927607643064
+          ],
+          "center": [
+            0.061155515955761075,
+            0.0011386874486610677,
+            -0.00004595330312562871
+          ],
+          "size": [
+            0.12977099558338523,
+            0.040881619502098065,
+            0.00393849212777987
+          ]
+        },
+        "handle": {
+          "min": [
+            -0.12395898625254631,
+            -0.039603615733253966,
+            -0.0047989196737611515
+          ],
+          "max": [
+            0.017042400315403945,
+            0.023577710060009208,
+            0.004795834874982391
+          ],
+          "center": [
+            -0.053458292968571186,
+            -0.00801295283662238,
+            -0.0000015423993893802848
+          ],
+          "size": [
+            0.14100138656795025,
+            0.06318132579326317,
+            0.009594754548743542
+          ]
+        },
+        "metals": {
+          "min": [
+            -0.12019720673561093,
+            -0.017385478685268033,
+            -0.005692074813192959
+          ],
+          "max": [
+            0.010692680254578592,
+            0.01850281041615074,
+            0.009854314437348733
+          ],
+          "center": [
+            -0.05475226324051617,
+            0.0005586658654413539,
+            0.002081119812077887
+          ],
+          "size": [
+            0.13088988699018952,
+            0.03588828910141877,
+            0.015546389250541692
+          ]
+        }
+      },
+      "focusPoints": {
+        "assembled": [
+          0.001041014,
+          -0.008012953,
+          0.00208112
+        ],
+        "blade": [
+          0.061155515955761075,
+          0.0011386874486610677,
+          -0.00004595330312562871
+        ],
+        "handle": [
+          -0.053458292968571186,
+          -0.00801295283662238,
+          -0.0000015423993893802848
+        ],
+        "metals": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bufferValidation": {
+        "id": "tris",
+        "meshes": 65,
+        "triangles": 59186,
+        "vertices": 40065,
+        "normalLengthMin": 0.9999999517788989,
+        "normalLengthMax": 1.0000000485463783,
+        "finite": true,
+        "indexRangesValid": true,
+        "positiveDeterminants": true,
+        "materials": [
+          "TRIS__HANDLE",
+          "TRIS__HARDWARE",
+          "TRIS__BLADE"
+        ]
+      }
+    }
+  ]
+}

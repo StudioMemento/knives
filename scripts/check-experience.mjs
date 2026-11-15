@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {Carousel} from '../app/lib/carousel.ts';
+import {HERO_HOLD} from '../app/lib/choreography.ts';
+import {createState,resetInspection,mod,sectionAt,nextAnchor,smooth} from '../app/lib/state.ts';
+import {MotionValue,focusWeight,orbitAngle} from '../app/lib/motion.ts';
+const c=new Carousel();
+for(let i=0;i<Math.floor(HERO_HOLD*100)-1;i++)assert.equal(c.step(.01,true,false,false),0,'Focus must hold through the complete turn');
+c.step(.02,true,false,false);
+for(let i=0;i<562;i++)c.step(.01,true,false,false);
+assert.ok(Math.abs(c.phase-1)<1e-12,'Clockwise orbit must arrive at the next knife');
+const frozen=c.phase;for(let i=0;i<120;i++)c.step(1/60,false,false,false);
+assert.equal(c.phase,frozen,'Leaving hero must freeze orbit without a seam');
+for(let i=0;i<200;i++)c.step(.01,true,true,false);
+assert.equal(c.phase,frozen,'Pause must hold the focus');
+c.request(-1);for(let i=0;i<421;i++)c.step(.01,true,true,false);
+assert.equal(c.phase,-1,'Manual previous must work while automatic motion is paused');
+c.request(0,true);c.step(.31,true,true,true);assert.equal(c.phase,0,'Reduced-motion manual selection is short');
+const pausedArrival=new Carousel();pausedArrival.step(HERO_HOLD+.01,true,false,false);pausedArrival.step(1,true,false,false);
+pausedArrival.request(1);for(let i=0;i<600;i++)pausedArrival.step(.01,true,true,false);
+assert.equal(pausedArrival.phase,1,'A manual next command must finish an already queued automatic arrival while paused');
+for(let k=-100;k<=100;k++){assert.equal(sectionAt(k),mod(k));assert.equal(nextAnchor(k,1),k+1);assert.equal(nextAnchor(k,-1),k-1);}
+assert.equal(smooth(0),0);assert.equal(smooth(1),1);
+assert.ok(smooth(.001)<1e-7&&1-smooth(.999)<1e-7,'Transitions must start and stop with zero velocity');
+const s=createState();s.configs[0].metals.color=5;s.closed=s.exploded=1;s.cuts=[.4,.2,.8];s.spin=true;s.zoom=1.3;s.yaw=2;s.pitch=.4;s.focus=[1,2,3];s.view='top';resetInspection(s);
+assert.equal(s.closed+s.exploded+s.yaw+s.pitch,0);assert.deepEqual(s.cuts,[0,0,0]);assert.equal(s.focus,null);assert.equal(s.zoom,1);assert.equal(s.spin,false);assert.equal(s.view,'side');assert.equal(s.configs[0].metals.color,5,'Reset must preserve configured materials');assert.equal(s.configs[1].metals.color,1,'Knife configurations must remain independent');
+const m30=new MotionValue(),m60=new MotionValue(),m144=new MotionValue();
+for(let i=0;i<30;i++)m30.step(1,1/30);
+for(let i=0;i<60;i++)m60.step(1,1/60);
+for(let i=0;i<144;i++)m144.step(1,1/144);
+assert.ok(Math.abs(m30.value-m60.value)<1e-12&&Math.abs(m60.value-m144.value)<1e-12,'Scroll timing must be frame-rate independent');
+const moving=new Carousel();moving.request(1);
+for(let i=0;i<120;i++)moving.step(1/60,true,false,false);
+const before={position:moving.phase,velocity:moving.velocity,acceleration:moving.acceleration};
+moving.request(-1);
+assert.equal(moving.phase,before.position);assert.equal(moving.velocity,before.velocity);assert.equal(moving.acceleration,before.acceleration);
+moving.step(.00001,true,false,false);
+assert.ok(Math.abs((moving.phase-before.position)/.00001-before.velocity)<.0001,'A new destination must preserve velocity');
+assert.ok(Math.abs(moving.acceleration-before.acceleration)<.001,'A new destination must preserve acceleration');
+for(const boundary of [0,.5,1]){
+ const left=focusWeight(Math.max(0,boundary-.00001)),right=focusWeight(boundary+.00001);
+ assert.ok(Math.abs(.78*(1-left)-.78*(1-right))<.0001,'Assembly must remain continuous through the selection boundary');
+}
+assert.equal(focusWeight(0),1);assert.equal(focusWeight(1),0);
+for(let x=0;x<5;x+=.001)assert.ok(orbitAngle(x+.0001)>orbitAngle(x),'The orbit must move monotonically around the ring');
+assert.ok(Math.abs(orbitAngle(4.999999)-2*Math.PI)<.00001,'The ellipse must close without a positional seam');
+console.log('PASS — velocity/acceleration-preserving retarget, 30/60/144 Hz motion, continuous per-knife assembly and monotone closed orbit');
+console.log('PASS — full-turn hold, clockwise arrival, pause/manual selection, frozen orbit, infinite navigation, easing and reset/material isolation');

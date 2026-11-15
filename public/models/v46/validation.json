@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "scope": "Binary GLB integrity, finite vertex attributes, valid indices, positive transforms, roundtrip animation node transforms; not collision clearance or visual render approval.",
+  "totalBytes": 10664364,
+  "totalTriangles": 315741,
+  "maxRoundTripNodePositionErrorM": 0,
+  "maxAnimationReductionPositionErrorM": 1.4901161193847656e-8,
+  "maxAnimationReductionAngularErrorRad": 0.0000011725613816324642,
+  "models": [
+    {
+      "id": "HYPER",
+      "sourceMotionQA": "source_motion_pass",
+      "sourceTriangles": 1124760,
+      "webTriangles": 163776,
+      "bytes": 5142168,
+      "meshCount": 52
+    },
+    {
+      "id": "VERTEX",
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceTriangles": 16561,
+      "webTriangles": 16561,
+      "bytes": 590548,
+      "meshCount": 13
+    },
+    {
+      "id": "QUAD",
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceTriangles": 20794,
+      "webTriangles": 20794,
+      "bytes": 1076388,
+      "meshCount": 21
+    },
+    {
+      "id": "EDGE",
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceTriangles": 55424,
+      "webTriangles": 55424,
+      "bytes": 1981496,
+      "meshCount": 15
+    },
+    {
+      "id": "TRIS",
+      "sourceMotionQA": "source_motion_qa_failed",
+      "sourceTriangles": 59186,
+      "webTriangles": 59186,
+      "bytes": 1873764,
+      "meshCount": 65
+    }
+  ]
+}

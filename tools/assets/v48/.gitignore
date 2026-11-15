@@ -1,0 +1,3 @@
+node_modules/
+qa/*-decoded.glb
+qa/*.log

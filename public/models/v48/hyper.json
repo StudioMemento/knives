@@ -1,0 +1,1221 @@
+{
+  "id": "HYPER",
+  "url": "/models/v48/hyper.glb",
+  "sourceFilename": "HYPER(1).fbx",
+  "sourceBytes": 85144764,
+  "sourceSha256": "4989f059b0a988e08d34569a152bd7179102f53766325fced3f233631417c9ce",
+  "outputBytes": 3668044,
+  "meshCount": 52,
+  "trianglesBefore": 1124760,
+  "triangles": 154728,
+  "bounds": {
+    "min": [
+      -0.129725426,
+      -0.01611866,
+      -0.007105117
+    ],
+    "max": [
+      0.12027458,
+      0.016118289,
+      0.008553683
+    ],
+    "center": [
+      -0.004725423,
+      -1.86e-7,
+      0.000724283
+    ],
+    "size": [
+      0.250000006,
+      0.032236949,
+      0.0156588
+    ]
+  },
+  "coordinateSystem": {
+    "tip": "+X",
+    "spine": "+Y",
+    "thickness": "Z",
+    "nominalLengthM": 0.25
+  },
+  "hinge": {
+    "name": "HYPER__BLADE_HINGE",
+    "position": [
+      -1e-9,
+      9e-9,
+      0
+    ]
+  },
+  "materialNames": [
+    "HYPER__HARDWARE",
+    "HYPER__HANDLE",
+    "HYPER__BLADE"
+  ],
+  "motion": {
+    "openCloseClip": "HYPER__OPEN_CLOSE",
+    "openTime": 0,
+    "closedTime": 6,
+    "reopenedTime": 12,
+    "explodeClip": "HYPER__EXPLODE",
+    "explodePeakTime": 10.4,
+    "explodeDuration": 20.799999237060547,
+    "combinedClip": "HYPER__COMBINED"
+  },
+  "sourceMotionQA": "source_motion_pass",
+  "sourceLimitations": [],
+  "derivativeNotes": [
+    "Hardware geometry simplified with meshoptimizer; blade and handle triangle topology retained.",
+    "All moving parts, named hierarchy, UVs, normals and independent motion channels retained.",
+    "This web derivative does not re-certify collision clearance.",
+    "V48: byte-exact protected blade, both handles and complete boolean-lettered clip; only other hardware conservatively retriangulated with locked borders and extrema.",
+    "V48: lossless EXT_meshopt_compression, no quantization; animation values and original node hierarchy unchanged."
+  ],
+  "clips": [
+    {
+      "name": "HYPER__OPEN_CLOSE",
+      "duration": 12,
+      "tracks": 3,
+      "keys": 585,
+      "originalKeys": 1083
+    },
+    {
+      "name": "HYPER__EXPLODE",
+      "duration": 20.799999237060547,
+      "tracks": 52,
+      "keys": 1295,
+      "originalKeys": 32500
+    },
+    {
+      "name": "HYPER__COMBINED",
+      "duration": 16,
+      "tracks": 55,
+      "keys": 1348,
+      "originalKeys": 26455
+    }
+  ],
+  "animationReductionValidation": {
+    "maxPositionErrorM": 1.1175870895385742e-8,
+    "maxAngularErrorRad": 0.0000010237433932613048
+  },
+  "roundTripValidation": {
+    "maxNodePositionErrorM": 0,
+    "maxMatrixElementError": 0,
+    "samples": [
+      {
+        "openTime": 0,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.129725084,
+            -0.01611866,
+            -0.007105117
+          ],
+          "max": [
+            0.12027458,
+            0.016118289,
+            0.008553683
+          ],
+          "center": [
+            -0.004725252,
+            -1.86e-7,
+            0.000724283
+          ],
+          "size": [
+            0.249999664,
+            0.032236949,
+            0.0156588
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.129725084,
+            -0.016124111,
+            -0.007105117
+          ],
+          "max": [
+            0.013374098,
+            0.016169027,
+            0.008553683
+          ],
+          "center": [
+            -0.058175493,
+            0.000022458,
+            0.000724283
+          ],
+          "size": [
+            0.143099182,
+            0.032293138,
+            0.0156588
+          ]
+        }
+      },
+      {
+        "openTime": 12,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.129725084,
+            -0.01611866,
+            -0.007105117
+          ],
+          "max": [
+            0.12027458,
+            0.016118289,
+            0.008553683
+          ],
+          "center": [
+            -0.004725252,
+            -1.86e-7,
+            0.000724283
+          ],
+          "size": [
+            0.249999664,
+            0.032236949,
+            0.0156588
+          ]
+        }
+      },
+      {
+        "openTime": 0,
+        "explodeTime": 10.4,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.184725083,
+            -0.054648351,
+            -0.137105112
+          ],
+          "max": [
+            0.175274527,
+            0.071116504,
+            0.137165381
+          ],
+          "center": [
+            -0.004725278,
+            0.008234076,
+            0.000030135
+          ],
+          "size": [
+            0.359999611,
+            0.125764855,
+            0.274270494
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 10.4,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.184725083,
+            -0.054648351,
+            -0.137105112
+          ],
+          "max": [
+            0.068374056,
+            0.071116504,
+            0.137165381
+          ],
+          "center": [
+            -0.058175514,
+            0.008234076,
+            0.000030135
+          ],
+          "size": [
+            0.25309914,
+            0.125764855,
+            0.274270494
+          ]
+        }
+      },
+      {
+        "openTime": 3,
+        "explodeTime": 5.2,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.184725083,
+            -0.120278077,
+            -0.137105112
+          ],
+          "max": [
+            0.016121192,
+            0.016116504,
+            0.137165381
+          ],
+          "center": [
+            -0.084301946,
+            -0.052080786,
+            0.000030135
+          ],
+          "size": [
+            0.200846275,
+            0.136394581,
+            0.274270494
+          ]
+        }
+      }
+    ]
+  },
+  "parts": [
+    {
+      "name": "HYPER__ball_L_06__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 542,
+      "vertices": 296,
+      "relativeSimplificationError": 0.007730240933597088
+    },
+    {
+      "name": "HYPER__screw_04__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 4032,
+      "vertices": 2853,
+      "relativeSimplificationError": 0.0019994163885712624
+    },
+    {
+      "name": "HYPER__ball_L_08__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 538,
+      "vertices": 297,
+      "relativeSimplificationError": 0.007983853109180927
+    },
+    {
+      "name": "HYPER__joint_04__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 5824,
+      "vertices": 3254,
+      "relativeSimplificationError": 0.001995650352910161
+    },
+    {
+      "name": "HYPER__joint_05__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 5854,
+      "vertices": 3231,
+      "relativeSimplificationError": 0.0019901415798813105
+    },
+    {
+      "name": "HYPER__ball_L_10__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 544,
+      "vertices": 298,
+      "relativeSimplificationError": 0.007739695254713297
+    },
+    {
+      "name": "HYPER__handle_R__low",
+      "role": "handle",
+      "trianglesBefore": 14906,
+      "triangles": 14906,
+      "vertices": 15162,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "HYPER__ball_R_01__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 522,
+      "vertices": 288,
+      "relativeSimplificationError": 0.007978410460054874
+    },
+    {
+      "name": "HYPER__screw_01__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 4016,
+      "vertices": 2857,
+      "relativeSimplificationError": 0.001993929734453559
+    },
+    {
+      "name": "HYPER__screw_05__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 3996,
+      "vertices": 2832,
+      "relativeSimplificationError": 0.0019862554036080837
+    },
+    {
+      "name": "HYPER__thrust_R__low",
+      "role": "metals",
+      "trianglesBefore": 6912,
+      "triangles": 1480,
+      "vertices": 961,
+      "relativeSimplificationError": 0.001726598828099668
+    },
+    {
+      "name": "HYPER__ball_R_11__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 542,
+      "vertices": 298,
+      "relativeSimplificationError": 0.007882009260356426
+    },
+    {
+      "name": "HYPER__ball_L_04__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 546,
+      "vertices": 299,
+      "relativeSimplificationError": 0.007830927148461342
+    },
+    {
+      "name": "HYPER__ball_L_01__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 510,
+      "vertices": 281,
+      "relativeSimplificationError": 0.007989811711013317
+    },
+    {
+      "name": "HYPER__spacer_front__low",
+      "role": "metals",
+      "trianglesBefore": 44896,
+      "triangles": 1464,
+      "vertices": 1055,
+      "relativeSimplificationError": 0.00037554180016741157
+    },
+    {
+      "name": "HYPER__ball_R_04__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 534,
+      "vertices": 294,
+      "relativeSimplificationError": 0.007783283945173025
+    },
+    {
+      "name": "HYPER__ball_R_02__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 544,
+      "vertices": 300,
+      "relativeSimplificationError": 0.007815873250365257
+    },
+    {
+      "name": "HYPER__ball_L_03__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 534,
+      "vertices": 295,
+      "relativeSimplificationError": 0.00798463448882103
+    },
+    {
+      "name": "HYPER__ball_L_02__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 514,
+      "vertices": 284,
+      "relativeSimplificationError": 0.00798693299293518
+    },
+    {
+      "name": "HYPER__ball_R_12__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 792,
+      "vertices": 854,
+      "relativeSimplificationError": 0.007986198179423809
+    },
+    {
+      "name": "HYPER__pivot_R__low",
+      "role": "metals",
+      "trianglesBefore": 21248,
+      "triangles": 2258,
+      "vertices": 1665,
+      "relativeSimplificationError": 0.0018420758424326777
+    },
+    {
+      "name": "HYPER__ball_L_05__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 530,
+      "vertices": 292,
+      "relativeSimplificationError": 0.007987793534994125
+    },
+    {
+      "name": "HYPER__ball_L_07__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 538,
+      "vertices": 328,
+      "relativeSimplificationError": 0.007985410280525684
+    },
+    {
+      "name": "HYPER__ball_R_10__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 530,
+      "vertices": 291,
+      "relativeSimplificationError": 0.007853930816054344
+    },
+    {
+      "name": "HYPER__ball_R_06__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 546,
+      "vertices": 299,
+      "relativeSimplificationError": 0.007774581201374531
+    },
+    {
+      "name": "HYPER__spacer_rear__low",
+      "role": "metals",
+      "trianglesBefore": 46944,
+      "triangles": 1500,
+      "vertices": 1143,
+      "relativeSimplificationError": 0.0018244371749460697
+    },
+    {
+      "name": "HYPER__blade__low",
+      "role": "blade",
+      "trianglesBefore": 10218,
+      "triangles": 10218,
+      "vertices": 9946,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "HYPER__joint_06__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 6152,
+      "vertices": 4110,
+      "relativeSimplificationError": 0.0019979923963546753
+    },
+    {
+      "name": "HYPER__screw_06__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 4072,
+      "vertices": 2934,
+      "relativeSimplificationError": 0.001999182626605034
+    },
+    {
+      "name": "HYPER__ball_R_05__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 520,
+      "vertices": 285,
+      "relativeSimplificationError": 0.007986951619386673
+    },
+    {
+      "name": "HYPER__ball_L_11__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 520,
+      "vertices": 286,
+      "relativeSimplificationError": 0.007986935786902905
+    },
+    {
+      "name": "HYPER__tail_spacer__low",
+      "role": "metals",
+      "trianglesBefore": 33844,
+      "triangles": 1228,
+      "vertices": 1412,
+      "relativeSimplificationError": 0.0016440560575574636
+    },
+    {
+      "name": "HYPER__bearing_R__low",
+      "role": "metals",
+      "trianglesBefore": 46080,
+      "triangles": 5504,
+      "vertices": 3538,
+      "relativeSimplificationError": 0.0019788844510912895
+    },
+    {
+      "name": "HYPER__clip_screw__low",
+      "role": "metals",
+      "trianglesBefore": 74832,
+      "triangles": 2466,
+      "vertices": 1398,
+      "relativeSimplificationError": 0.001992433099076152
+    },
+    {
+      "name": "HYPER__ball_R_09__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 534,
+      "vertices": 293,
+      "relativeSimplificationError": 0.00797603651881218
+    },
+    {
+      "name": "HYPER__clip__low",
+      "role": "metals",
+      "trianglesBefore": 112848,
+      "triangles": 4500,
+      "vertices": 6824,
+      "relativeSimplificationError": 0.0006116422009654343
+    },
+    {
+      "name": "HYPER__screw_02__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 4004,
+      "vertices": 2844,
+      "relativeSimplificationError": 0.0019857962615787983
+    },
+    {
+      "name": "HYPER__pivot_L__low",
+      "role": "metals",
+      "trianglesBefore": 21248,
+      "triangles": 2500,
+      "vertices": 1805,
+      "relativeSimplificationError": 0.0019436944276094437
+    },
+    {
+      "name": "HYPER__handle_L__low",
+      "role": "handle",
+      "trianglesBefore": 21304,
+      "triangles": 21304,
+      "vertices": 20825,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "HYPER__ball_L_09__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 530,
+      "vertices": 292,
+      "relativeSimplificationError": 0.007983913645148277
+    },
+    {
+      "name": "HYPER__screw_03__low",
+      "role": "metals",
+      "trianglesBefore": 53284,
+      "triangles": 3992,
+      "vertices": 2842,
+      "relativeSimplificationError": 0.0019975786563009024
+    },
+    {
+      "name": "HYPER__joint_01__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 6396,
+      "vertices": 3498,
+      "relativeSimplificationError": 0.001952165039256215
+    },
+    {
+      "name": "HYPER__thrust_L__low",
+      "role": "metals",
+      "trianglesBefore": 6912,
+      "triangles": 1478,
+      "vertices": 960,
+      "relativeSimplificationError": 0.0017318145837634802
+    },
+    {
+      "name": "HYPER__ball_L_12__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 536,
+      "vertices": 294,
+      "relativeSimplificationError": 0.007939472794532776
+    },
+    {
+      "name": "HYPER__joint_03__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 6058,
+      "vertices": 3378,
+      "relativeSimplificationError": 0.0019851902034133673
+    },
+    {
+      "name": "HYPER__joint_02__low",
+      "role": "metals",
+      "trianglesBefore": 23334,
+      "triangles": 6060,
+      "vertices": 3612,
+      "relativeSimplificationError": 0.001997132785618305
+    },
+    {
+      "name": "HYPER__ball_R_03__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 546,
+      "vertices": 299,
+      "relativeSimplificationError": 0.007978394627571106
+    },
+    {
+      "name": "HYPER__stop_pin__low",
+      "role": "metals",
+      "trianglesBefore": 6784,
+      "triangles": 958,
+      "vertices": 685,
+      "relativeSimplificationError": 0.00046277118963189423
+    },
+    {
+      "name": "HYPER__ball_R_07__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 534,
+      "vertices": 293,
+      "relativeSimplificationError": 0.007980030961334705
+    },
+    {
+      "name": "HYPER__bearing_L__low",
+      "role": "metals",
+      "trianglesBefore": 46332,
+      "triangles": 5626,
+      "vertices": 3709,
+      "relativeSimplificationError": 0.001998576335608959
+    },
+    {
+      "name": "HYPER__tail_insert__low",
+      "role": "metals",
+      "trianglesBefore": 74864,
+      "triangles": 3820,
+      "vertices": 2673,
+      "relativeSimplificationError": 0.0015048289205878973
+    },
+    {
+      "name": "HYPER__ball_R_08__low",
+      "role": "metals",
+      "trianglesBefore": 3120,
+      "triangles": 536,
+      "vertices": 295,
+      "relativeSimplificationError": 0.007791380397975445
+    }
+  ],
+  "roleBounds": {
+    "blade": {
+      "min": [
+        -0.013367058872287396,
+        -0.016116474023787394,
+        -0.0026403899586925554
+      ],
+      "max": [
+        0.12027457992076385,
+        0.016118288372708855,
+        0.0026403878533608517
+      ],
+      "center": [
+        0.053453760524238225,
+        9.071744607302284e-7,
+        -1.052665851838594e-9
+      ],
+      "size": [
+        0.13364163879305124,
+        0.03223476239649625,
+        0.0052807778120534075
+      ]
+    },
+    "handle": {
+      "min": [
+        -0.12969809770584106,
+        -0.016118659883015987,
+        -0.006859944805253783
+      ],
+      "max": [
+        0.013364226557314396,
+        0.01611643236738041,
+        0.00697507414466677
+      ],
+      "center": [
+        -0.058166935574263334,
+        -0.0000011137578177881913,
+        0.000057564669706493786
+      ],
+      "size": [
+        0.14306232426315546,
+        0.0322350922503964,
+        0.013835018949920553
+      ]
+    },
+    "metals": {
+      "min": [
+        -0.12972508370876312,
+        -0.01611520841919524,
+        -0.007105116935619804
+      ],
+      "max": [
+        0.006602001376450062,
+        0.016116504041705348,
+        0.008553682134792785
+      ],
+      "center": [
+        -0.06156154116615653,
+        6.478112550539067e-7,
+        0.0007242825995864904
+      ],
+      "size": [
+        0.13632708508521318,
+        0.03223171246090059,
+        0.015658799070412587
+      ]
+    }
+  },
+  "focusPoints": {
+    "assembled": [
+      -0.004725423,
+      -1.86e-7,
+      0.000724283
+    ],
+    "blade": [
+      0.053453760524238225,
+      9.071744607302284e-7,
+      -1.052665851838594e-9
+    ],
+    "handle": [
+      -0.058166935574263334,
+      -0.0000011137578177881913,
+      0.000057564669706493786
+    ],
+    "metals": [
+      -1e-9,
+      9e-9,
+      0
+    ]
+  },
+  "bufferValidation": {
+    "id": "hyper",
+    "meshes": 52,
+    "triangles": 163776,
+    "vertices": 124562,
+    "normalLengthMin": 0.9999999495326529,
+    "normalLengthMax": 1.0000000510781093,
+    "finite": true,
+    "indexRangesValid": true,
+    "positiveDeterminants": true,
+    "materials": [
+      "HYPER__HARDWARE",
+      "HYPER__HANDLE",
+      "HYPER__BLADE"
+    ]
+  },
+  "optimizationV48": {
+    "baselineBytes": 5142168,
+    "baselineTriangles": 163776,
+    "maxSimplifierAppearanceErrorM": 0.00001,
+    "protectedParts": [
+      "HYPER__handle_R__low",
+      "HYPER__blade__low",
+      "HYPER__clip__low",
+      "HYPER__handle_L__low"
+    ],
+    "baselineSha256": "6697fba2042be609f7e4ff17b231bfd75afa81a87e57f4a50d168f34beec7beb",
+    "sha256": "59f7abec6a42ae846edc1841e732200ab8491dbc48a0096dae5e2a2b49f4ba9d",
+    "parts": [
+      {
+        "name": "HYPER__ball_L_06__low",
+        "protected": false,
+        "trianglesBefore": 542,
+        "triangles": 542,
+        "vertices": 296,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__screw_04__low",
+        "protected": false,
+        "trianglesBefore": 4672,
+        "triangles": 4032,
+        "vertices": 2853,
+        "simplifierAppearanceErrorM": 0.000005550526423289399
+      },
+      {
+        "name": "HYPER__ball_L_08__low",
+        "protected": false,
+        "trianglesBefore": 538,
+        "triangles": 538,
+        "vertices": 297,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__joint_04__low",
+        "protected": false,
+        "trianglesBefore": 6422,
+        "triangles": 5824,
+        "vertices": 3254,
+        "simplifierAppearanceErrorM": 0.000005741219098634497
+      },
+      {
+        "name": "HYPER__joint_05__low",
+        "protected": false,
+        "trianglesBefore": 6390,
+        "triangles": 5854,
+        "vertices": 3231,
+        "simplifierAppearanceErrorM": 0.000005594847788074756
+      },
+      {
+        "name": "HYPER__ball_L_10__low",
+        "protected": false,
+        "trianglesBefore": 544,
+        "triangles": 544,
+        "vertices": 298,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__handle_R__low",
+        "protected": true,
+        "trianglesBefore": 14906,
+        "triangles": 14906,
+        "vertices": 15162,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_R_01__low",
+        "protected": false,
+        "trianglesBefore": 522,
+        "triangles": 522,
+        "vertices": 288,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__screw_01__low",
+        "protected": false,
+        "trianglesBefore": 4630,
+        "triangles": 4016,
+        "vertices": 2857,
+        "simplifierAppearanceErrorM": 0.000005501868825369031
+      },
+      {
+        "name": "HYPER__screw_05__low",
+        "protected": false,
+        "trianglesBefore": 4646,
+        "triangles": 3996,
+        "vertices": 2832,
+        "simplifierAppearanceErrorM": 0.000005849614566007125
+      },
+      {
+        "name": "HYPER__thrust_R__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 1480,
+        "vertices": 961,
+        "simplifierAppearanceErrorM": 0.000009862313253109888
+      },
+      {
+        "name": "HYPER__ball_R_11__low",
+        "protected": false,
+        "trianglesBefore": 542,
+        "triangles": 542,
+        "vertices": 298,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_04__low",
+        "protected": false,
+        "trianglesBefore": 546,
+        "triangles": 546,
+        "vertices": 299,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_01__low",
+        "protected": false,
+        "trianglesBefore": 510,
+        "triangles": 510,
+        "vertices": 281,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__spacer_front__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 1464,
+        "vertices": 1055,
+        "simplifierAppearanceErrorM": 0.000007895839490088831
+      },
+      {
+        "name": "HYPER__ball_R_04__low",
+        "protected": false,
+        "trianglesBefore": 534,
+        "triangles": 534,
+        "vertices": 294,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_R_02__low",
+        "protected": false,
+        "trianglesBefore": 544,
+        "triangles": 544,
+        "vertices": 300,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_03__low",
+        "protected": false,
+        "trianglesBefore": 534,
+        "triangles": 534,
+        "vertices": 295,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_02__low",
+        "protected": false,
+        "trianglesBefore": 514,
+        "triangles": 514,
+        "vertices": 284,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_R_12__low",
+        "protected": false,
+        "trianglesBefore": 792,
+        "triangles": 792,
+        "vertices": 854,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__pivot_R__low",
+        "protected": false,
+        "trianglesBefore": 2500,
+        "triangles": 2258,
+        "vertices": 1665,
+        "simplifierAppearanceErrorM": 0.000009998818574607398
+      },
+      {
+        "name": "HYPER__ball_L_05__low",
+        "protected": false,
+        "trianglesBefore": 530,
+        "triangles": 530,
+        "vertices": 292,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_07__low",
+        "protected": false,
+        "trianglesBefore": 538,
+        "triangles": 538,
+        "vertices": 328,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_R_10__low",
+        "protected": false,
+        "trianglesBefore": 530,
+        "triangles": 530,
+        "vertices": 291,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_R_06__low",
+        "protected": false,
+        "trianglesBefore": 546,
+        "triangles": 546,
+        "vertices": 299,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__spacer_rear__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 1500,
+        "vertices": 1143,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__blade__low",
+        "protected": true,
+        "trianglesBefore": 10218,
+        "triangles": 10218,
+        "vertices": 9946,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__joint_06__low",
+        "protected": false,
+        "trianglesBefore": 6732,
+        "triangles": 6152,
+        "vertices": 4110,
+        "simplifierAppearanceErrorM": 0.000005720029516548784
+      },
+      {
+        "name": "HYPER__screw_06__low",
+        "protected": false,
+        "trianglesBefore": 4638,
+        "triangles": 4072,
+        "vertices": 2934,
+        "simplifierAppearanceErrorM": 0.000005845144636349781
+      },
+      {
+        "name": "HYPER__ball_R_05__low",
+        "protected": false,
+        "trianglesBefore": 520,
+        "triangles": 520,
+        "vertices": 285,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_11__low",
+        "protected": false,
+        "trianglesBefore": 520,
+        "triangles": 520,
+        "vertices": 286,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__tail_spacer__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 1228,
+        "vertices": 1412,
+        "simplifierAppearanceErrorM": 0.000009810093297771705
+      },
+      {
+        "name": "HYPER__bearing_R__low",
+        "protected": false,
+        "trianglesBefore": 5530,
+        "triangles": 5504,
+        "vertices": 3538,
+        "simplifierAppearanceErrorM": 0.000007695230916334936
+      },
+      {
+        "name": "HYPER__clip_screw__low",
+        "protected": false,
+        "trianglesBefore": 2720,
+        "triangles": 2466,
+        "vertices": 1398,
+        "simplifierAppearanceErrorM": 0.000005503195071615997
+      },
+      {
+        "name": "HYPER__ball_R_09__low",
+        "protected": false,
+        "trianglesBefore": 534,
+        "triangles": 534,
+        "vertices": 293,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__clip__low",
+        "protected": true,
+        "trianglesBefore": 4500,
+        "triangles": 4500,
+        "vertices": 6824,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__screw_02__low",
+        "protected": false,
+        "trianglesBefore": 4660,
+        "triangles": 4004,
+        "vertices": 2844,
+        "simplifierAppearanceErrorM": 0.000005785300212514909
+      },
+      {
+        "name": "HYPER__pivot_L__low",
+        "protected": false,
+        "trianglesBefore": 2500,
+        "triangles": 2500,
+        "vertices": 1805,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__handle_L__low",
+        "protected": true,
+        "trianglesBefore": 21304,
+        "triangles": 21304,
+        "vertices": 20825,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__ball_L_09__low",
+        "protected": false,
+        "trianglesBefore": 530,
+        "triangles": 530,
+        "vertices": 292,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__screw_03__low",
+        "protected": false,
+        "trianglesBefore": 4630,
+        "triangles": 3992,
+        "vertices": 2842,
+        "simplifierAppearanceErrorM": 0.000005840681710876807
+      },
+      {
+        "name": "HYPER__joint_01__low",
+        "protected": false,
+        "trianglesBefore": 6622,
+        "triangles": 6396,
+        "vertices": 3498,
+        "simplifierAppearanceErrorM": 0.0000048149675101035664
+      },
+      {
+        "name": "HYPER__thrust_L__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 1478,
+        "vertices": 960,
+        "simplifierAppearanceErrorM": 0.000009873596133037118
+      },
+      {
+        "name": "HYPER__ball_L_12__low",
+        "protected": false,
+        "trianglesBefore": 536,
+        "triangles": 536,
+        "vertices": 294,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__joint_03__low",
+        "protected": false,
+        "trianglesBefore": 6622,
+        "triangles": 6058,
+        "vertices": 3378,
+        "simplifierAppearanceErrorM": 0.00000562588119784168
+      },
+      {
+        "name": "HYPER__joint_02__low",
+        "protected": false,
+        "trianglesBefore": 6658,
+        "triangles": 6060,
+        "vertices": 3612,
+        "simplifierAppearanceErrorM": 0.00000574754953221201
+      },
+      {
+        "name": "HYPER__ball_R_03__low",
+        "protected": false,
+        "trianglesBefore": 546,
+        "triangles": 546,
+        "vertices": 299,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__stop_pin__low",
+        "protected": false,
+        "trianglesBefore": 1500,
+        "triangles": 958,
+        "vertices": 685,
+        "simplifierAppearanceErrorM": 0.000007571036091533461
+      },
+      {
+        "name": "HYPER__ball_R_07__low",
+        "protected": false,
+        "trianglesBefore": 534,
+        "triangles": 534,
+        "vertices": 293,
+        "simplifierAppearanceErrorM": 0
+      },
+      {
+        "name": "HYPER__bearing_L__low",
+        "protected": false,
+        "trianglesBefore": 5714,
+        "triangles": 5626,
+        "vertices": 3709,
+        "simplifierAppearanceErrorM": 0.000009961810740701307
+      },
+      {
+        "name": "HYPER__tail_insert__low",
+        "protected": false,
+        "trianglesBefore": 4500,
+        "triangles": 3820,
+        "vertices": 2673,
+        "simplifierAppearanceErrorM": 0.000005397309408314321
+      },
+      {
+        "name": "HYPER__ball_R_08__low",
+        "protected": false,
+        "trianglesBefore": 536,
+        "triangles": 536,
+        "vertices": 295,
+        "simplifierAppearanceErrorM": 0
+      }
+    ]
+  }
+}

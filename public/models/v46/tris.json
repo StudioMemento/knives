@@ -1,0 +1,893 @@
+{
+  "id": "TRIS",
+  "url": "/models/v46/tris.glb",
+  "sourceFilename": "TRIS.fbx",
+  "sourceBytes": 5942876,
+  "sourceSha256": "5f18960401884e542f762bcf0cf1c962c12e73ccc4d9cfaae4da48aeecac9078",
+  "outputBytes": 1873764,
+  "meshCount": 65,
+  "trianglesBefore": 59186,
+  "triangles": 59186,
+  "bounds": {
+    "min": [
+      -0.123958986,
+      -0.039603616,
+      -0.005692076
+    ],
+    "max": [
+      0.126041014,
+      0.02357771,
+      0.009854316
+    ],
+    "center": [
+      0.001041014,
+      -0.008012953,
+      0.00208112
+    ],
+    "size": [
+      0.25,
+      0.063181326,
+      0.015546391
+    ]
+  },
+  "coordinateSystem": {
+    "tip": "+X",
+    "spine": "+Y",
+    "thickness": "Z",
+    "nominalLengthM": 0.25
+  },
+  "hinge": {
+    "name": "TRIS__BLADE_HINGE",
+    "position": [
+      0,
+      0,
+      0
+    ]
+  },
+  "materialNames": [
+    "TRIS__HANDLE",
+    "TRIS__HARDWARE",
+    "TRIS__BLADE"
+  ],
+  "motion": {
+    "openCloseClip": "TRIS__OPEN_CLOSE_QA_FAILED",
+    "openTime": 0,
+    "closedTime": 6,
+    "reopenedTime": 12,
+    "explodeClip": "TRIS__EXPLODE_QA_FAILED",
+    "explodePeakTime": 8.4,
+    "explodeDuration": 16.799999237060547,
+    "combinedClip": "TRIS__COMBINED_QA_FAILED"
+  },
+  "sourceMotionQA": "source_motion_qa_failed",
+  "sourceLimitations": [
+    "Source reports closed blade protrusion (~1.745 mm) and pivot/spacer intersections."
+  ],
+  "derivativeNotes": [
+    "Geometry indexed/welded only; source triangles retained.",
+    "This conversion does not repair source motion intersections."
+  ],
+  "clips": [
+    {
+      "name": "TRIS__OPEN_CLOSE_QA_FAILED",
+      "duration": 12,
+      "tracks": 3,
+      "keys": 639,
+      "originalKeys": 1083
+    },
+    {
+      "name": "TRIS__COMBINED_QA_FAILED",
+      "duration": 16,
+      "tracks": 68,
+      "keys": 1632,
+      "originalKeys": 32708
+    },
+    {
+      "name": "TRIS__EXPLODE_QA_FAILED",
+      "duration": 16.799999237060547,
+      "tracks": 65,
+      "keys": 1580,
+      "originalKeys": 32825
+    }
+  ],
+  "animationReductionValidation": {
+    "maxPositionErrorM": 1.0244548320770264e-8,
+    "maxAngularErrorRad": 0.0000011309186196929531
+  },
+  "roundTripValidation": {
+    "maxNodePositionErrorM": 0,
+    "maxMatrixElementError": 0,
+    "samples": [
+      {
+        "openTime": 0,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.123958986,
+            -0.039603616,
+            -0.005692076
+          ],
+          "max": [
+            0.126041014,
+            0.02357771,
+            0.009854316
+          ],
+          "center": [
+            0.001041014,
+            -0.008012953,
+            0.00208112
+          ],
+          "size": [
+            0.25,
+            0.063181326,
+            0.015546391
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.127489295,
+            -0.04261279,
+            -0.005692076
+          ],
+          "max": [
+            0.0170424,
+            0.02357771,
+            0.009854316
+          ],
+          "center": [
+            -0.055223447,
+            -0.00951754,
+            0.00208112
+          ],
+          "size": [
+            0.144531695,
+            0.0661905,
+            0.015546391
+          ]
+        }
+      },
+      {
+        "openTime": 12,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.123958986,
+            -0.039603616,
+            -0.005692076
+          ],
+          "max": [
+            0.126041014,
+            0.02357771,
+            0.009854316
+          ],
+          "center": [
+            0.001041014,
+            -0.008012953,
+            0.00208112
+          ],
+          "size": [
+            0.25,
+            0.063181326,
+            0.015546391
+          ]
+        }
+      },
+      {
+        "openTime": 0,
+        "explodeTime": 8.4,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.123958986,
+            -0.039603624,
+            -0.145692078
+          ],
+          "max": [
+            0.181040961,
+            0.023577721,
+            0.168322617
+          ],
+          "center": [
+            0.028540988,
+            -0.008012951,
+            0.01131527
+          ],
+          "size": [
+            0.304999948,
+            0.063181345,
+            0.314014694
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 8.4,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.123958986,
+            -0.04261279,
+            -0.145692078
+          ],
+          "max": [
+            0.062330533,
+            0.023577721,
+            0.168322617
+          ],
+          "center": [
+            -0.030814227,
+            -0.009517534,
+            0.01131527
+          ],
+          "size": [
+            0.186289519,
+            0.066190511,
+            0.314014694
+          ]
+        }
+      },
+      {
+        "openTime": 3,
+        "explodeTime": 4.2,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.123958986,
+            -0.127225373,
+            -0.145692078
+          ],
+          "max": [
+            0.032212691,
+            0.02357771,
+            0.168322617
+          ],
+          "center": [
+            -0.045873148,
+            -0.051823831,
+            0.01131527
+          ],
+          "size": [
+            0.156171678,
+            0.150803083,
+            0.314014694
+          ]
+        }
+      }
+    ]
+  },
+  "parts": [
+    {
+      "name": "TRIS__handle_R_surface_030__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_016__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_064__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_032__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_001__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_033__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_013__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_025__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_023__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_026__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_03_R__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_018__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_008__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__spacer_01__low",
+      "role": "metals",
+      "trianglesBefore": 32,
+      "triangles": 32,
+      "vertices": 34,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__clip_back__low",
+      "role": "metals",
+      "trianglesBefore": 1000,
+      "triangles": 1000,
+      "vertices": 567,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_015__low",
+      "role": "handle",
+      "trianglesBefore": 1216,
+      "triangles": 1216,
+      "vertices": 807,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_029__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_028__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_020__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_062__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_01_R__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_003__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_009__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__clip_screw_01__low",
+      "role": "metals",
+      "trianglesBefore": 234,
+      "triangles": 234,
+      "vertices": 230,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_021__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_035__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__spacer_02__low",
+      "role": "metals",
+      "trianglesBefore": 32,
+      "triangles": 32,
+      "vertices": 34,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__clip_front__low",
+      "role": "metals",
+      "trianglesBefore": 1000,
+      "triangles": 1000,
+      "vertices": 567,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_R_socket__low",
+      "role": "metals",
+      "trianglesBefore": 776,
+      "triangles": 776,
+      "vertices": 940,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__stop_pin_cap_L__low",
+      "role": "metals",
+      "trianglesBefore": 180,
+      "triangles": 180,
+      "vertices": 125,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_027__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__spacer_03__low",
+      "role": "metals",
+      "trianglesBefore": 32,
+      "triangles": 32,
+      "vertices": 34,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_024__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_007__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_011__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_L__low",
+      "role": "metals",
+      "trianglesBefore": 4622,
+      "triangles": 4622,
+      "vertices": 3389,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_R__low",
+      "role": "metals",
+      "trianglesBefore": 4622,
+      "triangles": 4622,
+      "vertices": 3369,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_019__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_R_socket_floor__low",
+      "role": "metals",
+      "trianglesBefore": 2,
+      "triangles": 2,
+      "vertices": 4,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_014__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__clip_edge__low",
+      "role": "metals",
+      "trianglesBefore": 792,
+      "triangles": 792,
+      "vertices": 857,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__clip_screw_02__low",
+      "role": "metals",
+      "trianglesBefore": 234,
+      "triangles": 234,
+      "vertices": 230,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_01_L__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_034__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_004__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__stop_pin__low",
+      "role": "metals",
+      "trianglesBefore": 32,
+      "triangles": 32,
+      "vertices": 34,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_005__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_012__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_L_socket_floor__low",
+      "role": "metals",
+      "trianglesBefore": 2,
+      "triangles": 2,
+      "vertices": 4,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_022__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L__low",
+      "role": "handle",
+      "trianglesBefore": 13066,
+      "triangles": 13066,
+      "vertices": 7565,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_03_L__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_axle__low",
+      "role": "metals",
+      "trianglesBefore": 200,
+      "triangles": 200,
+      "vertices": 206,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__blade__low",
+      "role": "blade",
+      "trianglesBefore": 2682,
+      "triangles": 2682,
+      "vertices": 1911,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_006__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 240,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_02_L__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__stop_pin_cap_R__low",
+      "role": "metals",
+      "trianglesBefore": 180,
+      "triangles": 180,
+      "vertices": 125,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__pivot_L_socket__low",
+      "role": "metals",
+      "trianglesBefore": 776,
+      "triangles": 776,
+      "vertices": 967,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_065__low",
+      "role": "handle",
+      "trianglesBefore": 1216,
+      "triangles": 1216,
+      "vertices": 807,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_063__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_002__low",
+      "role": "handle",
+      "trianglesBefore": 256,
+      "triangles": 256,
+      "vertices": 180,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_L_surface_010__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__screw_02_R__low",
+      "role": "metals",
+      "trianglesBefore": 108,
+      "triangles": 108,
+      "vertices": 229,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R_surface_031__low",
+      "role": "handle",
+      "trianglesBefore": 384,
+      "triangles": 384,
+      "vertices": 260,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "TRIS__handle_R__low",
+      "role": "handle",
+      "trianglesBefore": 13066,
+      "triangles": 13066,
+      "vertices": 7565,
+      "relativeSimplificationError": 0
+    }
+  ],
+  "roleBounds": {
+    "blade": {
+      "min": [
+        -0.0037299818359315395,
+        -0.019302122302387963,
+        -0.002015199367015564
+      ],
+      "max": [
+        0.1260410137474537,
+        0.0215794971997101,
+        0.0019232927607643064
+      ],
+      "center": [
+        0.061155515955761075,
+        0.0011386874486610677,
+        -0.00004595330312562871
+      ],
+      "size": [
+        0.12977099558338523,
+        0.040881619502098065,
+        0.00393849212777987
+      ]
+    },
+    "handle": {
+      "min": [
+        -0.12395898625254631,
+        -0.039603615733253966,
+        -0.0047989196737611515
+      ],
+      "max": [
+        0.017042400315403945,
+        0.023577710060009208,
+        0.004795834874982391
+      ],
+      "center": [
+        -0.053458292968571186,
+        -0.00801295283662238,
+        -0.0000015423993893802848
+      ],
+      "size": [
+        0.14100138656795025,
+        0.06318132579326317,
+        0.009594754548743542
+      ]
+    },
+    "metals": {
+      "min": [
+        -0.12019720673561093,
+        -0.017385478685268033,
+        -0.005692074813192959
+      ],
+      "max": [
+        0.010692680254578592,
+        0.01850281041615074,
+        0.009854314437348733
+      ],
+      "center": [
+        -0.05475226324051617,
+        0.0005586658654413539,
+        0.002081119812077887
+      ],
+      "size": [
+        0.13088988699018952,
+        0.03588828910141877,
+        0.015546389250541692
+      ]
+    }
+  },
+  "focusPoints": {
+    "assembled": [
+      0.001041014,
+      -0.008012953,
+      0.00208112
+    ],
+    "blade": [
+      0.061155515955761075,
+      0.0011386874486610677,
+      -0.00004595330312562871
+    ],
+    "handle": [
+      -0.053458292968571186,
+      -0.00801295283662238,
+      -0.0000015423993893802848
+    ],
+    "metals": [
+      0,
+      0,
+      0
+    ]
+  },
+  "bufferValidation": {
+    "id": "tris",
+    "meshes": 65,
+    "triangles": 59186,
+    "vertices": 40065,
+    "normalLengthMin": 0.9999999517788989,
+    "normalLengthMax": 1.0000000485463783,
+    "finite": true,
+    "indexRangesValid": true,
+    "positiveDeterminants": true,
+    "materials": [
+      "TRIS__HANDLE",
+      "TRIS__HARDWARE",
+      "TRIS__BLADE"
+    ]
+  }
+}

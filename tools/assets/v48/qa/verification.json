@@ -1,0 +1,908 @@
+{
+  "version": 48,
+  "baselineSha256": "6697fba2042be609f7e4ff17b231bfd75afa81a87e57f4a50d168f34beec7beb",
+  "outputSha256": "59f7abec6a42ae846edc1841e732200ab8491dbc48a0096dae5e2a2b49f4ba9d",
+  "bytesBefore": 5142168,
+  "bytes": 3668044,
+  "payloadReductionPct": 28.667363648951184,
+  "trianglesBefore": 163776,
+  "triangles": 154728,
+  "triangleReductionPct": 5.524618991793673,
+  "meshCount": 52,
+  "protectedHashes": [
+    {
+      "name": "HYPER__handle_R__low",
+      "triangles": 14906,
+      "attributes": {
+        "POSITION": "89728a9fbf2eef6a96aa376b2bbac6f30aca433a73c5305cf456d7e716a31aac",
+        "NORMAL": "5294fc4eaf583405e0d62378cdff7dab5e9e62d9b457bfc1237ca78c3b1719cd",
+        "TEXCOORD_0": "418344adee73c52c98dea5baec9e8d65af918db8aa45ec80bf8fbb5f8098f003"
+      },
+      "indices": "a6d06b9b92027e99a74b302780f2cdbe822e7db3abe2581d60f9e931f68d274b"
+    },
+    {
+      "name": "HYPER__blade__low",
+      "triangles": 10218,
+      "attributes": {
+        "POSITION": "cb3185ddf2540d2c2933c7b38be7513dce0ba165f2d295dee08db845e6f8b812",
+        "NORMAL": "aa171e2c5036c1acdcb940af2fe4583a2cfeb17068a44fad475d186307c6acc9",
+        "TEXCOORD_0": "250cf27ca27631532cf7360b90c033dceaa70442eab533f4244eb1dcc0dc70c3"
+      },
+      "indices": "05c5ab184f23c5f193480a632a1b7bda4de1291350cb03a40ff72be5a58eb3ab"
+    },
+    {
+      "name": "HYPER__clip__low",
+      "triangles": 4500,
+      "attributes": {
+        "POSITION": "422857775b54584153d76f6ade21082cf4c45a461e134111bfefed17b69aaf6c",
+        "NORMAL": "cf7b92a6e9707dd9edff16cddb64d393e4a77956cc8559b66d892077afc892cc",
+        "TEXCOORD_0": "3d8b885f5d696ffaaf78aab6099e42c870a27c3275c9d9101a39dec5e70f11ef"
+      },
+      "indices": "b0b3ebbac87e3502436307a80a279dfdb103887f89cfe2e4a1bcfb8d9f281603"
+    },
+    {
+      "name": "HYPER__handle_L__low",
+      "triangles": 21304,
+      "attributes": {
+        "POSITION": "fe56bad179b999940af8290088dcb7556ce1dc0e06a8a6ee60a11904ead4273e",
+        "NORMAL": "d21696780803d6667780b6a0fa16dc1bf7c8ad94fbd8bf4fa497b1859a8ae58a",
+        "TEXCOORD_0": "c0797658086ef93fe64d718a2414b1825a877bcaf4ee98f09e0617cbdb87e3db"
+      },
+      "indices": "d9ccfcfbc3ec3d2622c664019be2fd4b29daebd91b348363630b712f1cb643ce"
+    }
+  ],
+  "exactNodes": 108,
+  "exactAnimationClips": 3,
+  "maxSampledSurfaceErrorM": 0.000009744998204468646,
+  "sampling": "Every vertex plus every triangle centre and edge midpoint, both directions. Sampled values are not an exact Hausdorff guarantee.",
+  "negativeControls": {
+    "protectedMutationRejected": true,
+    "distanceOffsetDetected": true
+  },
+  "parts": [
+    {
+      "name": "HYPER__ball_L_06__low",
+      "protected": false,
+      "trianglesBefore": 542,
+      "triangles": 542,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__screw_04__low",
+      "protected": false,
+      "trianglesBefore": 4672,
+      "triangles": 4032,
+      "forward": {
+        "maxM": 0.000005366208384436693,
+        "rmsM": 3.381227320676558e-7,
+        "samples": 21885
+      },
+      "backward": {
+        "maxM": 0.0000030531261297935554,
+        "rmsM": 2.6035167609472413e-7,
+        "samples": 18981
+      },
+      "surfaceErrorM": 0.000005366208384436693
+    },
+    {
+      "name": "HYPER__ball_L_08__low",
+      "protected": false,
+      "trianglesBefore": 538,
+      "triangles": 538,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__joint_04__low",
+      "protected": false,
+      "trianglesBefore": 6422,
+      "triangles": 5824,
+      "forward": {
+        "maxM": 0.000004350198025427773,
+        "rmsM": 3.841071166020806e-7,
+        "samples": 29246
+      },
+      "backward": {
+        "maxM": 0.000003278165943613859,
+        "rmsM": 2.1094699060333864e-7,
+        "samples": 26550
+      },
+      "surfaceErrorM": 0.000004350198025427773
+    },
+    {
+      "name": "HYPER__joint_05__low",
+      "protected": false,
+      "trianglesBefore": 6390,
+      "triangles": 5854,
+      "forward": {
+        "maxM": 0.000005270950812693725,
+        "rmsM": 3.4521567442875944e-7,
+        "samples": 29062
+      },
+      "backward": {
+        "maxM": 0.000004653432085098364,
+        "rmsM": 2.0718618343618358e-7,
+        "samples": 26647
+      },
+      "surfaceErrorM": 0.000005270950812693725
+    },
+    {
+      "name": "HYPER__ball_L_10__low",
+      "protected": false,
+      "trianglesBefore": 544,
+      "triangles": 544,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__handle_R__low",
+      "protected": true,
+      "trianglesBefore": 14906,
+      "triangles": 14906,
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_R_01__low",
+      "protected": false,
+      "trianglesBefore": 522,
+      "triangles": 522,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__screw_01__low",
+      "protected": false,
+      "trianglesBefore": 4630,
+      "triangles": 4016,
+      "forward": {
+        "maxM": 0.000004892821032204625,
+        "rmsM": 3.593116517213733e-7,
+        "samples": 21710
+      },
+      "backward": {
+        "maxM": 0.0000035673874148343705,
+        "rmsM": 2.7049660004409415e-7,
+        "samples": 18921
+      },
+      "surfaceErrorM": 0.000004892821032204625
+    },
+    {
+      "name": "HYPER__screw_05__low",
+      "protected": false,
+      "trianglesBefore": 4646,
+      "triangles": 3996,
+      "forward": {
+        "maxM": 0.000005639017336068285,
+        "rmsM": 3.8390287187491037e-7,
+        "samples": 21768
+      },
+      "backward": {
+        "maxM": 0.0000035544374154135703,
+        "rmsM": 2.780329797007304e-7,
+        "samples": 18816
+      },
+      "surfaceErrorM": 0.000005639017336068285
+    },
+    {
+      "name": "HYPER__thrust_R__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 1480,
+      "forward": {
+        "maxM": 0.000009744321811652998,
+        "rmsM": 7.459207683375882e-7,
+        "samples": 6971
+      },
+      "backward": {
+        "maxM": 0.0000070927056193027686,
+        "rmsM": 4.50240756022516e-7,
+        "samples": 6881
+      },
+      "surfaceErrorM": 0.000009744321811652998
+    },
+    {
+      "name": "HYPER__ball_R_11__low",
+      "protected": false,
+      "trianglesBefore": 542,
+      "triangles": 542,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_04__low",
+      "protected": false,
+      "trianglesBefore": 546,
+      "triangles": 546,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_01__low",
+      "protected": false,
+      "trianglesBefore": 510,
+      "triangles": 510,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__spacer_front__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 1464,
+      "forward": {
+        "maxM": 0.000007670593390400543,
+        "rmsM": 2.9612553498012024e-7,
+        "samples": 7076
+      },
+      "backward": {
+        "maxM": 0.000004131384264670239,
+        "rmsM": 1.8191258448221373e-7,
+        "samples": 6911
+      },
+      "surfaceErrorM": 0.000007670593390400543
+    },
+    {
+      "name": "HYPER__ball_R_04__low",
+      "protected": false,
+      "trianglesBefore": 534,
+      "triangles": 534,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_R_02__low",
+      "protected": false,
+      "trianglesBefore": 544,
+      "triangles": 544,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_03__low",
+      "protected": false,
+      "trianglesBefore": 534,
+      "triangles": 534,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_02__low",
+      "protected": false,
+      "trianglesBefore": 514,
+      "triangles": 514,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_R_12__low",
+      "protected": false,
+      "trianglesBefore": 792,
+      "triangles": 792,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__pivot_R__low",
+      "protected": false,
+      "trianglesBefore": 2500,
+      "triangles": 2258,
+      "forward": {
+        "maxM": 0.00000950539181586075,
+        "rmsM": 9.285078986111215e-7,
+        "samples": 11788
+      },
+      "backward": {
+        "maxM": 0.000007982215755268432,
+        "rmsM": 6.366773545247914e-7,
+        "samples": 10697
+      },
+      "surfaceErrorM": 0.00000950539181586075
+    },
+    {
+      "name": "HYPER__ball_L_05__low",
+      "protected": false,
+      "trianglesBefore": 530,
+      "triangles": 530,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_07__low",
+      "protected": false,
+      "trianglesBefore": 538,
+      "triangles": 538,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_R_10__low",
+      "protected": false,
+      "trianglesBefore": 530,
+      "triangles": 530,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_R_06__low",
+      "protected": false,
+      "trianglesBefore": 546,
+      "triangles": 546,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__spacer_rear__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 1500,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__blade__low",
+      "protected": true,
+      "trianglesBefore": 10218,
+      "triangles": 10218,
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__joint_06__low",
+      "protected": false,
+      "trianglesBefore": 6732,
+      "triangles": 6152,
+      "forward": {
+        "maxM": 0.000008051171375430009,
+        "rmsM": 3.784986657697782e-7,
+        "samples": 31331
+      },
+      "backward": {
+        "maxM": 0.000004984278770632845,
+        "rmsM": 2.1871973180848196e-7,
+        "samples": 28718
+      },
+      "surfaceErrorM": 0.000008051171375430009
+    },
+    {
+      "name": "HYPER__screw_06__low",
+      "protected": false,
+      "trianglesBefore": 4638,
+      "triangles": 4072,
+      "forward": {
+        "maxM": 0.000005892524370965655,
+        "rmsM": 3.692084257043448e-7,
+        "samples": 21783
+      },
+      "backward": {
+        "maxM": 0.000005668584439010398,
+        "rmsM": 2.5841407856526714e-7,
+        "samples": 19222
+      },
+      "surfaceErrorM": 0.000005892524370965655
+    },
+    {
+      "name": "HYPER__ball_R_05__low",
+      "protected": false,
+      "trianglesBefore": 520,
+      "triangles": 520,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_11__low",
+      "protected": false,
+      "trianglesBefore": 520,
+      "triangles": 520,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__tail_spacer__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 1228,
+      "forward": {
+        "maxM": 0.000009614745085251946,
+        "rmsM": 6.56273843998612e-7,
+        "samples": 7707
+      },
+      "backward": {
+        "maxM": 0.00000866929635856145,
+        "rmsM": 4.5747479257233995e-7,
+        "samples": 6324
+      },
+      "surfaceErrorM": 0.000009614745085251946
+    },
+    {
+      "name": "HYPER__bearing_R__low",
+      "protected": false,
+      "trianglesBefore": 5530,
+      "triangles": 5504,
+      "forward": {
+        "maxM": 0.000006723245121637215,
+        "rmsM": 1.1201381063004296e-7,
+        "samples": 25674
+      },
+      "backward": {
+        "maxM": 0.000004434268547586855,
+        "rmsM": 7.184761213664959e-8,
+        "samples": 25554
+      },
+      "surfaceErrorM": 0.000006723245121637215
+    },
+    {
+      "name": "HYPER__clip_screw__low",
+      "protected": false,
+      "trianglesBefore": 2720,
+      "triangles": 2466,
+      "forward": {
+        "maxM": 0.000006344641422091656,
+        "rmsM": 5.28641735895901e-7,
+        "samples": 12418
+      },
+      "backward": {
+        "maxM": 0.0000041293675425639766,
+        "rmsM": 3.572330627913859e-7,
+        "samples": 11262
+      },
+      "surfaceErrorM": 0.000006344641422091656
+    },
+    {
+      "name": "HYPER__ball_R_09__low",
+      "protected": false,
+      "trianglesBefore": 534,
+      "triangles": 534,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__clip__low",
+      "protected": true,
+      "trianglesBefore": 4500,
+      "triangles": 4500,
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__screw_02__low",
+      "protected": false,
+      "trianglesBefore": 4660,
+      "triangles": 4004,
+      "forward": {
+        "maxM": 0.000009722361980550651,
+        "rmsM": 3.8761820260469107e-7,
+        "samples": 21834
+      },
+      "backward": {
+        "maxM": 0.00000568964695016978,
+        "rmsM": 2.743303670747535e-7,
+        "samples": 18860
+      },
+      "surfaceErrorM": 0.000009722361980550651
+    },
+    {
+      "name": "HYPER__pivot_L__low",
+      "protected": false,
+      "trianglesBefore": 2500,
+      "triangles": 2500,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__handle_L__low",
+      "protected": true,
+      "trianglesBefore": 21304,
+      "triangles": 21304,
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__ball_L_09__low",
+      "protected": false,
+      "trianglesBefore": 530,
+      "triangles": 530,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__screw_03__low",
+      "protected": false,
+      "trianglesBefore": 4630,
+      "triangles": 3992,
+      "forward": {
+        "maxM": 0.000005818278088895801,
+        "rmsM": 3.6096484795974495e-7,
+        "samples": 21706
+      },
+      "backward": {
+        "maxM": 0.000003201105109061066,
+        "rmsM": 2.6728899522735885e-7,
+        "samples": 18810
+      },
+      "surfaceErrorM": 0.000005818278088895801
+    },
+    {
+      "name": "HYPER__joint_01__low",
+      "protected": false,
+      "trianglesBefore": 6622,
+      "triangles": 6396,
+      "forward": {
+        "maxM": 0.000004076021357005104,
+        "rmsM": 1.6016732094610306e-7,
+        "samples": 30099
+      },
+      "backward": {
+        "maxM": 0.0000021534085368626235,
+        "rmsM": 8.519846040557428e-8,
+        "samples": 29082
+      },
+      "surfaceErrorM": 0.000004076021357005104
+    },
+    {
+      "name": "HYPER__thrust_L__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 1478,
+      "forward": {
+        "maxM": 0.000009744998204468646,
+        "rmsM": 7.88449811015227e-7,
+        "samples": 6971
+      },
+      "backward": {
+        "maxM": 0.000009726031738654854,
+        "rmsM": 5.011233293798472e-7,
+        "samples": 6872
+      },
+      "surfaceErrorM": 0.000009744998204468646
+    },
+    {
+      "name": "HYPER__ball_L_12__low",
+      "protected": false,
+      "trianglesBefore": 536,
+      "triangles": 536,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__joint_03__low",
+      "protected": false,
+      "trianglesBefore": 6622,
+      "triangles": 6058,
+      "forward": {
+        "maxM": 0.000005129245449129344,
+        "rmsM": 3.2024182978263894e-7,
+        "samples": 30148
+      },
+      "backward": {
+        "maxM": 0.000005044590202809991,
+        "rmsM": 1.913209947518337e-7,
+        "samples": 27610
+      },
+      "surfaceErrorM": 0.000005129245449129344
+    },
+    {
+      "name": "HYPER__joint_02__low",
+      "protected": false,
+      "trianglesBefore": 6658,
+      "triangles": 6060,
+      "forward": {
+        "maxM": 0.000005991479962903666,
+        "rmsM": 3.4701657089752637e-7,
+        "samples": 30544
+      },
+      "backward": {
+        "maxM": 0.000004930432523153473,
+        "rmsM": 2.153823222402961e-7,
+        "samples": 27852
+      },
+      "surfaceErrorM": 0.000005991479962903666
+    },
+    {
+      "name": "HYPER__ball_R_03__low",
+      "protected": false,
+      "trianglesBefore": 546,
+      "triangles": 546,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__stop_pin__low",
+      "protected": false,
+      "trianglesBefore": 1500,
+      "triangles": 958,
+      "forward": {
+        "maxM": 0.0000030162382467419937,
+        "rmsM": 6.934469141659906e-7,
+        "samples": 6961
+      },
+      "backward": {
+        "maxM": 0.000002945982209433119,
+        "rmsM": 4.0979474308796084e-7,
+        "samples": 4517
+      },
+      "surfaceErrorM": 0.0000030162382467419937
+    },
+    {
+      "name": "HYPER__ball_R_07__low",
+      "protected": false,
+      "trianglesBefore": 534,
+      "triangles": 534,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    },
+    {
+      "name": "HYPER__bearing_L__low",
+      "protected": false,
+      "trianglesBefore": 5714,
+      "triangles": 5626,
+      "forward": {
+        "maxM": 0.000009504193184722646,
+        "rmsM": 3.753011705934457e-7,
+        "samples": 26630
+      },
+      "backward": {
+        "maxM": 0.00000515746266438316,
+        "rmsM": 1.865183300722179e-7,
+        "samples": 26213
+      },
+      "surfaceErrorM": 0.000009504193184722646
+    },
+    {
+      "name": "HYPER__tail_insert__low",
+      "protected": false,
+      "trianglesBefore": 4500,
+      "triangles": 3820,
+      "forward": {
+        "maxM": 0.000006259676041334495,
+        "rmsM": 5.99322893292922e-7,
+        "samples": 21058
+      },
+      "backward": {
+        "maxM": 0.0000048556382238164135,
+        "rmsM": 4.544246886897557e-7,
+        "samples": 17953
+      },
+      "surfaceErrorM": 0.000006259676041334495
+    },
+    {
+      "name": "HYPER__ball_R_08__low",
+      "protected": false,
+      "trianglesBefore": 536,
+      "triangles": 536,
+      "forward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "backward": {
+        "maxM": 0,
+        "rmsM": 0,
+        "samples": 0
+      },
+      "surfaceErrorM": 0
+    }
+  ]
+}

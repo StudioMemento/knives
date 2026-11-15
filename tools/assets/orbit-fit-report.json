@@ -1,0 +1,485 @@
+{
+  "note": "No renderer used. Imports the actual app/lib/framing.ts helpers. Each mesh sphere conservatively encloses real geometry; the production radius includes spheres plus all AABB corners. 25 fold/explosion states, 4 views, 36 yaws, 3 pitch offsets, zoom1/1.3:216000 states. At zoom1 require HUD-safe rect and no potential HUD overlap. ZoomFactor1.3 without detail focus may enter HUD region but must remain in viewport[.02,.02,.98,.98]. Explicit detail focus from double-click/lens bypasses the full-viewport cap and may crop; that mode and its pan are excluded. Original source motion QA unchanged.",
+  "reports": [
+    {
+      "model": "HYPER",
+      "viewport": "desktop",
+      "safeWorldRadius": 2.109606437285341,
+      "fullViewportWorldRadius": 2.249301700841968,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.08,
+            0.69,
+            0.92
+          ],
+          "bounds": [
+            0.047526698804787826,
+            0.1364609689920781,
+            0.5944318517246334,
+            0.91288006016434
+          ],
+          "minGroupScale": 0.6815366021468782,
+          "maxGroupScale": 0.9702266049478748,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.02657905859327453,
+            0.10982760334951752,
+            0.6122743913200522,
+            0.9407449697353532
+          ],
+          "minGroupScale": 0.7266670272241308,
+          "maxGroupScale": 1.0344736886182555,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        }
+      ]
+    },
+    {
+      "model": "HYPER",
+      "viewport": "mobile",
+      "safeWorldRadius": 1.1097015160343042,
+      "fullViewportWorldRadius": 1.2861330173378067,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.1,
+            0.96,
+            0.49
+          ],
+          "bounds": [
+            0.09354378283956521,
+            0.10728432238747493,
+            0.9064131395843942,
+            0.48222891165910664
+          ],
+          "minGroupScale": 0.3585039310026352,
+          "maxGroupScale": 0.5103615135877808,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.027394007090788708,
+            0.07510424001431482,
+            0.972573220346055,
+            0.5114908791215529
+          ],
+          "minGroupScale": 0.4155024894943287,
+          "maxGroupScale": 0.5915039169717161,
+          "violations": 0,
+          "potentialHudOverlapPoses": 779
+        }
+      ]
+    },
+    {
+      "model": "VERTEX",
+      "viewport": "desktop",
+      "safeWorldRadius": 2.109606437285341,
+      "fullViewportWorldRadius": 2.249301700841968,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.08,
+            0.69,
+            0.92
+          ],
+          "bounds": [
+            0.04717735805458606,
+            0.12768876267476204,
+            0.5944478370667623,
+            0.9105905843106327
+          ],
+          "minGroupScale": 0.6937688408440003,
+          "maxGroupScale": 0.9887914367745793,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.026009342640424316,
+            0.09984903553059793,
+            0.6123092252100467,
+            0.9394239383874878
+          ],
+          "minGroupScale": 0.7397092680991383,
+          "maxGroupScale": 1.0542678583105827,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        }
+      ]
+    },
+    {
+      "model": "VERTEX",
+      "viewport": "mobile",
+      "safeWorldRadius": 1.1097015160343042,
+      "fullViewportWorldRadius": 1.2861330173378067,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.1,
+            0.96,
+            0.49
+          ],
+          "bounds": [
+            0.09338176565346895,
+            0.10310004404597056,
+            0.9065623322638159,
+            0.4825650029381646
+          ],
+          "minGroupScale": 0.36493836995142664,
+          "maxGroupScale": 0.5201270421996133,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.027419813384846836,
+            0.07120466595077174,
+            0.9725046748187203,
+            0.5121566386686764
+          ],
+          "minGroupScale": 0.42295994022365535,
+          "maxGroupScale": 0.6028220674815209,
+          "violations": 0,
+          "potentialHudOverlapPoses": 708
+        }
+      ]
+    },
+    {
+      "model": "QUAD",
+      "viewport": "desktop",
+      "safeWorldRadius": 2.109606437285341,
+      "fullViewportWorldRadius": 2.249301700841968,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.08,
+            0.69,
+            0.92
+          ],
+          "bounds": [
+            0.04745728207889893,
+            0.13119376014510564,
+            0.5944756540384362,
+            0.9100191243703613
+          ],
+          "minGroupScale": 0.6810927537389159,
+          "maxGroupScale": 0.9847011015176362,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.025994924007524622,
+            0.10406514872472705,
+            0.6123096081365311,
+            0.9385217284192433
+          ],
+          "minGroupScale": 0.7261937877794172,
+          "maxGroupScale": 1.0499066666267463,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        }
+      ]
+    },
+    {
+      "model": "QUAD",
+      "viewport": "mobile",
+      "safeWorldRadius": 1.1097015160343042,
+      "fullViewportWorldRadius": 1.2861330173378067,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.1,
+            0.96,
+            0.49
+          ],
+          "bounds": [
+            0.09338006321465042,
+            0.10500473335390142,
+            0.9065701278843816,
+            0.4822885309760149
+          ],
+          "minGroupScale": 0.35827045652962464,
+          "maxGroupScale": 0.5179754317591564,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.027420792178644238,
+            0.0736841536092328,
+            0.9725119270918203,
+            0.5118930922336135
+          ],
+          "minGroupScale": 0.415231894902805,
+          "maxGroupScale": 0.6003283723860959,
+          "violations": 0,
+          "potentialHudOverlapPoses": 761
+        }
+      ]
+    },
+    {
+      "model": "EDGE",
+      "viewport": "desktop",
+      "safeWorldRadius": 2.109606437285341,
+      "fullViewportWorldRadius": 2.249301700841968,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.08,
+            0.69,
+            0.92
+          ],
+          "bounds": [
+            0.04724231282362745,
+            0.12873270136602916,
+            0.5941971398710193,
+            0.9125831611501738
+          ],
+          "minGroupScale": 0.6637030925076468,
+          "maxGroupScale": 0.9573315954528131,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.026181205708308397,
+            0.10145429943957557,
+            0.612131594482981,
+            0.9412345574043249
+          ],
+          "minGroupScale": 0.7076526068779725,
+          "maxGroupScale": 1.020724789166214,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        }
+      ]
+    },
+    {
+      "model": "EDGE",
+      "viewport": "mobile",
+      "safeWorldRadius": 1.1097015160343042,
+      "fullViewportWorldRadius": 1.2861330173378067,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.1,
+            0.96,
+            0.49
+          ],
+          "bounds": [
+            0.09348935987391732,
+            0.10383539919116419,
+            0.9064743415954526,
+            0.4820973700080896
+          ],
+          "minGroupScale": 0.3491230946849696,
+          "maxGroupScale": 0.5035784419526941,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.027414480084256454,
+            0.07238640346083725,
+            0.9725296502913461,
+            0.5116798292625018
+          ],
+          "minGroupScale": 0.40463019352639346,
+          "maxGroupScale": 0.5836424044273079,
+          "violations": 0,
+          "potentialHudOverlapPoses": 460
+        }
+      ]
+    },
+    {
+      "model": "TRIS",
+      "viewport": "desktop",
+      "safeWorldRadius": 2.109606437285341,
+      "fullViewportWorldRadius": 2.249301700841968,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.08,
+            0.69,
+            0.92
+          ],
+          "bounds": [
+            0.046865946811412706,
+            0.13000181174644126,
+            0.5944672453506336,
+            0.91134506557771
+          ],
+          "minGroupScale": 0.6602228434402312,
+          "maxGroupScale": 0.9628804270367564,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.025379771840030152,
+            0.10313884162862463,
+            0.6122493390531308,
+            0.9402574414515876
+          ],
+          "minGroupScale": 0.7039419004597818,
+          "maxGroupScale": 1.0266410568163589,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        }
+      ]
+    },
+    {
+      "model": "TRIS",
+      "viewport": "mobile",
+      "safeWorldRadius": 1.1097015160343042,
+      "fullViewportWorldRadius": 1.2861330173378067,
+      "zooms": [
+        {
+          "zoom": 1,
+          "poseCount": 10800,
+          "rect": [
+            0.04,
+            0.1,
+            0.96,
+            0.49
+          ],
+          "bounds": [
+            0.0934336094810525,
+            0.10461754568621923,
+            0.9064145193018085,
+            0.4823577487770707
+          ],
+          "minGroupScale": 0.34729240361481073,
+          "maxGroupScale": 0.5064972550128422,
+          "violations": 0,
+          "potentialHudOverlapPoses": 0
+        },
+        {
+          "zoom": 1.3,
+          "poseCount": 10800,
+          "rect": [
+            0.02,
+            0.02,
+            0.98,
+            0.98
+          ],
+          "bounds": [
+            0.02737055852813053,
+            0.07349424605620813,
+            0.9724482997019799,
+            0.5120975124953935
+          ],
+          "minGroupScale": 0.4025084407885122,
+          "maxGroupScale": 0.5870252797265222,
+          "violations": 0,
+          "potentialHudOverlapPoses": 538
+        }
+      ]
+    }
+  ]
+}

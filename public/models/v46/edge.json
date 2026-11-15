@@ -1,0 +1,493 @@
+{
+  "id": "EDGE",
+  "url": "/models/v46/edge.glb",
+  "sourceFilename": "EDGE.fbx",
+  "sourceBytes": 5099468,
+  "sourceSha256": "a9f7f69fe3473e3dd8badbe4198c57c378b17a9fec37701360753f939670a465",
+  "outputBytes": 1981496,
+  "meshCount": 15,
+  "trianglesBefore": 55424,
+  "triangles": 55424,
+  "bounds": {
+    "min": [
+      -0.135035016,
+      -0.029838288,
+      -0.007364211
+    ],
+    "max": [
+      0.114964958,
+      0.01968456,
+      0.00605953
+    ],
+    "center": [
+      -0.010035029,
+      -0.005076864,
+      -0.000652341
+    ],
+    "size": [
+      0.249999974,
+      0.049522848,
+      0.013423741
+    ]
+  },
+  "coordinateSystem": {
+    "tip": "+X",
+    "spine": "+Y",
+    "thickness": "Z",
+    "nominalLengthM": 0.25
+  },
+  "hinge": {
+    "name": "EDGE__BLADE_HINGE",
+    "position": [
+      0,
+      0,
+      0
+    ]
+  },
+  "materialNames": [
+    "EDGE__HANDLE",
+    "EDGE__HARDWARE",
+    "EDGE__BLADE"
+  ],
+  "motion": {
+    "openCloseClip": "EDGE__OPEN_CLOSE_QA_FAILED",
+    "openTime": 0,
+    "closedTime": 6,
+    "reopenedTime": 12,
+    "explodeClip": "EDGE__EXPLODE_QA_FAILED",
+    "explodePeakTime": 6,
+    "explodeDuration": 12,
+    "combinedClip": "EDGE__COMBINED_QA_FAILED"
+  },
+  "sourceMotionQA": "source_motion_qa_failed",
+  "sourceLimitations": [
+    "Source reports component intersections during closure and explosion path."
+  ],
+  "derivativeNotes": [
+    "Geometry indexed/welded only; source triangles retained.",
+    "This conversion does not repair source motion intersections."
+  ],
+  "clips": [
+    {
+      "name": "EDGE__OPEN_CLOSE_QA_FAILED",
+      "duration": 12,
+      "tracks": 3,
+      "keys": 564,
+      "originalKeys": 1083
+    },
+    {
+      "name": "EDGE__EXPLODE_QA_FAILED",
+      "duration": 12,
+      "tracks": 15,
+      "keys": 331,
+      "originalKeys": 5415
+    },
+    {
+      "name": "EDGE__COMBINED_QA_FAILED",
+      "duration": 16,
+      "tracks": 18,
+      "keys": 872,
+      "originalKeys": 8658
+    }
+  ],
+  "animationReductionValidation": {
+    "maxPositionErrorM": 1.4901161193847656e-8,
+    "maxAngularErrorRad": 0.0000010254770835688973
+  },
+  "roundTripValidation": {
+    "maxNodePositionErrorM": 0,
+    "maxMatrixElementError": 0,
+    "samples": [
+      {
+        "openTime": 0,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.135035016,
+            -0.029838288,
+            -0.007364211
+          ],
+          "max": [
+            0.114964958,
+            0.01968456,
+            0.00605953
+          ],
+          "center": [
+            -0.010035029,
+            -0.005076864,
+            -0.000652341
+          ],
+          "size": [
+            0.249999974,
+            0.049522848,
+            0.013423741
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.135035016,
+            -0.029838288,
+            -0.007364211
+          ],
+          "max": [
+            0.013183441,
+            0.01968456,
+            0.00605953
+          ],
+          "center": [
+            -0.060925787,
+            -0.005076864,
+            -0.000652341
+          ],
+          "size": [
+            0.148218457,
+            0.049522848,
+            0.013423741
+          ]
+        }
+      },
+      {
+        "openTime": 12,
+        "explodeTime": 0,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.135035016,
+            -0.029838288,
+            -0.007364211
+          ],
+          "max": [
+            0.114964958,
+            0.01968456,
+            0.00605953
+          ],
+          "center": [
+            -0.010035029,
+            -0.005076864,
+            -0.000652341
+          ],
+          "size": [
+            0.249999974,
+            0.049522848,
+            0.013423741
+          ]
+        }
+      },
+      {
+        "openTime": 0,
+        "explodeTime": 6,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.190035015,
+            -0.029838295,
+            -0.147308103
+          ],
+          "max": [
+            0.169964958,
+            0.019684568,
+            0.146059522
+          ],
+          "center": [
+            -0.010035029,
+            -0.005076864,
+            -0.000624291
+          ],
+          "size": [
+            0.359999973,
+            0.049522863,
+            0.293367626
+          ]
+        }
+      },
+      {
+        "openTime": 6,
+        "explodeTime": 6,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.190035015,
+            -0.029838295,
+            -0.147308103
+          ],
+          "max": [
+            0.067540597,
+            0.019684568,
+            0.146059522
+          ],
+          "center": [
+            -0.061247209,
+            -0.005076864,
+            -0.000624291
+          ],
+          "size": [
+            0.257575612,
+            0.049522863,
+            0.293367626
+          ]
+        }
+      },
+      {
+        "openTime": 3,
+        "explodeTime": 3,
+        "maxNodePositionErrorM": 0,
+        "bounds": {
+          "min": [
+            -0.135035023,
+            -0.115434474,
+            -0.147308103
+          ],
+          "max": [
+            0.022231534,
+            0.01968456,
+            0.146059522
+          ],
+          "center": [
+            -0.056401745,
+            -0.047874957,
+            -0.000624291
+          ],
+          "size": [
+            0.157266557,
+            0.135119034,
+            0.293367626
+          ]
+        }
+      }
+    ]
+  },
+  "parts": [
+    {
+      "name": "EDGE__handle_L__low",
+      "role": "handle",
+      "trianglesBefore": 8920,
+      "triangles": 8920,
+      "vertices": 7656,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__liner_R__low",
+      "role": "metals",
+      "trianglesBefore": 9074,
+      "triangles": 9074,
+      "vertices": 9000,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__screw_tail_R__low",
+      "role": "metals",
+      "trianglesBefore": 1818,
+      "triangles": 1818,
+      "vertices": 2002,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__tail_loop__low",
+      "role": "metals",
+      "trianglesBefore": 2176,
+      "triangles": 2176,
+      "vertices": 2066,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__screw_middle_R__low",
+      "role": "metals",
+      "trianglesBefore": 1818,
+      "triangles": 1818,
+      "vertices": 1977,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__lock_pin__low",
+      "role": "metals",
+      "trianglesBefore": 40,
+      "triangles": 40,
+      "vertices": 46,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__screw_tail_L__low",
+      "role": "metals",
+      "trianglesBefore": 1818,
+      "triangles": 1818,
+      "vertices": 1890,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__screw_middle_L__low",
+      "role": "metals",
+      "trianglesBefore": 1818,
+      "triangles": 1818,
+      "vertices": 1882,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__blade__low",
+      "role": "blade",
+      "trianglesBefore": 4168,
+      "triangles": 4168,
+      "vertices": 3920,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__pivot_R__low",
+      "role": "metals",
+      "trianglesBefore": 574,
+      "triangles": 574,
+      "vertices": 425,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__tail_spacer__low",
+      "role": "metals",
+      "trianglesBefore": 1636,
+      "triangles": 1636,
+      "vertices": 1603,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__pivot_L__low",
+      "role": "metals",
+      "trianglesBefore": 1762,
+      "triangles": 1762,
+      "vertices": 1695,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__lock_bar__low",
+      "role": "metals",
+      "trianglesBefore": 1808,
+      "triangles": 1808,
+      "vertices": 1786,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__handle_R__low",
+      "role": "handle",
+      "trianglesBefore": 8920,
+      "triangles": 8920,
+      "vertices": 7224,
+      "relativeSimplificationError": 0
+    },
+    {
+      "name": "EDGE__liner_L__low",
+      "role": "metals",
+      "trianglesBefore": 9074,
+      "triangles": 9074,
+      "vertices": 6016,
+      "relativeSimplificationError": 0
+    }
+  ],
+  "roleBounds": {
+    "blade": {
+      "min": [
+        -0.011418489972129464,
+        -0.017130970913352358,
+        -0.0016549500724780967
+      ],
+      "max": [
+        0.11496495828032494,
+        0.018729408288751217,
+        0.0022222888425805862
+      ],
+      "center": [
+        0.051773234154097736,
+        0.0007992186876994295,
+        0.00028366938505124475
+      ],
+      "size": [
+        0.1263834482524544,
+        0.035860379202103575,
+        0.003877238915058683
+      ]
+    },
+    "handle": {
+      "min": [
+        -0.1294405497610569,
+        -0.028286520229833263,
+        -0.006065881411383709
+      ],
+      "max": [
+        0.011643119156360633,
+        0.018132447922544453,
+        0.004808569044693541
+      ],
+      "center": [
+        -0.05889871530234814,
+        -0.0050770361536444045,
+        -0.0006286561833450839
+      ],
+      "size": [
+        0.14108366891741753,
+        0.04641896815237771,
+        0.01087445045607725
+      ]
+    },
+    "metals": {
+      "min": [
+        -0.13503501564264297,
+        -0.029838287787973684,
+        -0.007364210346714616
+      ],
+      "max": [
+        0.01318344101309777,
+        0.019684560069831925,
+        0.006059528794208846
+      ],
+      "center": [
+        -0.060925787314772606,
+        -0.00507686385907088,
+        -0.0006523407762528848
+      ],
+      "size": [
+        0.14821845665574074,
+        0.04952284785780561,
+        0.013423739140923461
+      ]
+    }
+  },
+  "focusPoints": {
+    "assembled": [
+      -0.010035029,
+      -0.005076864,
+      -0.000652341
+    ],
+    "blade": [
+      0.051773234154097736,
+      0.0007992186876994295,
+      0.00028366938505124475
+    ],
+    "handle": [
+      -0.05889871530234814,
+      -0.0050770361536444045,
+      -0.0006286561833450839
+    ],
+    "metals": [
+      0,
+      0,
+      0
+    ]
+  },
+  "bufferValidation": {
+    "id": "edge",
+    "meshes": 15,
+    "triangles": 55424,
+    "vertices": 49188,
+    "normalLengthMin": 0.9999999554318774,
+    "normalLengthMax": 1.000000044767362,
+    "finite": true,
+    "indexRangesValid": true,
+    "positiveDeterminants": true,
+    "materials": [
+      "EDGE__HANDLE",
+      "EDGE__HARDWARE",
+      "EDGE__BLADE"
+    ]
+  }
+}

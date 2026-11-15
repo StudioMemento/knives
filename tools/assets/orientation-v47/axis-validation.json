@@ -1,0 +1,385 @@
+{
+  "models": [
+    {
+      "id": "HYPER",
+      "tipMm": [
+        120.27442157268524,
+        16.112055256962776,
+        -0.0009728683114218484
+      ],
+      "handleTailMm": [
+        -129.6979638568142,
+        -7.148565847034517,
+        -3.5488513551587078
+      ],
+      "tipAxis": "+X",
+      "spineAxis": "+Y",
+      "edgeAxis": "-Y",
+      "clipSide": "+Z",
+      "clipZRangeMm": [
+        5.318554118275642,
+        8.553681895136833
+      ],
+      "mainFaceNormal": [
+        0,
+        0,
+        -1
+      ],
+      "sections": [
+        {
+          "xFractionOfTip": 0.45,
+          "xMm": 54.12348970770836,
+          "edgeNegativeYThicknessMm": 0.9541685274911822,
+          "spinePositiveYThicknessMm": 2.9562362029421085,
+          "spineToEdgeRatio": 3.098232773108761
+        },
+        {
+          "xFractionOfTip": 0.6,
+          "xMm": 72.16465294361115,
+          "edgeNegativeYThicknessMm": 0.8198560431512705,
+          "spinePositiveYThicknessMm": 2.7503493804206203,
+          "spineToEdgeRatio": 3.3546735471377835
+        },
+        {
+          "xFractionOfTip": 0.75,
+          "xMm": 90.20581617951393,
+          "edgeNegativeYThicknessMm": 0.6151673018297311,
+          "spinePositiveYThicknessMm": 2.121265224109622,
+          "spineToEdgeRatio": 3.4482736936768394
+        }
+      ],
+      "perModelCorrectionQuaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "VERTEX",
+      "tipMm": [
+        122.16834723949432,
+        -0.4101549566257745,
+        -0.16633635095786303
+      ],
+      "handleTailMm": [
+        -127.83166766166687,
+        -13.56581412255764,
+        -4.6594287268817425
+      ],
+      "tipAxis": "+X",
+      "spineAxis": "+Y",
+      "edgeAxis": "-Y",
+      "clipSide": "+Z",
+      "clipZRangeMm": [
+        4.277446307241917,
+        9.479526430368423
+      ],
+      "mainFaceNormal": [
+        0,
+        0,
+        -1
+      ],
+      "sections": [
+        {
+          "xFractionOfTip": 0.45,
+          "xMm": 54.97575625777245,
+          "edgeNegativeYThicknessMm": 0.62873405070929,
+          "spinePositiveYThicknessMm": 3.422554329885196,
+          "spineToEdgeRatio": 5.443564454675439
+        },
+        {
+          "xFractionOfTip": 0.6,
+          "xMm": 73.30100834369658,
+          "edgeNegativeYThicknessMm": 0.530432109132002,
+          "spinePositiveYThicknessMm": 3.272580558270277,
+          "spineToEdgeRatio": 6.16965018129374
+        },
+        {
+          "xFractionOfTip": 0.75,
+          "xMm": 91.62626042962074,
+          "edgeNegativeYThicknessMm": 0.5912592854121933,
+          "spinePositiveYThicknessMm": 2.1186806842128862,
+          "spineToEdgeRatio": 3.5833360024711647
+        }
+      ],
+      "perModelCorrectionQuaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "QUAD",
+      "tipMm": [
+        118.46034973859787,
+        2.4833975924698053,
+        -0.40777824360106263
+      ],
+      "handleTailMm": [
+        -131.53967261314392,
+        -5.9315701535738565,
+        -4.466678693835788
+      ],
+      "tipAxis": "+X",
+      "spineAxis": "+Y",
+      "edgeAxis": "-Y",
+      "clipSide": "+Z",
+      "clipZRangeMm": [
+        5.6846062652766705,
+        10.478917509317398
+      ],
+      "mainFaceNormal": [
+        0,
+        0,
+        -1
+      ],
+      "sections": [
+        {
+          "xFractionOfTip": 0.45,
+          "xMm": 53.30715738236904,
+          "edgeNegativeYThicknessMm": 0.7199864857427372,
+          "spinePositiveYThicknessMm": 1.995793134537265,
+          "spineToEdgeRatio": 2.7719869387248393
+        },
+        {
+          "xFractionOfTip": 0.6,
+          "xMm": 71.07620984315872,
+          "edgeNegativeYThicknessMm": 0.659894535957263,
+          "spinePositiveYThicknessMm": 1.8260933688414318,
+          "spineToEdgeRatio": 2.767250324618078
+        },
+        {
+          "xFractionOfTip": 0.75,
+          "xMm": 88.8452623039484,
+          "edgeNegativeYThicknessMm": 0.5942582476059952,
+          "spinePositiveYThicknessMm": 1.7294278768487528,
+          "spineToEdgeRatio": 2.9102294899832795
+        }
+      ],
+      "perModelCorrectionQuaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "EDGE",
+      "tipMm": [
+        114.96483428137643,
+        -1.9207902452243226,
+        1.2981719780890715
+      ],
+      "handleTailMm": [
+        -129.4405460357666,
+        -8.152476511895657,
+        2.942203776910901
+      ],
+      "tipAxis": "+X",
+      "spineAxis": "+Y",
+      "edgeAxis": "-Y",
+      "clipSide": "No clip geometry present",
+      "clipZRangeMm": null,
+      "mainFaceNormal": [
+        0,
+        0,
+        -1
+      ],
+      "sections": [
+        {
+          "xFractionOfTip": 0.45,
+          "xMm": 51.734175426619394,
+          "edgeNegativeYThicknessMm": 0.9702902360350598,
+          "spinePositiveYThicknessMm": 3.0048259281947383,
+          "spineToEdgeRatio": 3.0968320782794767
+        },
+        {
+          "xFractionOfTip": 0.6,
+          "xMm": 68.97890056882586,
+          "edgeNegativeYThicknessMm": 0.8023325046104817,
+          "spinePositiveYThicknessMm": 2.7389473032789287,
+          "spineToEdgeRatio": 3.413730950123527
+        },
+        {
+          "xFractionOfTip": 0.75,
+          "xMm": 86.22362571103231,
+          "edgeNegativeYThicknessMm": 0.6382982801594556,
+          "spinePositiveYThicknessMm": 2.2227362125003585,
+          "spineToEdgeRatio": 3.482284508028267
+        }
+      ],
+      "perModelCorrectionQuaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "TRIS",
+      "tipMm": [
+        126.04101002216339,
+        -2.0702164620161057,
+        -0.045953212975291535
+      ],
+      "handleTailMm": [
+        -123.95898997783661,
+        -24.016127921640873,
+        -0.0015470432117581367
+      ],
+      "tipAxis": "+X",
+      "spineAxis": "+Y",
+      "edgeAxis": "-Y",
+      "clipSide": "+Z",
+      "clipZRangeMm": [
+        4.660198464989662,
+        9.854314848780632
+      ],
+      "mainFaceNormal": [
+        0,
+        0,
+        -1
+      ],
+      "sections": [
+        {
+          "xFractionOfTip": 0.45,
+          "xMm": 56.71845450997353,
+          "edgeNegativeYThicknessMm": 1.5619864023385133,
+          "spinePositiveYThicknessMm": 3.935098241941416,
+          "spineToEdgeRatio": 2.519290972091704
+        },
+        {
+          "xFractionOfTip": 0.6,
+          "xMm": 75.62460601329802,
+          "edgeNegativeYThicknessMm": 1.5244767511085824,
+          "spinePositiveYThicknessMm": 3.8954789026252588,
+          "spineToEdgeRatio": 2.555289150715162
+        },
+        {
+          "xFractionOfTip": 0.75,
+          "xMm": 94.53075751662254,
+          "edgeNegativeYThicknessMm": 1.4676341284831185,
+          "spinePositiveYThicknessMm": 3.7805071998379343,
+          "spineToEdgeRatio": 2.575919383767192
+        }
+      ],
+      "perModelCorrectionQuaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "canonical": {
+    "matrixRows": [
+      [
+        -1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        -1
+      ]
+    ],
+    "quaternionXYZW": [
+      0,
+      1,
+      0,
+      0
+    ],
+    "determinant": 1,
+    "tip": [
+      -1.0,
+      0.0,
+      0.0
+    ],
+    "spine": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "clipFace": [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  },
+  "rightMultiplyCorrectionToOldPoses": {
+    "matrixRows": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        -1,
+        0
+      ],
+      [
+        0,
+        0,
+        -1
+      ]
+    ],
+    "quaternionXYZW": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "hero": {
+    "rollRadians": 0.9907963267948966,
+    "matrixRows": [
+      [
+        -0.5480239367918736,
+        -0.8364626499151869,
+        0.0
+      ],
+      [
+        -0.8364626499151869,
+        0.5480239367918736,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ]
+    ],
+    "quaternionXYZW": [
+      -0.4753819849384947,
+      0.8797794998725174,
+      0,
+      0
+    ],
+    "tip": [
+      -0.5480239367918736,
+      -0.8364626499151869,
+      0.0
+    ],
+    "spine": [
+      -0.8364626499151869,
+      0.5480239367918736,
+      0.0
+    ],
+    "clipFace": [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  },
+  "allChecksPassed": true,
+  "scope": "Actual GLB geometry OPEN_CLOSE0/EXPLODE0; 3 geometric thickness sections per blade, clip body coordinate ranges, and orthographic mesh inspection. No Stage or GLB edits."
+}

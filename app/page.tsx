@@ -1,5 +1,2 @@
-import KnifeExperience from "./KnifeExperience";
-
-export default function Home() {
-  return <KnifeExperience />;
-}
+import Experience from './Experience';
+export default function Home(){return <Experience/>;}
