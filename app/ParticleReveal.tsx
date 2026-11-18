@@ -1,103 +1,124 @@
 'use client';
 import {useLayoutEffect,useRef,type RefObject} from 'react';
 
-type Grain={x:number;y:number;u:number;dx:number;dy:number;size:number;seed:number};
-type Burst={element:HTMLElement;grains:Grain[];start:number;duration:number;leaving:boolean;opacity:number;behind:boolean};
+type Point={x:number;y:number};
+type Grain=Point&{dx:number;dy:number;lag:number;size:number};
+type Burst={element:HTMLElement;behind:boolean;grains:Grain[];origins:Point[];start:number;duration:number};
 const clamp=(n:number)=>Math.max(0,Math.min(1,n));
+const noise=(n:number)=>{const v=Math.sin(127.1*n+311.7)*43758.5453;return v-Math.floor(v);};
 const ease=(n:number)=>{const t=clamp(n);return t*t*(3-2*t);};
-// A deterministic field: interrupting a reveal never produces a new random flash.
-const noise=(n:number)=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v);};
+const zones=[{x:.23,y:.22},{x:.72,y:.39},{x:.33,y:.82},{x:.91,y:.83}];
 
-/** Fine grains sampled from real glyphs and HUD outlines. The visible DOM stays
- * accessible/clickable; a short-lived canvas supplies the reference's dust FX.
- * No full-screen readback, WebGL postprocess, continuous particle simulation or
- * screenshot rasterization. A reveal costs work only while it is visible. */
+function sample(element:HTMLElement,rect:DOMRect){
+ const buf=document.createElement('canvas'),scale=Math.min(1.15,420/Math.max(1,rect.width));
+ buf.width=Math.ceil(rect.width*scale)+2;buf.height=Math.ceil(rect.height*scale)+2;
+ const ink=buf.getContext('2d',{willReadFrequently:true});if(!ink||rect.width<=0||rect.height<=0)return [];
+ ink.scale(scale,scale);ink.translate(-rect.left,-rect.top);ink.fillStyle='white';ink.strokeStyle='white';
+ const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);
+ const range=document.createRange();let node:Node|null;
+ while((node=walker.nextNode())){
+  if(!node.textContent?.trim()||!node.parentElement||node.parentElement.closest('svg'))continue;
+  const css=getComputedStyle(node.parentElement);ink.font=css.fontWeight+' '+css.fontSize+' '+css.fontFamily;
+  ink.textBaseline='top';ink.letterSpacing=css.letterSpacing==='normal'?'0px':css.letterSpacing;
+  // Sample each visual line so wrapped copy has the same silhouette as the DOM.
+  for(const match of node.textContent.matchAll(/\S+/g)){
+   range.setStart(node,match.index!);range.setEnd(node,match.index!+match[0].length);
+   const box=range.getBoundingClientRect();ink.fillText(css.textTransform==='uppercase'?match[0].toUpperCase():match[0],box.left,box.top);
+  }
+ }
+ for(const child of element.querySelectorAll<HTMLElement>('button, input, img')){
+  const box=child.getBoundingClientRect();
+  if(child instanceof HTMLImageElement&&child.complete&&child.naturalWidth){ink.drawImage(child,box.x,box.y,box.width,box.height);continue;}
+  if(child.querySelector('svg'))continue;
+  if(child.classList.contains('swatch')){ink.strokeRect(box.x+2,box.y+2,box.width-4,box.height-4);ink.globalAlpha=.42;ink.fillRect(box.x+3,box.y+3,box.width-6,box.height-6);ink.globalAlpha=1;}
+  else if(child.classList.contains('finish')){ink.save();ink.translate(box.x+box.width/2,box.y+box.height/2);ink.rotate(Math.PI/4);const side=box.width*.56;ink.strokeRect(-side/2,-side/2,side,side);ink.restore();}
+  else ink.fillRect(box.x+box.width*.13,box.y+box.height/2,box.width*.74,1.5);
+ }
+ for(const path of element.querySelectorAll<SVGGeometryElement>('svg path')){
+  const matrix=path.getScreenCTM();if(!matrix)continue;const length=path.getTotalLength();
+  for(let d=0;d<length;d+=.7){const p=path.getPointAtLength(d).matrixTransform(matrix);ink.fillRect(p.x,p.y,1.35,1.35);}
+ }
+ const pixels=ink.getImageData(0,0,buf.width,buf.height).data,points:Point[]=[];
+ for(let y=0;y<buf.height;y+=2)for(let x=0;x<buf.width;x+=2)if(pixels[(y*buf.width+x)*4+3]>40)points.push({x:rect.left+x/scale,y:rect.top+y/scale});
+ const limit=Math.min(420,points.length),grains:Grain[]=[];
+ for(let i=0;i<limit;i++){
+  const p=points[Math.floor((i+noise(i))*points.length/limit)];
+  const u=(p.x-rect.left)/rect.width,v=(p.y-rect.top)/rect.height;
+  const lag=Math.min(...zones.map((o,j)=>Math.hypot(u-o.x,v-o.y)*.72+j*.045));
+  const angle=noise(i+rect.left)*Math.PI*2,r=8+noise(i+9)*27;
+  grains.push({...p,dx:Math.cos(angle)*r,dy:Math.sin(angle)*r,lag,size:.6+noise(i+3)*.9});
+ }
+ return grains;
+}
+
+/** Each changed region owns its reveal. Jobs on persistent controls keep their
+ * original clock when a different region changes or another model is selected. */
 export default function ParticleReveal({root,chapter,model,ready}:{root:RefObject<HTMLElement|null>;chapter:number;model:number;ready:boolean}){
- const canvas=useRef<HTMLCanvasElement>(null),backCanvas=useRef<HTMLCanvasElement>(null);
- const running=useRef<{bursts:Burst[];raf:number;previous:HTMLElement[];started:boolean}>({bursts:[],raf:0,previous:[],started:false});
+ const canvas=useRef<HTMLCanvasElement>(null),back=useRef<HTMLCanvasElement>(null);
+ const update=useRef<(chapter:number,model:number,ready:boolean)=>void>(()=>{});
  useLayoutEffect(()=>{
-  const surface=canvas.current,host=root.current;if(!surface||!host||!ready)return;
-  const back=backCanvas.current,backCtx=back?.getContext('2d',{alpha:true});if(!back||!backCtx)return;
-  const state=running.current,ctx=surface.getContext('2d',{alpha:true});if(!ctx)return;
-  let disposed=false;
-  const reset=()=>{cancelAnimationFrame(state.raf);for(const burst of state.bursts){burst.element.style.removeProperty('mask-image');burst.element.style.removeProperty('-webkit-mask-image');}state.bursts=[];ctx.clearRect(0,0,innerWidth,innerHeight);backCtx.clearRect(0,0,innerWidth,innerHeight);};
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){reset();return;}
-  const paintGlyph=(element:HTMLElement):{x:number;y:number}[]=>{
-   const rect=element.getBoundingClientRect(),scale=Math.min(1,260/Math.max(1,rect.width)),buffer=document.createElement('canvas');
-   buffer.width=Math.ceil(rect.width*scale)+4;buffer.height=Math.ceil(rect.height*scale)+4;
-   const ink=buffer.getContext('2d',{willReadFrequently:true});if(!ink)return [];
-   ink.scale(scale,scale);ink.fillStyle='white';ink.textBaseline='top';
-   const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);let node:Node|null;
-   while((node=walker.nextNode())){
-    const text=node.textContent||'';if(!text.trim())continue;
-    const parent=node.parentElement!,css=getComputedStyle(parent),range=document.createRange();range.selectNodeContents(node);
-    const bounds=range.getBoundingClientRect();
-    ink.font=`${css.fontWeight} ${css.fontSize} ${css.fontFamily}`;
-    if('letterSpacing' in ink)(ink as CanvasRenderingContext2D & {letterSpacing:string}).letterSpacing=css.letterSpacing;
-    ink.fillText(text,bounds.left-rect.left,bounds.top-rect.top);
+  const host=root.current,frontCanvas=canvas.current,backCanvas=back.current;
+  if(!host||!frontCanvas||!backCanvas)return;
+  const front=frontCanvas.getContext('2d'),rear=backCanvas.getContext('2d');if(!front||!rear)return;
+  const jobs=new Map<HTMLElement,Burst>(),reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  let first=true,lastChapter=-1,lastModel=-1,raf=0,width=0,height=0,disposed=false;
+  let latest:{chapter:number;model:number;ready:boolean}|null=null,fontsReady=false;
+  function stop(element:HTMLElement){element.style.removeProperty('mask-image');element.style.removeProperty('-webkit-mask-image');jobs.delete(element);}
+  function clear(){
+   cancelAnimationFrame(raf);raf=0;
+   for(const el of jobs.keys())stop(el);
+   front!.clearRect(0,0,width,height);rear!.clearRect(0,0,width,height);
+  }
+  function resize(){
+   clear();width=host!.clientWidth;height=host!.clientHeight;const dpr=Math.min(devicePixelRatio,1.5);
+   for(const [c,ctx] of [[frontCanvas,front],[backCanvas,rear]] as const){
+    c!.width=Math.round(width*dpr);c!.height=Math.round(height*dpr);ctx!.setTransform(dpr,0,0,dpr,0,0);
    }
-   const pixels=ink.getImageData(0,0,buffer.width,buffer.height).data,points:{x:number;y:number}[]=[];
-   for(let y=0;y<buffer.height;y+=2)for(let x=0;x<buffer.width;x+=2){if(pixels[(y*buffer.width+x)*4+3]>90)points.push({x:rect.left+x/scale,y:rect.top+y/scale});}
-   return points;
-  };
-  const sample=(element:HTMLElement):Grain[]=>{
-   const rect=element.getBoundingClientRect();let points:{x:number;y:number}[]=[];
-   if(element.hasAttribute('data-fx-text'))points=paintGlyph(element);
-   else{
-    const paths=element.querySelectorAll<SVGGeometryElement>('path,line,polyline,polygon,circle,rect');
-    for(const path of paths){if(typeof path.getTotalLength!=='function')continue;const matrix=path.getScreenCTM();if(!matrix)continue;
-     const length=path.getTotalLength();for(let d=0;d<length;d+=.65){const p=path.getPointAtLength(d).matrixTransform(matrix);points.push({x:p.x,y:p.y});}
-    }
-    if(!points.length){
-     // Swatches, finish diamonds and slider tracks also condense from particles.
-     const diamond=element.classList.contains('finish');
-     for(let n=0;n<72;n++){const u=n/72;let x:number,y:number;
-      if(diamond){const a=u*Math.PI*2;x=rect.width*.5+Math.cos(a)*rect.width*.46;y=rect.height*.5+Math.sin(a)*rect.height*.46;const d=Math.abs(Math.cos(a))+Math.abs(Math.sin(a));x=rect.width*.5+(x-rect.width*.5)/d;y=rect.height*.5+(y-rect.height*.5)/d;}
-      else {const perimeter=(rect.width+rect.height)*2,d=u*perimeter;x=d<rect.width?d:d<rect.width+rect.height?rect.width:d<2*rect.width+rect.height?2*rect.width+rect.height-d:0;y=d<rect.width?0:d<rect.width+rect.height?d-rect.width:d<2*rect.width+rect.height?rect.height:perimeter-d;}
-      points.push({x:rect.left+x,y:rect.top+y});
-     }
+  }
+  function draw(now:number){
+   raf=0;front!.clearRect(0,0,width,height);rear!.clearRect(0,0,width,height);
+   for(const job of jobs.values()){
+    const t=clamp((now-job.start)/job.duration);
+    if(t>=1){stop(job.element);continue;}
+    const mask=job.origins.map((o,j)=>{
+     const grow=ease((t-j*.047)/(.84-j*.02))*147;
+     return 'radial-gradient(ellipse farthest-corner at '+o.x+'% '+o.y+'%,#000 '+Math.max(0,grow-15)+'%,transparent '+Math.max(.01,grow)+'%)';
+    }).join(',');
+    job.element.style.maskImage=mask;job.element.style.webkitMaskImage=mask;
+    const ctx=job.behind?rear!:front!;
+    for(const grain of job.grains){
+     const local=clamp((t-grain.lag*.66)/.68);
+     const alpha=Math.sin(local*Math.PI)*.78;if(alpha<.025)continue;
+     const drift=1-ease(local);
+     ctx.fillStyle='rgba(224,225,222,'+alpha.toFixed(3)+')';
+     ctx.fillRect(grain.x+grain.dx*drift,grain.y+grain.dy*drift,grain.size,grain.size);
     }
    }
-   const step=Math.max(1,Math.ceil(points.length/190));
-   return points.filter((_,i)=>i%step===0).map((p,i)=>({x:p.x,y:p.y,u:clamp((p.x-rect.left)/Math.max(1,rect.width)),dx:18+noise(i+rect.left)*45,dy:(noise(i*2+rect.top)-.5)*44,size:.55+noise(i+7)*.8,seed:noise(i+rect.left+rect.top)}));
-  };
-  const run=async()=>{
-   await document.fonts.ready;if(disposed)return;reset();
-   const dpr=Math.min(devicePixelRatio,1.5);surface.width=Math.round(innerWidth*dpr);surface.height=Math.round(innerHeight*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);back.width=surface.width;back.height=surface.height;backCtx.setTransform(dpr,0,0,dpr,0,0);
-   const section=host.querySelectorAll<HTMLElement>('.hud-layer')[chapter];
-   const current=[...section.querySelectorAll<HTMLElement>('[data-fx-text],[data-fx-control]')];
-   const title=host.querySelector<HTMLElement>(chapter===0?'.hero-copy h1':'.atmospheric-title');
-   if(title&&!current.includes(title))current.push(title);
-   current.push(...Array.from(host.querySelectorAll<HTMLElement>('header [data-fx-text],.sequence-nav [data-fx-control]')).filter(el=>!current.includes(el)));
-   const now=performance.now();
-   // Exit is a drifting remnant; only entering content receives a moving mask.
-   const outgoing=state.previous.filter(el=>!current.includes(el)&&el.isConnected);
-   state.bursts=outgoing.map(element=>({element,grains:sample(element),start:now,duration:950,leaving:true,opacity:.48,behind:element.classList.contains('atmospheric-title')}));
-   for(const element of current){const low=element.classList.contains('atmospheric-title');state.bursts.push({element,grains:sample(element),start:now,duration:low?2150:1850,leaving:false,opacity:low?.45:.82,behind:low});element.style.maskImage='linear-gradient(90deg,transparent,transparent)';}
-   // Bound work on large screens and dense technical HUDs, including outgoing UI.
-   let budget=1800;for(const burst of state.bursts){const limit=Math.max(24,Math.floor(1800/state.bursts.length));burst.grains=burst.grains.slice(0,Math.min(limit,budget));budget-=burst.grains.length;}
-   state.previous=current;state.started=true;
-   const frame=(clock:number)=>{
-    if(disposed)return;ctx.clearRect(0,0,innerWidth,innerHeight);backCtx.clearRect(0,0,innerWidth,innerHeight);let alive=false;
-    for(const burst of state.bursts){const t=clamp((clock-burst.start)/burst.duration);
-     if(!burst.leaving){if(t>=1){burst.element.style.removeProperty('mask-image');burst.element.style.removeProperty('-webkit-mask-image');continue;}
-      const front=(t*1.20-.10)*100;burst.element.style.maskImage=`linear-gradient(90deg,#000 ${front-8}%,transparent ${front+8}%)`;
-     }else if(t>=1)continue;
-     alive=true;
-     const owner=burst.element.closest<HTMLElement>('.hud-layer');const layer=owner?Number(owner.style.opacity||1):1;
-     for(const grain of burst.grains){const local=clamp((t-grain.u*.35)/.65),settle=ease(local),drift=burst.leaving?settle:1-settle;
-      const alpha=(burst.leaving?(1-t)*.52:Math.sin(Math.PI*local))*burst.opacity*(burst.leaving?1:layer);
-      if(alpha<.015)continue;
-      const x=grain.x+grain.dx*drift,y=grain.y+grain.dy*drift+Math.sin(local*5+grain.seed*6)*8*drift;
-      const paint=burst.behind?backCtx:ctx;paint.fillStyle=`rgba(236,239,242,${alpha.toFixed(3)})`;paint.fillRect(x,y,grain.size,grain.size);
-     }
-    }
-    if(alive)state.raf=requestAnimationFrame(frame);else {ctx.clearRect(0,0,innerWidth,innerHeight);backCtx.clearRect(0,0,innerWidth,innerHeight);state.bursts=[];}
-   };state.raf=requestAnimationFrame(frame);
-  };void run();
-  const resize=()=>reset();window.addEventListener('resize',resize);
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)');reduce.addEventListener('change',resize);
-  return()=>{disposed=true;reset();window.removeEventListener('resize',resize);reduce.removeEventListener('change',resize);};
- },[root,chapter,model,ready]);
- return <><canvas ref={backCanvas} className="particle-reveal particle-reveal-back" aria-hidden="true"/><canvas ref={canvas} className="particle-reveal" aria-hidden="true"/></>;
+   if(jobs.size)raf=requestAnimationFrame(draw);
+  }
+  function add(el:HTMLElement|null,behind=false){
+   if(!el)return;const rect=el.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
+   jobs.set(el,{element:el,behind,grains:sample(el,rect),origins:zones.map(p=>({x:p.x*100,y:p.y*100})),start:performance.now(),duration:behind?1100:860});
+   el.style.maskImage='linear-gradient(transparent,transparent)';
+  }
+  function sync(nextChapter:number,nextModel:number,isReady:boolean){
+   latest={chapter:nextChapter,model:nextModel,ready:isReady};if(!fontsReady||!isReady)return;
+   const newModel=first||nextModel!==lastModel,newChapter=first||nextChapter!==lastChapter;
+   if(!reduce.matches){
+    if(first)host!.querySelectorAll<HTMLElement>('[data-chrome]').forEach(el=>add(el));
+    if(newModel)add(host!.querySelector('[data-product-name]'),true);
+    if(newChapter)for(const el of jobs.keys())if(el.closest('.hud-layer[aria-hidden=true]'))stop(el);
+    if(nextChapter===0&&(newModel||newChapter))add(host!.querySelector('[data-summary]'));
+    if(newChapter&&nextChapter>0)add(host!.querySelector('.hud-layer[aria-hidden=false] [data-panel]'));
+    if(!raf&&jobs.size)raf=requestAnimationFrame(draw);
+   }
+   first=false;lastChapter=nextChapter;lastModel=nextModel;
+  }
+  update.current=sync;resize();
+  void document.fonts.ready.then(()=>{if(disposed)return;fontsReady=true;if(latest)sync(latest.chapter,latest.model,latest.ready);});
+  window.addEventListener('resize',resize);reduce.addEventListener('change',clear);
+  return ()=>{disposed=true;clear();update.current=()=>{};window.removeEventListener('resize',resize);reduce.removeEventListener('change',clear);};
+ },[root]);
+ useLayoutEffect(()=>{update.current(chapter,model,ready);},[chapter,model,ready]);
+ return <><canvas ref={back} className="particle-reveal particle-reveal-back" aria-hidden="true"/><canvas ref={canvas} className="particle-reveal" aria-hidden="true"/></>;
 }

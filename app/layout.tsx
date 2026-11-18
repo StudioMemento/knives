@@ -1,6 +1,7 @@
-import type {Metadata} from 'next';
+import type {Metadata,Viewport} from 'next';
 import '@fontsource/michroma/400.css';
 import './globals.css';
+export const viewport:Viewport={width:'device-width',initialScale:1,viewportFit:'cover'};
 export const metadata:Metadata={title:'MEMENTO — Knives Continuum',description:'Cinque coltelli. Un solo movimento. Esplora lama, manico e metalli in uno showroom 3D continuo.'};
 // An asset/network failure can happen before React mounts. Keep recovery outside
 // the app bundle so a failed entry chunk cannot leave an indefinite loading screen.

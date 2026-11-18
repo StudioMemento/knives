@@ -33,7 +33,8 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
   uniforms:{uMap:{value:source.texture},uOpacity:{value:1},uFloor:{value:0}},vertexShader:vertex,
   fragmentShader:`varying vec2 vUv;uniform sampler2D uMap;uniform float uOpacity,uFloor;
   void main(){vec4 c=texture2D(uMap,vUv);float fade=mix(1.,smoothstep(.015,.32,vUv.y),uFloor);
-   gl_FragColor=vec4(c.rgb/max(c.a,.00001),c.a*uOpacity*fade);
+   float visible=smoothstep(.00006,.012,max(c.r,max(c.g,c.b)));
+   gl_FragColor=vec4(c.rgb/max(c.a,.00001),c.a*uOpacity*fade*visible);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
    gl_FragColor.rgb*=gl_FragColor.a;

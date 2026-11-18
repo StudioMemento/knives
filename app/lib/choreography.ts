@@ -1,32 +1,29 @@
-import {Vector3,Quaternion,Euler,type Object3D} from 'three';
+import {Vector3} from 'three';
 import type {ExplodedPart} from './explosion';
+import {smooth} from './state.ts';
 
-export const HERO_HOLD=7.4;
+export const HERO_PERIOD=8;
+export const HERO_TRAVEL=2.2;
+export const HERO_HOLD=HERO_PERIOD-HERO_TRAVEL;
 export const RAIL_DEPTH=1.22;
-export const TAU=Math.PI*2;
-const ease=(n:number)=>{const t=Math.max(0,Math.min(1,n));return Math.max(0,Math.min(1,t*t*t*(t*(t*6-15)+10)));};
-/** Assembly finishes before the focus plateau, with the same envelope on exit. */
-export const assemblyWeight=(distance:number)=>1-ease((distance-.18)/.72);
-export const turnTarget=(hold:number)=>TAU*ease((hold-.45)/(HERO_HOLD-1.5));
-export const turnPose=(angle:number)=>new Quaternion().setFromEuler(new Euler(angle,.055*Math.sin(angle),.025*Math.sin(angle*2),'XYZ'));
+export const assemblyWeight=(distance:number)=>1-smooth((distance-.12)/.78);
+
 export function railPoint(angle:number,radius:number,centerX:number,floorY:number){
  return new Vector3(centerX+Math.sin(angle)*radius,floorY,Math.cos(angle)*RAIL_DEPTH);
 }
-/** Absolute offsets after the original explosion sampler; never accumulated. */
+
+/** Sample after the authored position tracks. The curl of this sinusoidal
+ * vector field is bounded and stays anchored to each component's rest pose. */
 export function animateBackdrop(parts:ExplodedPart[],weight:number,time:number,model:number){
- if(weight<1e-8)return;
+ if(weight<=0)return;
  for(let i=0;i<parts.length;i++){
-  const p=parts[i],phase=i*2.39996+model*.79;
-  p.node.position.x+=Math.sin(time*.38+phase)*.0035*weight;
-  p.node.position.y+=Math.cos(time*.46+phase*.71)*.0045*weight;
-  p.node.position.z+=Math.sin(time*.32+phase*1.27)*.006*weight;
+  const {node,assembled}=parts[i];
+  const phase=i*2.39996+model*.79;
+  const x=assembled.x*13+phase+time*.34;
+  const y=assembled.y*17+phase*.68-time*.41;
+  const z=assembled.z*15-phase*.47+time*.29;
+  node.position.x+=weight*(.0018*(Math.cos(y)-Math.cos(z))+.0014*Math.sin(time*.61+phase));
+  node.position.y+=weight*(.0023*(Math.cos(z)-Math.cos(x))+.0017*Math.sin(time*.46+phase));
+  node.position.z+=weight*(.0020*(Math.cos(x)-Math.cos(y))+.0016*Math.cos(time*.38+phase));
  }
-}
-/** Pin the actual animated blade vertex to the rail, including explosion,
- * local component movement, full-turn attitude and original node hierarchy. */
-export function anchorTip(group:Object3D,tipMesh:Object3D,tipLocal:Vector3,target:Vector3,weight:number){
- if(weight<1e-8)return;
- group.updateMatrixWorld(true);
- const delta=target.clone().sub(tipLocal.clone().applyMatrix4(tipMesh.matrixWorld));
- group.position.addScaledVector(delta,weight);group.updateMatrixWorld(true);
 }

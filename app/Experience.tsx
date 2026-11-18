@@ -2,95 +2,121 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import Stage from './Stage';
 import ParticleReveal from './ParticleReveal';
-import {SectionSnap,swipeDestination,nearestChapter} from './lib/navigation';
+import {SectionSnap,nearestChapter} from './lib/navigation';
+import {chooseSlot} from './lib/gestures';
 import {Brand,Glyph,MaterialHud,TechnicalHud} from './Hud';
-import {CHAPTERS,KNIVES,createState,defaultConfiguration,mod,nextAnchor,resetInspection,sectionAt,type Surface,type View} from './lib/state';
+import {CHAPTERS,KNIVES,PRODUCTS,createState,defaultConfiguration,mod,resetInspection,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 export default function Experience(){
- const state=useRef(createState());const snap=useRef(new SectionSnap());const horizontalSnap=useRef(new SectionSnap());
- const [section,setSection]=useState(0),[selected,setSelected]=useState(0),[ready,setReady]=useState(0),[error,setError]=useState(''),[revision,setRevision]=useState(0);
- const sections=useRef<(HTMLElement|null)[]>([]),root=useRef<HTMLElement>(null),live=useRef<HTMLSpanElement>(null);
- const refresh=()=>setRevision(v=>v+1);
- const navigate=useCallback((direction:number)=>{state.current.focus=null;state.current.target=nextAnchor(state.current.target,direction);snap.current.lock(performance.now());},[]);
- const selectKnife=useCallback((direction:number)=>{
-  const s=state.current;if(sectionAt(s.progress)!==0||s.ready.length<2)return;
-  const current=Math.round(s.orbit);let next=current+direction;
-  for(let i=0;i<KNIVES.length&&!s.ready.includes(mod(next));i++)next+=direction;
-  s.orbit=next;
- },[]);
- const onFrame=useCallback((p:number,id:number,loaded:number,focus:number)=>{
-  const chapter=sectionAt(p),u=mod(p);
-  sections.current.forEach((el,i)=>{if(!el)return;let d=Math.abs(u-i);d=Math.min(d,5-d);const a=Math.max(0,1-d/0.68);el.style.opacity=String(a*a*(3-2*a));el.style.pointerEvents='none';el.setAttribute('aria-hidden',d>=.48?'true':'false');if('inert' in el)el.inert=d>=.48;});
-  if(root.current){root.current.dataset.section=CHAPTERS[chapter].toLowerCase();root.current.dataset.model=KNIVES[id];root.current.dataset.progress=u.toFixed(3);root.current.dataset.dragging=String(state.current.dragging);root.current.style.setProperty('--hero-focus',String(focus));root.current.style.setProperty('--focus-blur',state.current.focus?'1':'0');root.current.style.setProperty('--detail-opacity',String(Math.min(1,Math.min(u,5-u)*2)));root.current.style.setProperty('--blur-angle','135deg');}
-  setSection(old=>old===chapter?old:chapter);setSelected(old=>old===id?old:id);setReady(old=>old===loaded?old:loaded);
+ const state=useRef(createState()),root=useRef<HTMLElement>(null),snap=useRef(new SectionSnap());
+ const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
+ const previous=useRef(frame),[,setRevision]=useState(0);
+ const refresh=useCallback(()=>setRevision(v=>v+1),[]);
+ const go=useCallback((target:number)=>{
+  const s=state.current;
+  if(sectionAt(target)!==sectionAt(s.progress)||s.target!==target){
+   if(sectionAt(s.progress)===0&&sectionAt(target)!==0)chooseSlot(s,Math.round(s.orbit));
+   resetView(s);
+  }
+  s.target=target;s.activity++;snap.current.lock(performance.now());refresh();
+ },[refresh]);
+ const choose=useCallback((slot:number)=>{
+  const s=state.current;
+  if(mod(slot)!==s.selected){resetView(s);s.closed=0;s.exploded=0;s.cuts=[0,0,0];}
+  chooseSlot(s,slot);refresh();
+ },[refresh]);
+ const stepKnife=useCallback((direction:number)=>{
+  const s=state.current;
+  if(s.ready.length<2)return;
+  const anchor=Math.round(s.orbit);
+  const next=anchor+direction;
+  if(s.ready.includes(mod(next)))choose(next);
+ },[choose]);
+ const onFrame=useCallback((progress:number,selected:number,ready:number)=>{
+  const section=sectionAt(progress),last=previous.current;
+  if(last.section!==section||last.selected!==selected||last.ready!==ready){
+   previous.current={section,selected,ready};setFrame(previous.current);
+  }
  },[]);
  useEffect(()=>{
-  const s=state.current;const reduce=matchMedia('(prefers-reduced-motion: reduce)');s.reduced=reduce.matches;s.paused=reduce.matches;
-  try{const raw=JSON.parse(localStorage.getItem('memento-knives-v46')||'null');if(Array.isArray(raw)&&raw.length===5)s.configs=raw.map(c=>{const next=defaultConfiguration();for(const k of ['blade','handle','metals'] as const){if(Number.isInteger(c?.[k]?.color)&&c[k].color>=0&&c[k].color<8)next[k].color=c[k].color;if(Number.isInteger(c?.[k]?.style)&&c[k].style>=0&&c[k].style<4)next[k].style=c[k].style;}return next;});}catch{}refresh();
-  const onWheel=(e:WheelEvent)=>{
-   if((e.target as Element).closest('input'))return;
-   if(e.ctrlKey||e.metaKey){if(sectionAt(s.progress)===4){e.preventDefault();s.zoom=Math.max(.8,Math.min(1.35,s.zoom-e.deltaY*.002));}return;}
+  const s=state.current,reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  s.reduced=reduce.matches;s.paused=reduce.matches;
+  try{
+   const stored=JSON.parse(localStorage.getItem('memento-knives-v46')||'null');
+   if(Array.isArray(stored)&&stored.length===KNIVES.length)s.configs=stored.map(c=>{
+    const next=defaultConfiguration();
+    for(const k of ['blade','handle','metals'] as const){
+     if(Number.isInteger(c?.[k]?.color)&&c[k].color>=0&&c[k].color<8)next[k].color=c[k].color;
+     if(Number.isInteger(c?.[k]?.style)&&c[k].style>=0&&c[k].style<4)next[k].style=c[k].style;
+    }
+    return next;
+   });
+  }catch{}
+  refresh();
+  const wheel=(e:WheelEvent)=>{
+   if(e.ctrlKey||e.metaKey||(e.target as Element).closest('input[type=range]'))return;
    e.preventDefault();
-   const factor=e.deltaMode===1?18:e.deltaMode===2?innerHeight:1,now=performance.now();
-   if(Math.abs(e.deltaX)>Math.abs(e.deltaY)&&sectionAt(s.progress)===0){const d=horizontalSnap.current.wheel(e.deltaX*factor,now);if(d)selectKnife(d);return;}
-   const d=snap.current.wheel(e.deltaY*factor,now);if(d){s.focus=null;s.target=nextAnchor(s.target,d);}
+   const factor=e.deltaMode===1?18:e.deltaMode===2?innerHeight:1;
+   const horizontal=Math.abs(e.deltaX)>Math.abs(e.deltaY);
+   const direction=snap.current.wheel((horizontal?e.deltaX:e.deltaY)*factor,performance.now());
+   if(direction){if(horizontal)stepKnife(direction);else go(Math.round(s.target)+direction);}
   };
-  type Gesture={id:number;x:number;y:number;lastX:number;lastTime:number;velocity:number;startOrbit:number;startChapter:number;axis:'x'|'y'|null;touch:boolean};
-  let gesture:Gesture|null=null;const host=root.current!;
-  const pointerDown=(e:PointerEvent)=>{
-   if(e.button!==0||(e.target as Element).closest('button,input,a,textarea')||sectionAt(s.progress)===4)return;
-   gesture={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastTime:e.timeStamp,velocity:0,startOrbit:s.orbit,startChapter:Math.round(s.target),axis:null,touch:e.pointerType!=='mouse'};
-   host.setPointerCapture(e.pointerId);
-  };
-  const pointerMove=(e:PointerEvent)=>{
-   if(!gesture||e.pointerId!==gesture.id)return;const g=gesture,dx=e.clientX-g.x,dy=e.clientY-g.y;
-   if(!g.axis&&Math.hypot(dx,dy)>9){
-    if(sectionAt(s.progress)===0&&Math.abs(dx)>Math.abs(dy)*1.15)g.axis='x';
-    else if(g.touch&&Math.abs(dy)>Math.abs(dx))g.axis='y';
+  const key=(e:KeyboardEvent)=>{
+   if((e.target as Element).closest('input,textarea,select')||e.altKey||e.ctrlKey||e.metaKey)return;
+   if(e.key===' '&&(e.target as Element).closest('button,a'))return;
+   if(e.repeat)return;
+   switch(e.key){
+    case 'ArrowDown':case 'PageDown':go(Math.round(s.target)+1);break;
+    case 'ArrowUp':case 'PageUp':go(Math.round(s.target)-1);break;
+    case 'ArrowLeft':stepKnife(-1);break;
+    case 'ArrowRight':stepKnife(1);break;
+    case 'Home':case 'Escape':go(nearestChapter(s.target,0));break;
+    case '0':resetInspection(s);refresh();break;
+    case ' ':s.paused=!s.paused;s.activity++;refresh();break;
+    default:return;
    }
-   const elapsed=Math.max(8,e.timeStamp-g.lastTime);g.velocity=(e.clientX-g.lastX)/elapsed;g.lastX=e.clientX;g.lastTime=e.timeStamp;
-   if(g.axis==='x'){s.dragging=true;s.dragPhase=g.startOrbit-dx/Math.max(180,innerWidth*.42);}
-   if(g.axis==='y'){s.focus=null;s.target=g.startChapter+Math.max(-.42,Math.min(.42,-dy/innerHeight));}
+   e.preventDefault();
   };
-  const pointerUp=(e:PointerEvent)=>{
-   if(!gesture||e.pointerId!==gesture.id)return;const g=gesture;gesture=null;
-   if(g.axis==='x'){s.dragging=false;s.orbit=swipeDestination(g.startOrbit,e.clientX-g.x,innerWidth,g.velocity);}
-   if(g.axis==='y'){const dy=e.clientY-g.y;s.target=g.startChapter+(Math.abs(dy)>44?Math.sign(-dy):0);snap.current.lock(performance.now());}
-   if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);
-   refresh();
-  };
-  const pointerCancel=(e:PointerEvent)=>{if(!gesture)return;s.dragging=false;s.orbit=Math.round(s.orbit);s.target=gesture.startChapter;gesture=null;if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);refresh();};
-  host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',pointerCancel);
-  const onKey=(e:KeyboardEvent)=>{if((e.target as Element).closest('input,textarea,button,a'))return;if(['ArrowDown','ArrowUp','PageDown','PageUp','ArrowLeft','ArrowRight','Home','Escape','0',' '].includes(e.key))e.preventDefault();if(e.key==='ArrowDown'||e.key==='PageDown')navigate(1);if(e.key==='ArrowUp'||e.key==='PageUp')navigate(-1);if(e.key==='ArrowLeft')selectKnife(-1);if(e.key==='ArrowRight')selectKnife(1);if(e.key==='Home'||e.key==='Escape')s.target=Math.round(s.progress/5)*5;if(e.key==='0'){resetInspection(s);refresh();}if(e.key===' '){s.paused=!s.paused;refresh();}};
   const onReduce=()=>{s.reduced=reduce.matches;s.paused=reduce.matches;refresh();};
-  window.addEventListener('wheel',onWheel,{passive:false});window.addEventListener('keydown',onKey);reduce.addEventListener('change',onReduce);
-  return()=>{host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerCancel);window.removeEventListener('wheel',onWheel);window.removeEventListener('keydown',onKey);reduce.removeEventListener('change',onReduce);};
- },[navigate,selectKnife]);
- const material=(surface:Surface,key:'color'|'style',value:number)=>{state.current.configs[selected][surface][key]=value;try{localStorage.setItem('memento-knives-v46',JSON.stringify(state.current.configs));}catch{}refresh();};
- const action=(name:'blade'|'explode'|'orbit'|'zoom')=>{const s=state.current;s.focus=null;if(name==='blade')s.closed=s.closed>.5?0:1;if(name==='explode')s.exploded=s.exploded>.5?0:1;if(name==='orbit')s.spin=!s.spin;if(name==='zoom'){s.zoom=s.zoom>1?1:1.3;s.focus=s.zoom>1?[0,0,0]:null;}refresh();};
- const preset=(v:View)=>{const s=state.current;s.view=v;s.yaw=0;s.pitch=0;s.focus=null;refresh();};
- return <main ref={root} className="experience" data-version="49" data-ui-pending={ready===0&&!error} data-section="collection" data-model={KNIVES[selected]} data-revision={revision}>
+  window.addEventListener('wheel',wheel,{passive:false});window.addEventListener('keydown',key);reduce.addEventListener('change',onReduce);
+  return ()=>{window.removeEventListener('wheel',wheel);window.removeEventListener('keydown',key);reduce.removeEventListener('change',onReduce);};
+ },[go,stepKnife,refresh]);
+ const {selected,section,ready}=frame,s=state.current;
+ const setRange=(key:'closed'|'exploded'|'zoom',value:number)=>{s[key]=value;s.activity++;refresh();};
+ const material=(surface:Surface,key:'color'|'style',value:number)=>{
+  s.configs[selected][surface][key]=value;
+  try{localStorage.setItem('memento-knives-v46',JSON.stringify(s.configs));}catch{}
+  refresh();
+ };
+ const preset=(v:View)=>{s.yaw=0;s.pitch=0;s.view=v;refresh();};
+ const product=PRODUCTS[selected];
+ return <main ref={root} className="experience" data-version="50" data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
   <div className="environment" aria-hidden="true"/>
-  <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh}/>
-  <div className="diagonal-blur" aria-hidden="true"/>
-  <div className="focus-bokeh" aria-hidden="true"/>
-  <div className="atmospheric-title" data-fx-text aria-hidden="true">{KNIVES[selected]}</div>
-  <header><button className="brand" aria-label="Torna alla collezione" onClick={()=>{state.current.target=Math.round(state.current.progress/5)*5;}}><Brand/></button></header>
-  <section ref={el=>{sections.current[0]=el;}} className="hud-layer hero-layer" data-ui aria-label="Collezione">
-   <div className="hero-copy"><h1 data-fx-text>{KNIVES[selected]}</h1><p data-fx-text>STRUTTURA IN METALLO<br/>INSERTI TESTURIZZATI</p><div data-fx-text className="price" aria-label="Prezzo dimostrativo 179 euro"><span className="currency">€</span>179</div></div>
-
-   <button data-fx-control className="play-control" aria-label={state.current.paused?'Riprendi danza':'Pausa danza'} aria-pressed={state.current.paused} onClick={()=>{state.current.paused=!state.current.paused;refresh();}}><Glyph name={state.current.paused?'play':'pause'} size={16}/></button>
+  <h1 className="atmospheric-title" data-product-name>{KNIVES[selected]}</h1>
+  <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go} onSelect={choose}/>
+  <div className="optical-blur" aria-hidden="true"><i/><i/><i/></div>
+  <header><button className="brand" data-chrome aria-label="Torna allo stage" onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button></header>
+  <div className="item-arrows" role="group" aria-label="Selezione coltello">
+   <button className="item-arrow prev" data-chrome aria-label="Coltello precedente" title="Coltello precedente" disabled={!s.ready.includes(mod(selected-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={21}/></button>
+   <button className="item-arrow next" data-chrome aria-label="Coltello successivo" title="Coltello successivo" disabled={!s.ready.includes(mod(selected+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={21}/></button>
+  </div>
+  <section className="hud-layer hero-layer" aria-label="Stage" aria-hidden={section!==0} inert={section!==0}>
+   <div className="hero-copy" data-summary><p>{product.copy}</p><div className="price" aria-label={'Prezzo dimostrativo '+product.price+' euro'}><span className="currency">€</span>{product.price}</div></div>
+   <button className="play-control" data-chrome title={s.paused?'Riprendi sequenza':'Pausa sequenza'} aria-label={s.paused?'Riprendi sequenza':'Pausa sequenza'} aria-pressed={s.paused} onClick={()=>{s.paused=!s.paused;s.activity++;refresh();}}><Glyph name={s.paused?'play':'pause'} size={17}/></button>
+   <div className="hero-actions" data-chrome>
+    <button aria-label={s.closed>.5?'Apri lama':'Chiudi lama'} title={s.closed>.5?'Apri lama':'Chiudi lama'} aria-pressed={s.closed>.5} onClick={()=>setRange('closed',s.closed>.5?0:1)}><Glyph name="blade"/></button>
+    <button aria-label={s.exploded>.5?'Ricomponi modello':'Esplodi modello'} title={s.exploded>.5?'Ricomponi modello':'Esplodi modello'} aria-pressed={s.exploded>.5} onClick={()=>setRange('exploded',s.exploded>.5?0:1)}><Glyph name="explode"/></button>
+   </div>
   </section>
-  {(['blade','handle','metals'] as const).map((surface,i)=><section key={surface} className="hud-layer material-layer" ref={el=>{sections.current[i+1]=el;}} data-ui aria-hidden="true" inert aria-label={'Configura '+surface}><MaterialHud surface={surface} config={state.current.configs[selected]} onChange={material}/></section>)}
-  <section className="hud-layer technical-layer" ref={el=>{sections.current[4]=el;}} data-ui aria-hidden="true" inert aria-label="Esplorazione tecnica"><TechnicalHud value={state.current} onAction={action} onView={preset} onCut={(i,v)=>{state.current.cuts[i]=v;refresh();}} onReset={()=>{resetInspection(state.current);refresh();}}/></section>
-  <nav className="sequence-nav" aria-label="Percorso in cinque sezioni">
-   <button data-fx-control className="sequence-arrow" aria-label="Sezione precedente" onClick={()=>navigate(-1)}><Glyph name="left" size={24}/></button>
-   <div className="sequence-dots">{CHAPTERS.map((name,i)=><button data-fx-control key={name} className="sequence-dot" aria-label={'Vai a '+name} aria-current={section===i?'step':undefined} onClick={()=>{const s=state.current;s.focus=null;s.target=nearestChapter(s.target,i);snap.current.lock(performance.now());}}><span/></button>)}</div>
-   <button data-fx-control className="sequence-arrow" aria-label={section===4?'Ritorna alla danza':'Sezione successiva'} onClick={()=>navigate(1)}><Glyph name="right" size={24}/></button>
+  {(['blade','handle','metals'] as const).map((surface,i)=><section key={surface} className="hud-layer material-layer" aria-hidden={section!==i+1} inert={section!==i+1} aria-label={'Materiali '+CHAPTERS[i+1]}><MaterialHud surface={surface} config={s.configs[selected]} onChange={material}/></section>)}
+  <section className="hud-layer technical-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Inspect / Explore"><TechnicalHud value={s} onValue={setRange} onView={preset} onCut={(i,v)=>{s.cuts[i]=v;refresh();}} onReset={()=>{resetInspection(s);refresh();}}/></section>
+  <nav className="sequence-nav" data-chrome aria-label="Percorso in cinque sezioni">
+   <button className="sequence-arrow" aria-label="Sezione precedente" onClick={()=>go(Math.round(s.target)-1)}><Glyph name="left" size={21}/></button>
+   <div className="sequence-dots">{CHAPTERS.map((name,i)=><button key={name} className="sequence-dot" title={name} aria-label={'Vai a '+name} aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}><span/></button>)}</div>
+   <button className="sequence-arrow" aria-label={section===4?'Ritorna allo stage':'Sezione successiva'} onClick={()=>go(Math.round(s.target)+1)}><Glyph name="right" size={21}/></button>
   </nav>
-
   <ParticleReveal root={root} chapter={section} model={selected} ready={ready>0}/>
-  <span className="sr-only" role="status" aria-live="polite" ref={live}>{KNIVES[selected]} — {CHAPTERS[section]}</span>
+  <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>
   {ready<5&&!error&&<div className={'loading '+(ready?'quiet':'')} role="status"><span className="load-mark"/><span>{ready?'COLLECTION':'PREPARING'}<small>{ready} / 5</small></span></div>}
   {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Riprova</button></div>}
  </main>;

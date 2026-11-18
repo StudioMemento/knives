@@ -1,37 +1,43 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Quaternion,Vector3,PerspectiveCamera} from 'three';
-import {chapterFrame,livingPose,DISPLAY} from '../app/lib/presentation.ts';
+import {Vector3,PerspectiveCamera,Euler} from 'three';
+import {chapterFrame,stageFrame,livingPose,DISPLAY} from '../app/lib/presentation.ts';
+
 const metas=JSON.parse(fs.readFileSync('public/models/v48/manifest.json')).models;
-const hero={position:new Vector3(),rotation:new Quaternion(),scale:1,focus:new Vector3(),closed:0};
-const report=[];
-for(const meta of metas)for(const [w,h] of [[1363,936],[2752,1064],[390,844]]){
- const mobile=w<700,vh=2*Math.tan(34*Math.PI/360)*9.5,vw=vh*w/h,camera=new PerspectiveCamera(34,w/h,.05,80);camera.position.set(0,0,9.5);camera.lookAt(0,0,0);camera.updateMatrixWorld();
- const [blade,handle,metal,inspect]=[1,2,3,4].map(i=>chapterFrame(i,meta,hero,vw,vh,mobile));
- function rect(bounds,pose){
-  const coords=[];
+const sizes=[[320,568],[390,844],[430,932],[768,1024],[844,390],[1366,768],[1440,900],[2560,1080],[3440,1440]];
+let count=0;
+for(const meta of metas)for(const [width,height] of sizes){
+ const portrait=height>width,vh=2*Math.tan(34*Math.PI/360)*9.5,vw=vh*width/height;
+ const camera=new PerspectiveCamera(34,width/height,.05,80);camera.position.z=9.5;camera.updateMatrixWorld();
+ const hero=stageFrame(meta,vw,vh,portrait);
+ const shots=[0,1,2,3,4].map(i=>chapterFrame(i,meta,hero,vw,vh,portrait));
+ function box(bounds,shot){
+  const x=[],y=[];
   for(let k=0;k<8;k++){
    const p=new Vector3(k&1?bounds.max[0]:bounds.min[0],k&2?bounds.max[1]:bounds.min[1],k&4?bounds.max[2]:bounds.min[2]);
-   p.sub(pose.focus).multiplyScalar(DISPLAY/meta.bounds.size[0]*pose.scale).applyQuaternion(pose.rotation).add(pose.position).project(camera);coords.push([(p.x+1)/2,(1-p.y)/2]);
+   p.sub(shot.focus).multiplyScalar(shot.scale*DISPLAY/meta.bounds.size[0]).applyQuaternion(shot.rotation).add(shot.position).project(camera);
+   x.push((1+p.x)/2);y.push((1-p.y)/2);
   }
-  return [Math.min(...coords.map(p=>p[0])),Math.min(...coords.map(p=>p[1])),Math.max(...coords.map(p=>p[0])),Math.max(...coords.map(p=>p[1]))];
+  return [Math.min(...x),Math.min(...y),Math.max(...x),Math.max(...y)];
  }
- const full=rect(meta.bounds,blade),bladeBox=rect(meta.roleBounds.blade,blade),handleInBlade=rect(meta.roleBounds.handle,blade),handleBox=rect(meta.roleBounds.handle,handle);
- assert.ok(full[0]>.015&&full[2]<.99&&full[1]>.065&&full[3]<(mobile?.52:.94),`full open knife clipped ${meta.id} ${w}: ${full}`);
- if(!mobile){assert.ok(handleInBlade[2]>.70&&(handleInBlade[0]+handleInBlade[2])/2>.56,`handle must continue into right diagonal blur ${meta.id}: ${handleInBlade}`);assert.ok(bladeBox[0]<.3,'blade stays in clear left area');}
- assert.ok(handleBox[0]>.015&&handleBox[2]<(mobile?.99:.72)&&handleBox[1]>.065&&handleBox[3]<(mobile?.54:.94),`handle closeup ${meta.id} ${w}: ${handleBox}`);
- const face=new Vector3(0,0,-1).applyQuaternion(handle.rotation);
- assert.ok(Math.abs(face.x)>.48&&face.z>.5,'Handle must reveal a substantial three-quarter attitude');
- assert.ok(handle.rotation.angleTo(metal.rotation)>1,'Metals must introduce a distinct pose');
- assert.equal(handle.closed,1);assert.equal(metal.closed,1);assert.equal(blade.closed,0);
- assert.ok(metal.focus.distanceTo(new Vector3(...meta.focusPoints.metals))<1e-8);
- assert.ok(metal.position.z>handle.position.z,'Hardware closeup advances into the scene');
- const metalSize=rect(meta.roleBounds.metals,metal),handleMetals=rect(meta.roleBounds.metals,handle);
- assert.ok(metalSize[2]-metalSize[0]>(handleMetals[2]-handleMetals[0])*1.08,'Hardware must be larger than in Handle');
- const direction=new Vector3(1,0,0).applyQuaternion(inspect.rotation);assert.ok(direction.x<-.999&&Math.abs(direction.y)<1e-8);
- assert.equal(chapterFrame(0,meta,hero,vw,vh,mobile),hero);assert.equal(chapterFrame(5,meta,hero,vw,vh,mobile),hero);
- report.push({model:meta.id,viewport:[w,h],full,bladeBox,handleInBlade,handleBox,handleToMetalAngle:handle.rotation.angleTo(metal.rotation)});
+ for(const shot of shots){assert.equal(shot.position.length(),0,'All shot pivots share the viewport center');count++;}
+ const [stage,blade,handle,details,inspect]=shots;
+ const stageBox=box(meta.bounds,stage),bladeBox=box(meta.roleBounds.blade,blade),handleBox=box(meta.roleBounds.handle,handle);
+ for(const bounds of [stageBox,handleBox])assert.ok(bounds[0]>.005&&bounds[1]>.02&&bounds[2]<.995&&bounds[3]<.965,meta.id+' whole item '+width+' '+bounds);
+ assert.ok(Math.abs((bladeBox[0]+bladeBox[2])/2-.5)<.09&&Math.abs((bladeBox[1]+bladeBox[3])/2-.5)<.10,'Centered blade macro');
+ assert.ok(blade.scale>stage.scale*1.40,'Blade gets its own close-up');
+ assert.ok(handle.scale>stage.scale*1.24,'Folded handle is magnified');
+ const spine=new Vector3(0,1,0).applyQuaternion(details.rotation);
+ assert.ok(spine.z>.83&&details.focus.y>handle.focus.y,'Details looks onto the upper profile');
+ const tip=new Vector3(1,0,0).applyQuaternion(stage.rotation);
+ assert.ok(tip.x<-.4&&tip.y<-.4,'Stage points from the lower left to the upper right');
+ assert.equal(handle.closed,1);assert.equal(details.closed,1);assert.equal(blade.closed,0);
+ assert.equal(chapterFrame(5,meta,hero,vw,vh,portrait),hero);
+ assert.ok(new Vector3(1,0,0).applyQuaternion(inspect.rotation).x<-.99);
 }
-const reduced=livingPose(4,1,1,true);assert.equal(reduced.rotation.angleTo(new Quaternion()),0);assert.equal(reduced.offset.length(),0);
-fs.writeFileSync('tools/assets/concept-v49.json',JSON.stringify({cases:report.length,report},null,2));
-console.log('V49 framing checks passed');
+for(let time=0;time<120;time+=.11){
+ const e=new Euler().setFromQuaternion(livingPose(time,1,-1,false).rotation);
+ for(const angle of [e.x,e.y,e.z])assert.ok(Math.abs(angle)<=5*Math.PI/180+1e-8);
+}
+assert.equal(livingPose(4,1,1,true).rotation.w,1);
+console.log('PASS — '+count+' centered shots, blade macro, folded handle, top profile and bounded idle');

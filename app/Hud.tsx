@@ -16,23 +16,37 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.05" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">{paths[name]??paths.reset}</svg>;
 }
-export function Brand(){return <span className="wordmark" data-fx-text>MEMENTO</span>;}
+export function Brand(){return <img className="wordmark" src="/memento-typo.svg" alt="Memento" width="1424" height="64" draggable={false}/>;}
+
 export function MaterialHud({surface,config,onChange}:{surface:Surface;config:Configuration;onChange:(key:Surface,part:'color'|'style',value:number)=>void}){
- const value=config[surface];return <div className="material-hud" data-hud={surface}>
-  <h2 data-fx-text>{surface.toUpperCase()}</h2>
-  <div className="swatches" role="group" aria-label={'Materiale '+surface}>{COLORS.map((c,i)=><button data-fx-control key={c.name} className={'swatch '+(i===value.color?'selected':'')} style={{'--sample':c.hex} as React.CSSProperties} title={c.name} aria-label={surface+' — '+c.name} aria-pressed={i===value.color} onClick={()=>onChange(surface,'color',i)}><span/></button>)}</div>
-  <h2 data-fx-text className="style-title">STYLE</h2>
-  <div className="finishes" role="group" aria-label={'Finitura '+surface}>{STYLES.map((name,i)=><button data-fx-control key={name} className={'finish style-'+i+' '+(i===value.style?'selected':'')} title={name} aria-label={surface+' — '+name} aria-pressed={i===value.style} onClick={()=>onChange(surface,'style',i)}><span/></button>)}</div>
+ const value=config[surface],label=surface==='metals'?'Details':surface;
+ return <div className="material-hud" data-hud={surface} data-panel>
+  <div className="material-group">
+   <h2>{label.toUpperCase()}</h2>
+   <div className="swatches" role="group" aria-label={'Materiale '+label}>{COLORS.map((c,i)=><button key={c.name} className={'swatch '+(i===value.color?'selected':'')} style={{'--sample':c.hex} as React.CSSProperties} title={c.name} aria-label={label+' — '+c.name} aria-pressed={i===value.color} onClick={()=>onChange(surface,'color',i)}><span/></button>)}</div>
+  </div>
+  <div className="finish-group">
+   <h2>STYLE</h2>
+   <div className="finishes" role="group" aria-label={'Finitura '+label}>{STYLES.map((name,i)=><button key={name} className={'finish style-'+i+' '+(i===value.style?'selected':'')} title={name} aria-label={label+' — '+name} aria-pressed={i===value.style} onClick={()=>onChange(surface,'style',i)}><span/></button>)}</div>
+  </div>
  </div>;
 }
-export type TechValues={closed:number;exploded:number;spin:boolean;view:View;cuts:[number,number,number];zoom:number};
-export function TechnicalHud({value,onAction,onView,onCut,onReset}:{value:TechValues;onAction:(name:'blade'|'explode'|'orbit'|'zoom')=>void;onView:(v:View)=>void;onCut:(axis:number,value:number)=>void;onReset:()=>void}){
- return <div className="technical-hud">
-  <div className="action-row">{(['blade','explode','orbit'] as const).map((name,i)=><button data-fx-control key={name} aria-label={['Apri o chiudi lama','Attiva esploso','Rotazione automatica'][i]} aria-pressed={[value.closed>.5,value.exploded>.5,value.spin][i]} onClick={()=>onAction(name)}><Glyph name={name}/><span data-fx-text>{['LAMA','ESPLOSO','ORBITA'][i]}</span></button>)}</div>
-  <div className="view-title"><h2 data-fx-text>VISTE</h2><button data-fx-control aria-label="Avvicina dettaglio" aria-pressed={value.zoom>1} onClick={()=>onAction('zoom')}><Glyph name="zoom" size={24}/></button></div>
-  <div className="view-row" role="group" aria-label="Inquadrature">{(['side','top','edge','perspective'] as const).map((v,i)=><button data-fx-control key={v} aria-label={['Vista laterale','Vista dall’alto','Vista frontale','Vista prospettica'][i]} aria-pressed={value.view===v} onClick={()=>onView(v)}><Glyph name={v} size={31}/></button>)}</div>
-  <h2 data-fx-text className="section-title">SEZIONE</h2>
-  <div className="axis-sliders">{['X','Y','Z'].map((axis,i)=><label key={axis}><span data-fx-text>{axis}</span><input data-fx-control aria-label={'Sezione '+axis} type="range" min="0" max="100" step="1" value={Math.round(value.cuts[i]*100)} onChange={e=>onCut(i,Number(e.target.value)/100)}/></label>)}</div>
-  <button data-fx-control className="reset-control" aria-label="Ripristina posa e camera" onClick={onReset}><Glyph name="reset" size={36}/><span data-fx-text>RESET</span></button>
+type RangeKey='closed'|'exploded'|'zoom';
+type TechValues={closed:number;exploded:number;view:View;cuts:[number,number,number];zoom:number};
+function Slider({label,name,value,min=0,max=100,unit='%',onChange}:{label:string;name:string;value:number;min?:number;max?:number;unit?:string;onChange:(v:number)=>void}){
+ return <label className="slider-row"><span>{label}</span><input aria-label={name} aria-valuetext={value+unit} type="range" min={min} max={max} step="1" value={value} onChange={e=>onChange(Number(e.target.value))}/><output aria-hidden="true">{value}{unit}</output></label>;
+}
+export function TechnicalHud({value,onValue,onView,onCut,onReset}:{value:TechValues;onValue:(key:RangeKey,v:number)=>void;onView:(v:View)=>void;onCut:(axis:number,value:number)=>void;onReset:()=>void}){
+ return <div className="technical-hud" data-panel>
+  <div className="technical-head"><h2>INSPECT</h2><button className="reset-control" title="Ripristina posa e camera" aria-label="Ripristina posa e camera" onClick={onReset}><Glyph name="reset" size={19}/><span>RESET</span></button></div>
+  <div className="view-row" role="group" aria-label="Inquadrature">{(['side','top','edge','perspective'] as const).map((v,i)=><button key={v} title={['Laterale','Dall’alto','Frontale','Prospettica'][i]} aria-label={['Vista laterale','Vista dall’alto','Vista frontale','Vista prospettica'][i]} aria-pressed={value.view===v} onClick={()=>onView(v)}><Glyph name={v} size={28}/></button>)}</div>
+  <div className="inspect-ranges"><div className="range-group" role="group" aria-label="Posa e zoom">
+   <Slider label="LAMA" name="Chiusura lama" value={Math.round(value.closed*100)} onChange={v=>onValue('closed',v/100)}/>
+   <Slider label="ESPLOSO" name="Distanza esploso" value={Math.round(value.exploded*100)} onChange={v=>onValue('exploded',v/100)}/>
+   <Slider label="ZOOM" name="Zoom camera" value={Math.round(value.zoom*100)} min={65} max={220} onChange={v=>onValue('zoom',v/100)}/>
+  </div><div className="range-group cut-ranges" role="group" aria-label="Sezioni XYZ">
+   <h3>SEZIONE</h3>
+   {['X','Y','Z'].map((axis,i)=><Slider key={axis} label={axis} name={'Sezione '+axis} value={Math.round(value.cuts[i]*100)} onChange={v=>onCut(i,v/100)}/>)}
+  </div></div>
  </div>;
 }

@@ -5,7 +5,7 @@ import {HERO_HOLD} from '../app/lib/choreography.ts';
 import {createState,resetInspection,mod,sectionAt,nextAnchor,smooth} from '../app/lib/state.ts';
 import {MotionValue,focusWeight,orbitAngle} from '../app/lib/motion.ts';
 const c=new Carousel();
-for(let i=0;i<Math.floor(HERO_HOLD*100)-1;i++)assert.equal(c.step(.01,true,false,false),0,'Focus must hold through the complete turn');
+for(let i=0;i<Math.floor(HERO_HOLD*100)-1;i++)assert.equal(c.step(.01,true,false,false),0,'Focus holds before the next transition');
 c.step(.02,true,false,false);
 for(let i=0;i<562;i++)c.step(.01,true,false,false);
 assert.ok(Math.abs(c.phase-1)<1e-12,'Clockwise orbit must arrive at the next knife');
@@ -22,8 +22,8 @@ assert.equal(pausedArrival.phase,1,'A manual next command must finish an already
 for(let k=-100;k<=100;k++){assert.equal(sectionAt(k),mod(k));assert.equal(nextAnchor(k,1),k+1);assert.equal(nextAnchor(k,-1),k-1);}
 assert.equal(smooth(0),0);assert.equal(smooth(1),1);
 assert.ok(smooth(.001)<1e-7&&1-smooth(.999)<1e-7,'Transitions must start and stop with zero velocity');
-const s=createState();s.configs[0].metals.color=5;s.closed=s.exploded=1;s.cuts=[.4,.2,.8];s.spin=true;s.zoom=1.3;s.yaw=2;s.pitch=.4;s.focus=[1,2,3];s.view='top';resetInspection(s);
-assert.equal(s.closed+s.exploded+s.yaw+s.pitch,0);assert.deepEqual(s.cuts,[0,0,0]);assert.equal(s.focus,null);assert.equal(s.zoom,1);assert.equal(s.spin,false);assert.equal(s.view,'side');assert.equal(s.configs[0].metals.color,5,'Reset must preserve configured materials');assert.equal(s.configs[1].metals.color,1,'Knife configurations must remain independent');
+const s=createState();s.configs[0].metals.color=5;s.closed=s.exploded=1;s.cuts=[.4,.2,.8];s.zoom=1.3;s.yaw=2;s.pitch=.4;s.focus=[1,2,3];s.view='top';resetInspection(s);
+assert.equal(s.closed+s.exploded+s.yaw+s.pitch,0);assert.deepEqual(s.cuts,[0,0,0]);assert.equal(s.focus,null);assert.equal(s.zoom,1);assert.equal(s.view,'side');assert.equal(s.configs[0].metals.color,5,'Reset must preserve configured materials');assert.equal(s.configs[1].metals.color,1,'Knife configurations must remain independent');
 const m30=new MotionValue(),m60=new MotionValue(),m144=new MotionValue();
 for(let i=0;i<30;i++)m30.step(1,1/30);
 for(let i=0;i<60;i++)m60.step(1,1/60);
@@ -45,4 +45,4 @@ assert.equal(focusWeight(0),1);assert.equal(focusWeight(1),0);
 for(let x=0;x<5;x+=.001)assert.ok(orbitAngle(x+.0001)>orbitAngle(x),'The orbit must move monotonically around the ring');
 assert.ok(Math.abs(orbitAngle(4.999999)-2*Math.PI)<.00001,'The ellipse must close without a positional seam');
 console.log('PASS — velocity/acceleration-preserving retarget, 30/60/144 Hz motion, continuous per-knife assembly and monotone closed orbit');
-console.log('PASS — full-turn hold, clockwise arrival, pause/manual selection, frozen orbit, infinite navigation, easing and reset/material isolation');
+console.log('PASS — idle hold, clockwise arrival, pause/manual selection, frozen orbit, infinite navigation, easing and reset/material isolation');
