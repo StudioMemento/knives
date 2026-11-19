@@ -7,12 +7,12 @@ import {Carousel} from '../app/lib/carousel.ts';
 import {animateBackdrop,assemblyWeight,HERO_PERIOD,HERO_HOLD} from '../app/lib/choreography.ts';
 import {createExplosion,sampleExplosion,compactExplosion} from '../app/lib/explosion.ts';
 import {setCutPlane,CUT_DIRECTIONS,sectionGeometry} from '../app/lib/cut-surface.ts';
-import {SectionSnap,swipeDestination,nearestChapter} from '../app/lib/navigation.ts';
+import {nearestChapter} from '../app/lib/navigation.ts';
 import {bindGestures} from '../app/lib/gestures.ts';
 import {createLightStage} from '../app/lib/lighting.ts';
 import {RAIL} from '../app/lib/choreography.ts';
 import {slideTravel} from '../app/lib/framing.ts';
-import {createState,mod,TILT_LIMIT} from '../app/lib/state.ts';
+import {createState,hasManualRotation,mod} from '../app/lib/state.ts';
 
 assert.equal(HERO_PERIOD,8);
 for(const hz of [15,24,30,60,120,144]){
@@ -37,10 +37,7 @@ for(const hz of [20,30,60,120,144])for(const time of [0,HERO_HOLD,6.55,6.91,7.14
  }
  assert.equal(ring.phase,dest);assert.equal(ring.velocity,0);assert.equal(ring.acceleration,0);swipes++;
 }
-const snap=new SectionSnap();let moves=0;for(let i=0;i<360;i++)moves+=snap.wheel(20,i*16);
-assert.equal(moves,1);assert.equal(snap.wheel(-70,7000),-1);
 for(let i=-15;i<15;i++)for(let n=0;n<5;n++)assert.equal(mod(nearestChapter(i+.1,n)),n);
-assert.equal(swipeDestination(9.1,-2400,320,-7),10);assert.equal(swipeDestination(9.1,2400,320,7),8);
 assert.equal(assemblyWeight(0),1);assert.equal(assemblyWeight(1),0);
 
 const stageLight=createLightStage();stageLight.group.updateMatrixWorld(true);
@@ -59,24 +56,47 @@ globalThis.window=new EventTarget();
 const canvas=new TestCanvas(),s=createState();s.ready=[0,1,2,3,4];s.orbit=12;
 let hit=false,focusCount=0;const chapters=[];
 const unbind=bindGestures(canvas,s,{hitsProduct:()=>hit,focus:()=>focusCount++,chapter:n=>{s.target=n;chapters.push(n);},renderUI(){}});
-for(const onModel of [false,true]){
- hit=onModel;s.progress=s.target=1;
- canvas.send('pointerdown',1,350,270,0);canvas.send('pointermove',1,15,276,30);canvas.send('pointerup',1,1,278,40);
- assert.ok(Math.abs(s.yaw)>2);assert.equal(s.orbit,12);assert.equal(s.knifeRequest,null);assert.equal(s.target,1);
- canvas.send('pointerdown',1,20,600,100);canvas.send('pointermove',1,24,420,140);assert.ok(s.target>1);canvas.send('pointerup',1,24,320,180);assert.equal(chapters.at(-1),2);
- s.progress=2;canvas.send('pointerdown',1,15,200,200);canvas.send('pointermove',1,11,410,230);canvas.send('pointerup',1,8,510,245);assert.equal(chapters.at(-1),1);
- canvas.send('pointerdown',1,15,210,250);canvas.send('pointermove',1,18,295,275);canvas.send('pointercancel',1,18,295,290);assert.equal(s.target,1);
+// Up, down, sideways and diagonal movements may rotate on any chapter, even when a cut is active.
+s.cuts=[.51,.43,.2];
+for(const chapter of [0,1,2,3,4])for(const onModel of [true,false])for(const [dx,dy] of [[0,310],[0,-310],[290,0],[155,-205]]){
+ hit=onModel;s.progress=s.target=chapter;s.rotation.identity();
+ canvas.send('pointerdown',1,170,400,10);canvas.send('pointermove',1,170+dx,400+dy,90);
+ assert.equal(s.target,chapter);assert.ok(s.rotation.angleTo(new Quaternion())>1);
+ canvas.send('pointerup',1,170+dx,400+dy,115);
+ assert.equal(s.target,chapter);assert.equal(s.knifeRequest,null);assert.equal(s.orbit,12);assert.equal(s.interacting,false);
+ assert.deepEqual(s.cuts,[.51,.43,.2]);
 }
-s.progress=s.target=0;hit=true;
-canvas.send('pointerdown',1,190,400,300);canvas.send('pointermove',1,300,402,320);canvas.send('pointermove',1,380,750,335);canvas.send('pointerup',1,385,760,350);
-assert.equal(s.pitch,TILT_LIMIT);assert.equal(s.target,0);
-canvas.send('pointerdown',1,190,400,400);canvas.send('pointerup',1,190,400,425);assert.equal(chapters.at(-1),1);
+assert.deepEqual(chapters,[]);
+hit=true;s.progress=s.target=0;s.rotation.identity();
+canvas.send('pointerdown',1,180,430,200);canvas.send('pointerup',1,180,125,220);
+assert.equal(chapters.length,0);assert.ok(hasManualRotation(s),'A release may contain the only non-zero drag delta');
+canvas.send('pointerdown',1,180,430,300);canvas.send('pointercancel',1,180,430,320);
+assert.equal(chapters.length,0);assert.equal(canvas.captures.size,0);
+canvas.send('pointerdown',1,180,430,400);canvas.send('pointerup',1,182,428,420);assert.deepEqual(chapters,[1]);
+
 s.progress=s.target=4;
 canvas.send('pointerdown',1,170,400,500);canvas.send('pointerdown',2,220,405,525);
 canvas.send('pointermove',2,270,440,555);canvas.send('pointerup',2,270,440,580);canvas.send('pointerup',1,170,400,590);
-assert.equal(focusCount,1);assert.equal(s.zoom,1);
+assert.equal(focusCount,0,'Moving two fingers cannot cause a surprise refocus');
+s.rotation.identity();
+const halfTurn=canvas.clientWidth*.86;
+canvas.send('pointerdown',1,150,75,591);
+canvas.send('pointermove',1,150,75+halfTurn,594);
+assert.ok(new Vector3(0,1,0).applyQuaternion(s.rotation).y<-.99999,'The top can rotate past the pole');
+canvas.send('pointerup',1,150,75+2*halfTurn,598);
+assert.ok(!hasManualRotation(s),'A full vertical revolution returns to the starting pose');
+assert.equal(s.target,4);assert.deepEqual(s.cuts,[.51,.43,.2]);
+canvas.send('pointerdown',1,170,400,600);canvas.send('pointerdown',2,220,405,605);
+canvas.send('pointerup',2,220,405,625);canvas.send('pointerup',1,170,400,640);assert.equal(focusCount,1);
 canvas.send('pointerdown',1,180,400,700);canvas.send('pointerup',1,180,400,725);
-canvas.send('pointerdown',1,181,401,820);canvas.send('pointerup',1,181,401,840);assert.equal(focusCount,2);unbind();
+canvas.send('pointerdown',1,181,401,820);canvas.send('pointerup',1,181,401,840);assert.equal(focusCount,2);
+s.rotation.identity();
+for(const control of [true,false]){
+ const e=new Event('wheel',{cancelable:true});Object.assign(e,{deltaX:0,deltaY:-350,deltaMode:0,ctrlKey:control,metaKey:false});
+ canvas.dispatchEvent(e);assert.equal(e.defaultPrevented,!control);assert.equal(hasManualRotation(s),!control);assert.equal(s.target,4);
+}
+canvas.send('pointerdown',1,170,400,900);window.dispatchEvent(new Event('blur'));
+assert.equal(canvas.captures.size,0);assert.equal(s.interacting,false);unbind();
 
 // A ring-shaped solid must expose its metal and keep its central hole empty.
 const outline=new Shape();outline.moveTo(-2,-2);outline.lineTo(2,-2);outline.lineTo(2,2);outline.lineTo(-2,2);outline.closePath();
@@ -133,4 +153,4 @@ for(const meta of manifest.models){
   assert.ok(Math.abs(plane.constant-(a.constant+b.constant)/2)<1e-8);
  }
 }
-console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, axis-locked gestures, actual section holes, anchored handles and offscreen travel for five models');
+console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, independent two-axis orbit, cut-preserving touch and trackpad gestures, actual section holes, anchored handles and offscreen travel for five models');

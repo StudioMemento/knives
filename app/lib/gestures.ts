@@ -1,86 +1,105 @@
-import {clamp,mod,sectionAt,TILT_LIMIT,type DemoState} from './state.ts';
+import {hasManualRotation,mod,rotateProduct,sectionAt,type DemoState} from './state.ts';
 
 type Point={x:number;y:number};
-type Mode='pending'|'orbit'|'chapter'|'pinch';
+type Contact={start:Point;last:Point};
 type Callbacks={
  hitsProduct:(x:number,y:number)=>boolean;
  focus:(x:number,y:number,allowPlane:boolean)=>void;
  chapter:(target:number)=>void;
  renderUI:()=>void;
 };
+const TAP_SLOP=7;
+const point=(e:PointerEvent):Point=>({x:e.clientX,y:e.clientY});
+const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 
-/** The gesture is owned by its starting surface until the last pointer lifts.
- * The same canvas never receives a second synthetic click to navigate again. */
 export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Callbacks){
- const contacts=new Map<number,Point>();
- let gesture:{mode:Mode;id:number;start:Point;last:Point;onModel:boolean;section:number;chapter:number;pinch:Point}|null=null;
- let lastTap:{point:Point;time:number}|null=null;
- const point=(e:PointerEvent)=>({x:e.clientX,y:e.clientY});
- const midpoint=()=>{const [a,b]=[...contacts.values()];return {x:(a.x+b.x)/2,y:(a.y+b.y)/2};};
+ const contacts=new Map<number,Contact>();
+ let mode:'tap'|'orbit'|'multi'='tap',lastTap:{point:Point;time:number}|null=null;
+ let originChapter=0,settled=false,tapOnProduct=false,multiFocus:Point|null=null;
  function down(e:PointerEvent){
   if(e.button!==0||!s.ready.length)return;
-  const p=point(e);contacts.set(e.pointerId,p);canvas.setPointerCapture(e.pointerId);
-  if(gesture){
-   if(contacts.size===2){
-    if(gesture.mode==='chapter')s.target=gesture.chapter;
-    s.dragging=false;gesture.mode='pinch';gesture.pinch=midpoint();lastTap=null;
-   }
-   return;
+  const p=point(e);
+  contacts.set(e.pointerId,{start:p,last:p});canvas.setPointerCapture(e.pointerId);
+  if(contacts.size===1){
+   mode='tap';originChapter=s.target;settled=Math.abs(s.progress-originChapter)<.09;
+   // Picking on pointer-up would make a tap on the moving carousel ambiguous.
+   tapOnProduct=settled&&[0,4].includes(sectionAt(originChapter))&&callbacks.hitsProduct(p.x,p.y);
+   s.interacting=true;s.activity++;
+  }else{
+   const [a,b]=[...contacts.values()];
+   multiFocus=contacts.size===2&&mode==='tap'?{x:(a.last.x+b.last.x)/2,y:(a.last.y+b.last.y)/2}:null;
+   mode='multi';lastTap=null;
   }
-  s.interacting=true;s.activity++;
-  gesture={mode:'pending',id:e.pointerId,start:p,last:p,onModel:callbacks.hitsProduct(p.x,p.y),section:sectionAt(s.progress),chapter:Math.round(s.target),pinch:p};
  }
  function move(e:PointerEvent){
-  if(!gesture||!contacts.has(e.pointerId))return;
-  const g=gesture,p=point(e);contacts.set(e.pointerId,p);
-  if(g.mode==='pinch'){if(contacts.size===2)g.pinch=midpoint();return;}
-  if(e.pointerId!==g.id)return;
-  const dx=p.x-g.start.x,dy=p.y-g.start.y;
-  if(g.mode==='pending'){
-   const ax=Math.abs(dx),ay=Math.abs(dy);
-   if(Math.max(ax,ay)<8||(Math.max(ax,ay)<22&&Math.max(ax,ay)<1.24*Math.min(ax,ay)))return;
-   g.mode=ax>ay?'orbit':'chapter';
-  }
-  if(g.mode==='orbit'){
-   s.yaw+=(p.x-g.last.x)*.009;
-   s.pitch=clamp(s.pitch+(p.y-g.last.y)*.003,-TILT_LIMIT,TILT_LIMIT);
+  const contact=contacts.get(e.pointerId);if(!contact)return;
+  const p=point(e);
+  if(mode==='multi'){
+   if(distance(contact.start,p)>TAP_SLOP)multiFocus=null;
   }else{
-   s.target=g.chapter-clamp(dy/(canvas.clientHeight*.88),-.48,.48);
+   if(mode==='tap'&&distance(contact.start,p)<=TAP_SLOP)return;
+   mode='orbit';lastTap=null;
+   const gain=Math.PI/Math.max(270,Math.min(540,canvas.clientWidth*.86,canvas.clientHeight*.86));
+   if(p.x!==contact.last.x||p.y!==contact.last.y)rotateProduct(s,(p.x-contact.last.x)*gain,(p.y-contact.last.y)*gain);
   }
-  g.last=p;
+  contact.last=p;
  }
  function end(e:PointerEvent,cancelled:boolean){
-  if(!contacts.has(e.pointerId)||!gesture)return;
-  const g=gesture;
+  if(!contacts.has(e.pointerId))return;
+  // Some touch devices coalesce the entire drag into the release event.
+  if(!cancelled)move(e);
   contacts.delete(e.pointerId);
   if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
-  if(g.mode==='pinch'){
-   if(cancelled)g.section=-1;
-   if(contacts.size)return;
-   if(g.section===4)callbacks.focus(g.pinch.x,g.pinch.y,true);
-  }else if(e.pointerId!==g.id)return;
-  else if(g.mode==='chapter'){
-   const dy=e.clientY-g.start.y;
-   callbacks.chapter(g.chapter+(!cancelled&&Math.abs(dy)>=Math.min(46,canvas.clientHeight*.065)?-Math.sign(dy):0));
-  }else if(!cancelled&&g.mode==='pending'&&g.onModel){
-   if(g.section===0)callbacks.chapter(g.chapter+1);
-   if(g.section===4){
-    const p=point(e),now=e.timeStamp;
-    if(lastTap&&now-lastTap.time<360&&Math.hypot(p.x-lastTap.point.x,p.y-lastTap.point.y)<30){callbacks.focus(p.x,p.y,false);lastTap=null;}
-    else lastTap={point:p,time:now};
-   }
+  if(cancelled){multiFocus=null;lastTap=null;}
+  if(contacts.size)return;
+  const section=sectionAt(originChapter),sameChapter=settled&&originChapter===s.target;
+  if(!cancelled&&sameChapter){
+   if(mode==='multi'&&multiFocus&&section===4)callbacks.focus(multiFocus.x,multiFocus.y,true);
+   if(mode==='tap'&&tapOnProduct){
+    if(section===0)callbacks.chapter(originChapter+1);
+    if(section===4){
+     const p=point(e);
+     if(lastTap&&e.timeStamp-lastTap.time<360&&distance(lastTap.point,p)<30){callbacks.focus(p.x,p.y,false);lastTap=null;}
+     else lastTap={point:p,time:e.timeStamp};
+    }
+   }else if(mode==='tap')lastTap=null;
   }
-  gesture=null;s.interacting=false;s.dragging=false;s.activity++;callbacks.renderUI();
+  multiFocus=null;s.interacting=false;s.activity++;callbacks.renderUI();
+ }
+ function wheel(e:WheelEvent){
+  if(e.ctrlKey||e.metaKey||!s.ready.length)return;
+  e.preventDefault();
+  const unit=e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1;
+  const wasRotated=hasManualRotation(s);
+  rotateProduct(s,-e.deltaX*unit*.005,-e.deltaY*unit*.005);
+  if(wasRotated!==hasManualRotation(s))callbacks.renderUI();
+ }
+ function key(e:KeyboardEvent){
+  if(e.altKey||e.ctrlKey||e.metaKey||!s.ready.length)return;
+  const step=Math.PI/12;
+  switch(e.key){
+   case 'ArrowLeft':rotateProduct(s,-step,0);break;
+   case 'ArrowRight':rotateProduct(s,step,0);break;
+   case 'ArrowUp':rotateProduct(s,0,-step);break;
+   case 'ArrowDown':rotateProduct(s,0,step);break;
+   default:return;
+  }
+  e.preventDefault();e.stopPropagation();callbacks.renderUI();
  }
  const up=(e:PointerEvent)=>end(e,false),cancel=(e:PointerEvent)=>end(e,true);
  const clear=()=>{
-  if(gesture?.mode==='chapter')s.target=gesture.chapter;
-  contacts.clear();gesture=null;s.dragging=false;s.interacting=false;lastTap=null;
+  const ids=[...contacts.keys()];contacts.clear();
+  for(const id of ids)if(canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);
+  s.interacting=false;multiFocus=null;lastTap=null;
  };
- const lost=(e:PointerEvent)=>{if(contacts.has(e.pointerId))end(e,true);};
  canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);
- canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',lost);window.addEventListener('blur',clear);
- return ()=>{clear();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',lost);window.removeEventListener('blur',clear);};
+ canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);
+ canvas.addEventListener('wheel',wheel,{passive:false});canvas.addEventListener('keydown',key);window.addEventListener('blur',clear);
+ return ()=>{
+  clear();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);
+  canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);
+  canvas.removeEventListener('wheel',wheel);canvas.removeEventListener('keydown',key);window.removeEventListener('blur',clear);
+ };
 }
 
 export function chooseSlot(s:DemoState,slot:number){

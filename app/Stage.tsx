@@ -15,7 +15,7 @@ import {createCutSurface,setCutPlane} from './lib/cut-surface';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
 import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
-import {KNIVES,mod,clamp,smooth,sectionAt,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
+import {KNIVES,mod,clamp,smooth,sectionAt,hasManualRotation,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
 
 type Props={
  state:MutableRefObject<DemoState>;onFrame:(progress:number,id:number,ready:number)=>void;
@@ -94,7 +94,8 @@ export default function Stage({state,...callbacks}:Props){
    await Promise.all([shaders,depthShaders]);if(!dead)warmed=true;
   }catch(e){if(!dead)props.current.onError('Caricamento 3D non riuscito: '+(e instanceof Error?e.message:String(e)));}})();
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
-  const panels=Array.from(element.parentElement!.querySelectorAll<HTMLElement>('.hud-layer [data-panel]'));
+  const host=element.parentElement!;
+  const panels=[host.querySelector<HTMLElement>('[data-pose]')!,...host.querySelectorAll<HTMLElement>('.hud-layer [data-panel]')];
   let areas:ScreenRect[]=[];
   function frameShots(rig:Rig){
    const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,areas[0]);
@@ -180,7 +181,7 @@ export default function Stage({state,...callbacks}:Props){
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
    const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0;
-   const phase=s.dragging?carousel.dragTo(s.dragPhase,dt):carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
+   const phase=carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
    if(s.knifeDestination!==null&&Math.abs(phase-s.knifeDestination)<1e-7)s.knifeDestination=null;
    const stageDistance=Math.min(u,5-u),headingToStage=sectionAt(s.target)===0;
@@ -206,7 +207,7 @@ export default function Stage({state,...callbacks}:Props){
     lifeTime+=dt;idle=livingPose(lifeTime,cursorX.step(cursor.x,dt,5),cursorY.step(cursor.y,dt,5),s.reduced);
    }
    const idleWeight=idleAmount.step(s.interacting?.3:1,dt,7);
-   const view=views[s.view],orbit=new THREE.Quaternion().setFromEuler(new THREE.Euler(s.pitch+view[0]*inspectWeight,s.yaw+view[1]*inspectWeight,0,'YXZ'));
+   const view=views[s.view],orbit=new THREE.Quaternion().setFromEuler(new THREE.Euler(view[0]*inspectWeight,view[1]*inspectWeight,0,'YXZ')).premultiply(s.rotation);
    viewRotation.slerp(orbit,1-Math.exp(-dt*11));
    const zoomValue=zoom.step(s.zoom,dt,12),foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
    customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
@@ -263,7 +264,7 @@ export default function Stage({state,...callbacks}:Props){
     else rig.content.position.lerp(focus,1-Math.exp(-dt*(s.reduced?28:14)));
     rig.group.scale.setScalar(scale);rig.group.updateMatrixWorld(true);
     if(inspectWeight>.001&&front){
-     const moved=s.view!=='side'||Math.abs(s.yaw)+Math.abs(s.pitch)>.001;
+     const moved=s.view!=='side'||hasManualRotation(s);
      if(moved)for(const mesh of rig.fitMeshes)mesh.matrixWorld.multiplyMatrices(rig.scene.matrixWorld,mesh.matrix);
      const cap=moved&&!s.focus?fitBoundsScale(camera,rig.group,rig.fitMeshes,areas[4]):1;
      const desired=1+(cap-1)*inspectWeight;
@@ -312,7 +313,7 @@ export default function Stage({state,...callbacks}:Props){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
-   element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.dragging);
+   element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.interacting);
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
@@ -322,5 +323,5 @@ export default function Stage({state,...callbacks}:Props){
    textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();cutSurface.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} aria-label="Showroom 3D. Trascina in orizzontale per ruotare. Scorri verso l’alto per avanzare o verso il basso per tornare."/>;
+ return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa i tasti freccia per ruotare in tutte le direzioni."/>;
 }

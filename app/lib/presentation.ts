@@ -1,7 +1,7 @@
 import {Vector3,Quaternion,Euler} from 'three';
 import outlines from './shot-outlines.json' with {type:'json'};
 import type {ModelMeta} from './state';
-import {TILT_LIMIT} from './state.ts';
+import {IDLE_TILT_LIMIT} from './state.ts';
 
 export const DISPLAY=4.2;
 export const CAMERA_DISTANCE=9.5;
@@ -87,7 +87,7 @@ export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:numb
  return chapter===0||chapter===5?hero:fittedShot(meta,chapter,width,height,portrait,rect);
 }
 export function livingPose(time:number,pointerX:number,pointerY:number,reduced:boolean){
- const limit=TILT_LIMIT;
+ const limit=IDLE_TILT_LIMIT;
  if(reduced)return {rotation:new Quaternion(),offset:new Vector3()};
  return {
   rotation:rotation(limit*Math.sin(time*.43+.38*pointerY),limit*Math.sin(time*.33+.7+.4*pointerX),limit*Math.sin(time*.29)),
