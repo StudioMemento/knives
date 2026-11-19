@@ -6,6 +6,10 @@ export const HERO_PERIOD=8;
 export const HERO_TRAVEL=2.2;
 export const HERO_HOLD=HERO_PERIOD-HERO_TRAVEL;
 export const RAIL_DEPTH=1.22;
+// The supporting cast fades at its rail position. In a detail view a departing
+// knife becomes fully transparent before the next model occupies that same shot.
+export const backdropOpacity=(stageDistance:number)=>1-smooth(stageDistance/.62);
+export const detailOpacity=(slotDistance:number)=>1-smooth((slotDistance-.035)/.46);
 export const assemblyWeight=(distance:number)=>1-smooth((distance-.12)/.78);
 
 export function railPoint(angle:number,radius:number,centerX:number,floorY:number){

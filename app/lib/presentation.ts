@@ -1,45 +1,76 @@
 import {Vector3,Quaternion,Euler} from 'three';
+import outlines from './shot-outlines.json' with {type:'json'};
 import type {ModelMeta} from './state';
+import {RAIL_DEPTH} from './choreography.ts';
 
 export const DISPLAY=4.2;
+export const CAMERA_DISTANCE=9.5;
 export type Frame={position:Vector3;rotation:Quaternion;scale:number;focus:Vector3;closed:number};
+export type ScreenRect=[number,number,number,number];
 export const rotation=(x:number,y:number,z:number)=>new Quaternion().setFromEuler(new Euler(x,y,z,'XYZ'));
 const CANONICAL=new Quaternion(0,1,0,0);
 export const presentation=(pitch:number,yaw:number,roll:number)=>rotation(0,0,roll).multiply(rotation(pitch,yaw,0)).multiply(CANONICAL);
-export const stageTilt=(portrait:boolean)=>portrait?.90:.82;
 
-function extent(size:number[],q:Quaternion){
- const lo=new Vector3(Infinity,Infinity,Infinity),hi=new Vector3(-Infinity,-Infinity,-Infinity),point=new Vector3();
- for(let i=0;i<8;i++){
-  point.set((i&1?1:-1)*size[0]/2,(i&2?1:-1)*size[1]/2,(i&4?1:-1)*size[2]/2).applyQuaternion(q);
-  lo.min(point);hi.max(point);
- }
- return hi.sub(lo);
+/** The product can cross the UI gutters. Portrait reserves the actual space above each panel. */
+export function productArea(portrait:boolean,panelTop=portrait?.77:.89):ScreenRect{
+ // Project the nearest part of the floor ellipse just above the mobile controls.
+ const ringLimit=Math.min(.89,panelTop-.013);
+ const aboveRing=.5+(ringLimit-.5)*(1-RAIL_DEPTH/CAMERA_DISTANCE)-.009;
+ return [.10,.095,.90,portrait?Math.max(.40,aboveRing):.825];
 }
-function centeredShot(meta:ModelMeta,part:'assembled'|'blade'|'handle',focus:Vector3,q:Quaternion,width:number,height:number,spanX:number,spanY:number,closed:number):Frame{
- const size=part==='assembled'?meta.bounds.size:meta.roleBounds[part].size;
- const box=extent(size,q).multiplyScalar(DISPLAY/meta.bounds.size[0]);
- return {position:new Vector3(),rotation:q,focus,scale:Math.min(width*spanX/box.x,height*spanY/box.y),closed};
+
+const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;
+type Prepared={positions:Float32Array; focus:Vector3; pitch:number; yaw:number};
+const cached=new WeakMap<ModelMeta,Map<number,Prepared>>();
+function prepare(meta:ModelMeta,chapter:number){
+ let byChapter=cached.get(meta);
+ if(!byChapter){byChapter=new Map();cached.set(meta,byChapter);}
+ const previous=byChapter.get(chapter);
+ if(previous)return previous;
+ const pitch=[.12,.13,.36,1.12,0][chapter],yaw=[-.12,-.09,-.30,-.09,0][chapter];
+ const part=chapter===1?'blade':chapter===2||chapter===3?'folded':'assembled';
+ const focus=new Vector3(...meta.focusPoints[part==='folded'?'handle':part]);
+ const points=envelopes[meta.id][part],positions=new Float32Array(points.length);
+ const q=presentation(pitch,yaw,0),p=new Vector3();
+ for(let i=0;i<points.length;i+=3){
+  p.fromArray(points,i).multiplyScalar(.00001).sub(focus).multiplyScalar(DISPLAY/meta.bounds.size[0]).applyQuaternion(q);
+  p.toArray(positions,i);
+ }
+ const result={positions,focus,pitch,yaw};byChapter.set(chapter,result);return result;
 }
-export function stageFrame(meta:ModelMeta,width:number,height:number,portrait:boolean):Frame{
- return centeredShot(meta,'assembled',new Vector3(...meta.focusPoints.assembled),presentation(.12,-.12,stageTilt(portrait)),width,height,portrait?.82:.70,portrait?.49:.70,0);
+
+/** Fit the convex silhouette to four perspective planes. Translation centers the
+ * actual projected outline, including off-center pivots and the far end of the clip. */
+function fittedShot(meta:ModelMeta,chapter:number,width:number,height:number,portrait:boolean,rect:ScreenRect):Frame{
+ const {positions,focus,pitch,yaw}=prepare(meta,chapter);
+ const left=(rect[0]-.5)*width,right=(rect[2]-.5)*width,top=(.5-rect[1])*height,bottom=(.5-rect[3])*height;
+ function measure(roll:number){
+  let xLow=Infinity,xHigh=-Infinity,yLow=Infinity,yHigh=-Infinity;
+  const cs=Math.cos(roll),sn=Math.sin(roll);
+  for(let i=0;i<positions.length;i+=3){
+   const x=positions[i]*cs-positions[i+1]*sn,y=positions[i]*sn+positions[i+1]*cs,z=positions[i+2]/CAMERA_DISTANCE;
+   xLow=Math.min(xLow,x+left*z);xHigh=Math.max(xHigh,x+right*z);
+   yLow=Math.min(yLow,y+bottom*z);yHigh=Math.max(yHigh,y+top*z);
+  }
+  return {xLow,xHigh,yLow,yHigh,sx:(right-left)/(xHigh-xLow),sy:(top-bottom)/(yHigh-yLow)};
+ }
+ // A flatter widescreen shot and steeper portrait shot use both dimensions.
+ let lo=.025,hi=1.54;
+ for(let i=0;i<9;i++){
+  const mid=(lo+hi)/2,fit=measure(mid);
+  if(fit.sx<fit.sy)lo=mid;else hi=mid;
+ }
+ const roll=chapter===4&&!portrait?0:(lo+hi)/2;
+ const fit=measure(roll),scale=Math.min(fit.sx,fit.sy);
+ const x=(left+right-scale*(fit.xLow+fit.xHigh))/2,y=(bottom+top-scale*(fit.yLow+fit.yHigh))/2;
+ return {position:new Vector3(x,y,0),rotation:presentation(pitch,yaw,roll),scale,focus,closed:chapter===2||chapter===3?1:0};
 }
-export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:number,height:number,portrait:boolean):Frame{
- if(chapter===0||chapter===5)return hero;
- const points=meta.focusPoints;
- if(chapter===1){
-  return centeredShot(meta,'blade',new Vector3(...points.blade),presentation(.13,-.09,portrait?.72:.38),width,height,portrait?.98:.75,portrait?.50:.79,0);
- }
- if(chapter===2){
-  return centeredShot(meta,'handle',new Vector3(...points.handle),presentation(.36,-.30,stageTilt(portrait)),width,height,portrait?.83:.68,portrait?.48:.72,1);
- }
- if(chapter===3){
-  const focus=new Vector3(...points.handle);
-  focus.y+=meta.roleBounds.handle.size[1]*.37;
-  const frame=centeredShot(meta,'handle',focus,presentation(1.12,-.09,portrait?.54:.30),width,height,portrait?1.06:.82,portrait?.54:.79,1);
-  return frame;
- }
- return centeredShot(meta,'assembled',new Vector3(...points.assembled),presentation(0,0,0),width,height,portrait?.86:.65,.55,0);
+
+export function stageFrame(meta:ModelMeta,width:number,height:number,portrait:boolean,rect=productArea(portrait)){
+ return fittedShot(meta,0,width,height,portrait,rect);
+}
+export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:number,height:number,portrait:boolean,rect=productArea(portrait)){
+ return chapter===0||chapter===5?hero:fittedShot(meta,chapter,width,height,portrait,rect);
 }
 export function livingPose(time:number,pointerX:number,pointerY:number,reduced:boolean){
  const limit=5*Math.PI/180;

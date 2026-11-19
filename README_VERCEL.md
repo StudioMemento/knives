@@ -1,29 +1,23 @@
-# MEMENTO — Knives V49 · Vercel
+# Memento Knives V51
 
-Pacchetto completo dell’ultima V49 verificata: sorgenti React/Next.js,
-modelli 3D, font, configurazione e controlli automatici.
+Lo ZIP contiene lo showroom Next.js completo, i cinque modelli GLB, i font e i campioni dell’interfaccia. La base è la V50 di StudioMemento/knives, commit `ed993668ddeaa1b3301660931226aac5c640471f`.
 
-## Utilizzo
+## Aggiornare il progetto Vercel
 
-1. Estrai lo ZIP.
-2. Carica il contenuto nella radice del repository collegato a Vercel:
-   `package.json`, `vercel.json`, `app/` e `public/` devono essere alla radice.
-3. La configurazione inclusa usa Next.js e il comando `npm run build`.
-   `next.config.ts` genera l’esportazione statica in `out/`.
+Estrai lo ZIP nella radice della copia di lavoro della repo V50, consentendo la sovrascrittura dei file corrispondenti. Allo stesso livello devono comparire `package.json`, `vercel.json`, `app/` e `public/`. Puoi verificare le modifiche in un branch e usare l’anteprima Vercel prima di unirle a `main`.
 
-Non servono variabili d’ambiente. Conserva `package-lock.json`.
-Dipendenze e cartelle di build non sono incluse: vengono generate da npm.
+Il progetto usa il preset Next.js. Il comando `npm run build` genera l’esportazione statica in `out/`. Le cartelle `public/models/v46` e `public/models/v48` contengono le revisioni dei modelli usati dalla V51.
 
-## Avvio locale
+## Avvio e verifica locale
 
-Usa Node.js 22.18 o successivo.
+Con Node.js 22.18 o successivo, esegui questi comandi dalla radice del progetto.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-## Verifica
+Questi comandi verificano tipi, navigazione, pose e inquadrature e producono la build di produzione.
 
 ```sh
 npm run check
@@ -31,13 +25,6 @@ npm test
 npm run build
 ```
 
-Le caratteristiche della revisione sono in `README_V49.md`.
-I cinque modelli sono inclusi: Hyper ottimizzato V48 e Vertex, Quad,
-Edge e Tris V46. Le cartelle degli asset mantengono i numeri della
-loro revisione originale, anche se l’esperienza è V49.
+## Selettori
 
-Il pacchetto contiene il blur finale verso destra e il margine corretto
-del titolo VERTEX su mobile. I controlli mobile sono stati eseguiti
-nel browser; non costituiscono un benchmark su telefono fisico.
-
-Sorgente verificata: `0009d815c019646874c417c3401a77003708112d`.
+Le cinque icone aprono Stage, Blade, Handle, Details e Inspect. I chevron cambiano coltello nella sezione aperta. In Blade, Handle e Details, Color e Style memorizzano separatamente le scelte di ogni modello nel browser. I nomi, le palette e le descrizioni dei campioni sono in `app/lib/catalogue-data.json`. In questa revisione le selezioni aggiornano soltanto l’interfaccia.

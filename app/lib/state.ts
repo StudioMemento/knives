@@ -20,14 +20,14 @@ export const COLORS = [
 export const STYLES = ['Satinato','Spazzolato','Stonewash','Carbonio'];
 export const defaultConfiguration = ():Configuration => ({blade:{color:0,style:1},handle:{color:3,style:3},metals:{color:1,style:0}});
 export type DemoState = {
- target:number; progress:number; selected:number; orbit:number; knifeRequest:number|null;
+ target:number; progress:number; selected:number; orbit:number; knifeRequest:number|null; knifeDestination:number|null;
  paused:boolean; reduced:boolean; dragging:boolean; interacting:boolean; dragPhase:number; activity:number;
  configs:Configuration[]; closed:number; exploded:number; view:View;
  cuts:[number,number,number]; yaw:number; pitch:number; zoom:number;
  focus:[number,number,number]|null; ready:number[];
 };
 export const createState = ():DemoState => ({
- target:0,progress:0,selected:0,orbit:0,knifeRequest:null,paused:false,reduced:false,dragging:false,interacting:false,dragPhase:0,activity:0,
+ target:0,progress:0,selected:0,orbit:0,knifeRequest:null,knifeDestination:null,paused:false,reduced:false,dragging:false,interacting:false,dragPhase:0,activity:0,
  configs:KNIVES.map(defaultConfiguration),closed:0,exploded:0,view:'side',cuts:[0,0,0],yaw:0,pitch:0,zoom:1,focus:null,ready:[],
 });
 export const mod = (x:number,n=5) => ((x%n)+n)%n;

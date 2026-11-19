@@ -17,7 +17,7 @@ function sample(element:HTMLElement,rect:DOMRect){
  const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);
  const range=document.createRange();let node:Node|null;
  while((node=walker.nextNode())){
-  if(!node.textContent?.trim()||!node.parentElement||node.parentElement.closest('svg'))continue;
+  if(!node.textContent?.trim()||!node.parentElement||node.parentElement.closest('svg,.nav-tip'))continue;
   const css=getComputedStyle(node.parentElement);ink.font=css.fontWeight+' '+css.fontSize+' '+css.fontFamily;
   ink.textBaseline='top';ink.letterSpacing=css.letterSpacing==='normal'?'0px':css.letterSpacing;
   // Sample each visual line so wrapped copy has the same silhouette as the DOM.
@@ -30,8 +30,14 @@ function sample(element:HTMLElement,rect:DOMRect){
   const box=child.getBoundingClientRect();
   if(child instanceof HTMLImageElement&&child.complete&&child.naturalWidth){ink.drawImage(child,box.x,box.y,box.width,box.height);continue;}
   if(child.querySelector('svg'))continue;
-  if(child.classList.contains('swatch')){ink.strokeRect(box.x+2,box.y+2,box.width-4,box.height-4);ink.globalAlpha=.42;ink.fillRect(box.x+3,box.y+3,box.width-6,box.height-6);ink.globalAlpha=1;}
-  else if(child.classList.contains('finish')){ink.save();ink.translate(box.x+box.width/2,box.y+box.height/2);ink.rotate(Math.PI/4);const side=box.width*.56;ink.strokeRect(-side/2,-side/2,side,side);ink.restore();}
+  const sample=child.querySelector('.sample-outline');
+  if(sample){
+   const {x,y,width:w,height:h}=sample.getBoundingClientRect();
+   const cut=child.classList.contains('style')?w*.23:0;
+   ink.beginPath();ink.moveTo(x+cut,y);ink.lineTo(x+w,y);ink.lineTo(x+w,y+h-cut);
+   ink.lineTo(x+w-cut,y+h);ink.lineTo(x,y+h);ink.lineTo(x,y+cut);ink.closePath();
+   ink.stroke();ink.globalAlpha=.36;ink.fill();ink.globalAlpha=1;
+  }
   else ink.fillRect(box.x+box.width*.13,box.y+box.height/2,box.width*.74,1.5);
  }
  for(const path of element.querySelectorAll<SVGGeometryElement>('svg path')){

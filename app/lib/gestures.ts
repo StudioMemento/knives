@@ -42,7 +42,7 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   if(g.mode==='pending'){
    if(Math.hypot(dx,dy)<7)return;
    g.mode=g.onModel?'orbit':Math.abs(dx)>Math.abs(dy)?'knife':'chapter';
-   if(g.mode==='knife'){s.knifeRequest=null;s.dragging=true;}
+   if(g.mode==='knife'){s.knifeDestination=null;s.knifeRequest=null;s.dragging=true;}
   }
   const sx=p.x-g.last.x,sy=p.y-g.last.y;
   g.velocity=sx/Math.max(8,e.timeStamp-g.time);g.last=p;g.time=e.timeStamp;
@@ -103,5 +103,6 @@ export function chooseSlot(s:DemoState,slot:number){
  if(!s.ready.length)return;
  const current=Math.round(s.orbit);
  const settled=current+mod(s.selected-mod(current)+2)-2;
- s.knifeRequest=s.ready.includes(mod(bounded))?bounded:settled;s.activity++;
+ s.knifeRequest=s.ready.includes(mod(bounded))?bounded:settled;
+ s.knifeDestination=s.knifeRequest;s.activity++;
 }
