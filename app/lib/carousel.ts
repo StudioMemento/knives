@@ -15,6 +15,7 @@ export class Carousel {
   this.coefficients=[this.phase,velocity,acceleration,10*distance-6*velocity-3*acceleration,-15*distance+8*velocity+3*acceleration,6*distance-3*velocity-acceleration];
   this.target=target;this.duration=duration;this.elapsed=0;this.hold=0;this.manual=manual;
  }
+ get manuallyTravelling(){return this.target!==null&&this.manual;}
  rest(){this.hold=0;}
  request(target:number,reduced=false){
   if(target===this.target){this.manual=true;return;}
@@ -24,7 +25,7 @@ export class Carousel {
   const distance=target-this.phase;
   const low=Math.min(target,this.phase)-(distance>=0?.07:0);
   const high=Math.max(target,this.phase)+(distance<=0?.07:0);
-  let duration=reduced?.20:Math.min(1.38,Math.max(.3,Math.abs(distance)*1.25));
+  let duration=reduced?.20:Math.min(3.25,Math.max(.3,Math.abs(distance)*1.25));
   while(duration>.005){
    const first=this.phase+this.velocity*duration/5;
    const second=this.phase+2*this.velocity*duration/5+this.acceleration*duration*duration/20;

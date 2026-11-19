@@ -12,9 +12,5 @@ export class MotionValue {
   return this.value;
  }
 }
-export const focusWeight=(distance:number)=>{
- const t=Math.max(0,Math.min(1,1-distance));
- return t*t*t*(t*(t*6-15)+10);
-};
 /** Five equal arc lengths on the physical stage rail. */
 export const orbitAngle=(slot:number)=>((slot%5+5)%5)*2*Math.PI/5;

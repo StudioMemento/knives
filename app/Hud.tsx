@@ -1,6 +1,6 @@
 'use client';
 import type {CSSProperties} from 'react';
-import {CATALOGUE,type Option} from './lib/catalogue';
+import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
 import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
 export function Glyph({name,size=26}:{name:string;size?:number}){
  const paths:Record<string,React.ReactNode>={
@@ -14,6 +14,9 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   explode:<><path d="m3 7 9-4 9 4-9 4Z"/><path d="m3 11 9 4 9-4M3 15l9 4 9-4"/></>,
   orbit:<><path d="m7 3-4 4v6l4 4h8l5-5V6l-4-3h-4M20 3v4h-4"/><path d="m3 17 1-4 4 1"/><path d="M11 10h2v2h-2Z"/></>,
   reset:<><path d="M5 7 9 3h7l5 5v7l-5 5H9l-5-5M4 3v5h5"/></>,
+  clip:<><path d="M6.5 15.5 15.8 6.2a3 3 0 0 1 4.2 4.2L8.8 21.6a4.3 4.3 0 0 1-6.1-6.1l12-12" transform="translate(1 -1) scale(.94)"/></>,
+  loop:<><rect x="3.8" y="5.8" width="16.4" height="12.4" rx="2" transform="rotate(-24 12 12)"/><path d="m4.5 13 3 4"/></>,
+  screw:<><path d="m5 5 3-2 4 4-1 3L8 12l-4-4Z M10 11l8.5 8.5 2-2L12 9m1.8 6.6L16 13m.3 5.1 2.3-2.6"/></>,
   zoom:<><path d="m10 3 5 2 2 5-2 5-5 2-5-2-2-5 2-5Zm6 13 5 5M7 10h6m-3-3v6"/></>,
   side:<><path d="m3 13 8-4 3 1 7 1v4h-8l-2-1H3Z"/><path d="M13 11v3"/></>,
   top:<><path d="m4 12 7-2h10v4H11Z"/><path d="M13 10v4"/></>,
@@ -22,7 +25,9 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]??paths.reset}</svg>;
 }
-export function Brand(){return <img className="wordmark" src="/memento-typo.svg" alt="Memento" width="1424" height="64" draggable={false}/>;}
+export function Brand(){
+ return <picture><source media="(max-width:699px), (max-height:500px) and (orientation:landscape) and (pointer:coarse)" srcSet="/memento-mobile.svg"/><img className="wordmark" src="/memento-typo.svg" alt="Memento" width="1424" height="64" draggable={false}/></picture>;
+}
 
 const surfaceNames={blade:'lama',handle:'manico',metals:'dettagli'};
 
@@ -32,17 +37,20 @@ function Sample({item,index,row}:{item:Option;index:number;row:number}){
  return <span className={item.motif?'sample motif-'+item.motif:'sample atlas'} style={style}/>;
 }
 
-export function VariantRecall({surface,model,config}:{surface:Surface;model:number;config:Configuration}){
- const collection=CATALOGUE[KNIVES[model]][surface],selection=config[surface];
- return <aside className="variant-recall" aria-label={'Varianti attive · '+surfaceNames[surface]} aria-live="polite" aria-atomic="true">
-  {(['style','color'] as const).map(kind=>{
-   const index=selection[kind],material=kind==='style',item=(material?collection.styles:collection.colors)[index];
-   return <div className="recall-box" key={kind} data-recall={kind}>
-    <span className={'variant-chip '+kind} aria-hidden="true"><Sample item={item} index={index} row={collection.swatchRow+(material?1:0)}/></span>
-    <div><span className="recall-label">{material?'Material':'Color'} · {surfaceNames[surface]}</span><strong>{item.name}</strong><p>{item.description}</p></div>
+export function ConfigurationSummary({model,config}:{model:number;config:Configuration}){
+ return <dl className="configuration" aria-label="Configurazione attiva">
+  {SURFACES.map((surface,i)=>{
+   const options=CATALOGUE[KNIVES[model]][surface],selected=config[surface];
+   const material=options.styles[selected.style],color=options.colors[selected.color];
+   return <div key={surface} data-config={surface} title={material.name+' · '+color.name}>
+    <dt>{['Blade','Handle','Details'][i]}</dt>
+    <dd><span className="config-chip" aria-hidden="true">
+     <Sample item={color} index={selected.color} row={options.swatchRow}/>
+     <span className="chip-finish"><Sample item={material} index={selected.style} row={options.swatchRow+1}/></span>
+    </span><span className="sr-only">{material.name}, </span><span>{color.name}</span></dd>
    </div>;
   })}
- </aside>;
+ </dl>;
 }
 
 function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
@@ -68,27 +76,30 @@ export function MaterialHud({surface,model,config,onChange}:{
    row={choices.swatchRow} onSelect={i=>onChange(surface,'color',i)}/>
  </div>;
 }
-type RangeKey='closed'|'exploded'|'zoom';
-type TechValues={closed:number;exploded:number;view:View;cuts:[number,number,number];zoom:number};
-type SetRange=(key:RangeKey,v:number)=>void;
-function Slider({label,icon,name,value,min=0,max=100,showValue=true,onChange}:{label?:string;icon?:string;name:string;value:number;min?:number;max?:number;showValue?:boolean;onChange:(v:number)=>void}){
- return <label className="slider-row" title={name}><span>{icon?<Glyph name={icon} size={22}/>:label}</span><input aria-label={name} aria-valuetext={value+'%'} type="range" min={min} max={max} step="1" value={value} onChange={e=>onChange(Number(e.target.value))}/>{showValue&&<output aria-hidden="true">{value}%</output>}</label>;
-}
-export function PoseHud({value,onValue}:{value:TechValues;onValue:SetRange}){
+type PoseValues=Pick<DemoState,'closed'|'exploded'>;
+export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof PoseValues,n:number)=>void}){
  return <div className="pose-hud" role="group" aria-label="Posa del modello" data-pose>
-  <Slider showValue={false} icon="blade" name="Apertura e chiusura lama" value={Math.round(value.closed*100)} onChange={v=>onValue('closed',v/100)}/>
-  <Slider showValue={false} icon="explode" name="Distanza esploso" value={Math.round(value.exploded*100)} onChange={v=>onValue('exploded',v/100)}/>
+  {(['closed','exploded'] as const).map((key,i)=>{
+   const pressed=value[key]>.5;
+   const action=i?(pressed?'Ricomponi il modello':'Esplodi il modello'):(pressed?'Apri la lama':'Chiudi la lama');
+   return <button type="button" key={key} data-control={key} aria-label={i?'Vista esplosa':'Lama chiusa'} aria-pressed={pressed} title={action}
+    onClick={()=>onValue(key,pressed?0:1)}><span className="pose-tile"><Glyph name={i?'explode':'blade'} size={23}/></span></button>;
+  })}
  </div>;
 }
-export function TechnicalHud({value,onValue,onView,onCut,onReset}:{value:TechValues & Pick<DemoState,'rotation'>;onValue:SetRange;onView:(v:View)=>void;onCut:(axis:number,value:number)=>void;onReset:()=>void}){
+
+const cameraLabels:Record<View,string>={side:'Laterale',top:'Dall’alto',edge:'Frontale',perspective:'Prospettica',clip:'Clip',screw:'Viti'};
+export function TechnicalHud({value,model,onView,onCut,onReset}:{value:Pick<DemoState,'view'|'rotation'|'cuts'>;model:number;onView:(v:View)=>void;onCut:(axis:number,value:number)=>void;onReset:()=>void}){
  return <div className="technical-hud hud-panel" data-panel>
-  <div className="camera-block" role="group" aria-label="Camere e zoom">
-   <div className="technical-head"><h2>INSPECT</h2><button className="reset-control" title="Ripristina posa e camera" aria-label="Ripristina posa e camera" onClick={onReset}><Glyph name="reset" size={16}/></button></div>
-   <div className="view-row" role="group" aria-label="Inquadrature">{(['side','top','edge','perspective'] as const).map((v,i)=><button key={v} title={['Laterale','Dall’alto','Frontale','Prospettica'][i]} aria-label={['Vista laterale','Vista dall’alto','Vista frontale','Vista prospettica'][i]} aria-pressed={value.view===v&&!hasManualRotation(value)} onClick={()=>onView(v)}><Glyph name={v} size={23}/></button>)}</div>
-   <Slider label="ZOOM" name="Zoom camera" value={Math.round(value.zoom*100)} min={65} max={220} onChange={v=>onValue('zoom',v/100)}/>
+  <div className="camera-block" role="group" aria-label="Inquadrature">
+   <div className="technical-head"><h2>INSPECT</h2><button type="button" className="reset-control" title="Ripristina posa e camera" aria-label="Ripristina posa e camera" onClick={onReset}><Glyph name="reset" size={14}/></button></div>
+   <div className="view-row">{(Object.keys(cameraLabels) as View[]).map(v=>{
+    const loop=v==='clip'&&KNIVES[model]==='EDGE',name=loop?'Anello posteriore':cameraLabels[v];
+    return <button type="button" key={v} data-view={v} title={name} aria-label={'Vista '+name.toLowerCase()} aria-pressed={value.view===v&&!hasManualRotation(value)} onClick={()=>onView(v)}><Glyph name={loop?'loop':v} size={21}/></button>;
+   })}</div>
   </div>
   <div className="cut-ranges" role="group" aria-label="Sezioni XYZ"><h3>SEZIONE</h3>
-   {['X','Y','Z'].map((axis,i)=><Slider key={axis} label={axis} name={'Sezione '+axis} value={Math.round(value.cuts[i]*100)} onChange={v=>onCut(i,v/100)}/>)}
+   {['X','Y','Z'].map((axis,i)=><label className="slider-row" key={axis}><span>{axis}</span><input type="range" min="0" max="100" step="1" aria-label={'Sezione '+axis} value={Math.round(value.cuts[i]*100)} onChange={e=>onCut(i,Number(e.target.value)/100)}/></label>)}
   </div>
  </div>;
 }

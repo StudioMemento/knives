@@ -3,7 +3,7 @@ import {RAIL} from './choreography.ts';
 import {KNIVES} from './state.ts';
 
 type Knife=typeof KNIVES[number];
-export const STAGE_COLORS:Record<Knife,string>={HYPER:'#ffe6c5',VERTEX:'#ffe6c5',EDGE:'#ffe6c5',TRIS:'#ffe6c5',QUAD:'#ffe6c5'};
+export const STAGE_COLORS:Record<Knife,string>={HYPER:'#83baff',VERTEX:'#9be753',EDGE:'#4bd7be',TRIS:'#c397ff',QUAD:'#ffbd78'};
 
 /** A physical annular slot, in the same XZ coordinates as the orbiting products. */
 export function createLightStage(){
@@ -15,16 +15,16 @@ export function createLightStage(){
   shader.fragmentShader='varying vec2 vGround;\n'+shader.fragmentShader.replace('#include <opaque_fragment>',`
    float extent=length(vGround);
    diffuseColor.a*=1.-smoothstep(4.6,10.0,extent);
-   outgoingLight*=.105;
+   outgoingLight*=.27;
    #include <opaque_fragment>`);
  };
  const lip=new THREE.MeshStandardMaterial({color:'#282722',roughness:.57,metalness:.68,envMapIntensity:.28,side:THREE.DoubleSide});
- const emitter=new THREE.MeshBasicMaterial({color:new THREE.Color(STAGE_COLORS.HYPER).multiplyScalar(3.4),side:THREE.DoubleSide});
+ const emitter=new THREE.MeshBasicMaterial({color:new THREE.Color(STAGE_COLORS.HYPER),side:THREE.DoubleSide,toneMapped:false});
  const halo=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
   uniforms:{uLight:{value:new THREE.Color(STAGE_COLORS.HYPER)},uRadius:{value:r}},
   vertexShader:'varying vec2 p; void main(){p=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:`varying vec2 p; uniform vec3 uLight; uniform float uRadius;
-   void main(){float d=abs(length(p)-uRadius);float a=.26*exp(-d*27.)+.075*exp(-d*5.)+.018*exp(-d*1.4);
+   void main(){float d=abs(length(p)-uRadius);float a=.35*exp(-d*27.)+.105*exp(-d*5.)+.018*exp(-d*1.4);
     gl_FragColor=vec4(uLight,a);
     #include <colorspace_fragment>
    }`
@@ -43,13 +43,19 @@ export function createLightStage(){
  flat(new THREE.RingGeometry(r-1.2,r+1.2,192,3),halo,.002);
  const lamps:Array<THREE.PointLight>=[];
  for(let i=0;i<8;i++){
-  const a=2*Math.PI*i/8,light=new THREE.PointLight(STAGE_COLORS.HYPER,4.6,12,2);
+  const a=2*Math.PI*i/8,light=new THREE.PointLight(STAGE_COLORS.HYPER,3.6,10,2);
   light.position.set(Math.sin(a)*r,-.008,Math.cos(a)*r);light.layers.enableAll();group.add(light);lamps.push(light);
  }
+ // Coordinates below are local to the stage. The cone lands at the hero pivot.
+ const spot=new THREE.SpotLight('#fff6ea',145,16,.66,.64,2);
+ spot.position.set(-1.25,6.25,5.7);spot.layers.enableAll();
+ group.add(spot,spot.target);
+ const aim=new THREE.Vector3();
  const lightColor=new THREE.Color(STAGE_COLORS.HYPER),target=new THREE.Color();
- return {group,update(index:number,dt:number){
+ return {group,update(index:number,dt:number,hero?:THREE.Vector3){
+  aim.set(hero?.x??0,hero?.y??.35,hero?.z??0).sub(group.position);spot.target.position.copy(aim);
   target.set(STAGE_COLORS[KNIVES[index]]);lightColor.lerp(target,1-Math.exp(-4*dt));
-  emitter.color.copy(lightColor).multiplyScalar(3.4);halo.uniforms.uLight.value.copy(lightColor);
-  lamps.forEach(lamp=>lamp.color.copy(lightColor));
- },dispose(){group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});[floor,lip,emitter,halo].forEach(m=>m.dispose());lamps.forEach(l=>l.dispose());}};
+  emitter.color.copy(lightColor);halo.uniforms.uLight.value.copy(lightColor);
+  lamps.forEach(lamp=>lamp.color.copy(lightColor));return lightColor.getHex();
+ },dispose(){group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});[floor,lip,emitter,halo].forEach(m=>m.dispose());lamps.forEach(l=>l.dispose());spot.dispose();}};
 }

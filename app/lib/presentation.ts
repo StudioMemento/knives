@@ -12,28 +12,11 @@ const CANONICAL=new Quaternion(0,1,0,0);
 export const presentation=(pitch:number,yaw:number,roll:number)=>rotation(0,0,roll).multiply(rotation(pitch,yaw,0)).multiply(CANONICAL);
 
 /** The product can cross the UI gutters. Portrait reserves the actual space above each panel. */
-export function productArea(portrait:boolean,panelTop=portrait?.77:.89):ScreenRect{
- return [.10,.095,.90,portrait?Math.max(.40,Math.min(.835,panelTop-.018)):.825];
+export function productArea(portrait:boolean,panelTop=portrait?.81:.89):ScreenRect{
+ return [.10,.045,.90,Math.max(.40,Math.min(portrait?.728:.74,panelTop-.018))];
 }
 
 const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;
-/** Fit the rotated hero using the actual open-model hull, so folding never
- * changes its projection pivot or lens. A transformed mesh AABB is too loose. */
-export function heroTiltFit(meta:ModelMeta,focus:Vector3,pose:Quaternion,position:Vector3,scale:number,width:number,height:number,bottomEdge:number){
- const hull=envelopes[meta.id].assembled,k=scale*DISPLAY/meta.bounds.size[0],p=new Vector3();
- const left=-.433*width,right=.433*width,top=.439*height,bottom=(.5-bottomEdge)*height;
- const depth=1-position.z/CAMERA_DISTANCE;
- const roomL=position.x-left*depth,roomR=right*depth-position.x,roomB=position.y-bottom*depth,roomT=top*depth-position.y;
- let fit=1;
- for(let i=0;i<hull.length;i+=3){
-  p.fromArray(hull,i).multiplyScalar(.00001).sub(focus).multiplyScalar(k).applyQuaternion(pose);
-  const z=p.z/CAMERA_DISTANCE;
-  const l=-p.x-left*z,r=p.x+right*z,b=-p.y-bottom*z,t=p.y+top*z;
-  if(l>0)fit=Math.min(fit,roomL/l);if(r>0)fit=Math.min(fit,roomR/r);
-  if(b>0)fit=Math.min(fit,roomB/b);if(t>0)fit=Math.min(fit,roomT/t);
- }
- return Math.max(.01,fit);
-}
 type Prepared={positions:Float32Array; focus:Vector3; pitch:number; yaw:number};
 const cached=new WeakMap<ModelMeta,Map<number,Prepared>>();
 function prepare(meta:ModelMeta,chapter:number){
@@ -74,8 +57,18 @@ function fittedShot(meta:ModelMeta,chapter:number,width:number,height:number,por
   const mid=(lo+hi)/2,fit=measure(mid);
   if(fit.sx<fit.sy)lo=mid;else hi=mid;
  }
- const roll=chapter===4&&!portrait?0:(lo+hi)/2;
- const fit=measure(roll),scale=Math.min(fit.sx,fit.sy);
+ let roll=chapter===4&&!portrait?0:(lo+hi)/2;
+ let fit=measure(roll);
+ // A folded outline can lean relative to its own long axis. Some need a few
+ // degrees beyond horizontal or vertical to occupy both sides of the frame.
+ if(chapter===2&&Math.min(fit.sx,fit.sy)/Math.max(fit.sx,fit.sy)<.98){
+  const seed=roll;
+  for(let i=1;i<=32;i++)for(const sign of [-1,1]){
+   const angle=seed+sign*i*.018,candidate=measure(angle);
+   if(Math.abs(Math.log(candidate.sx/candidate.sy))<Math.abs(Math.log(fit.sx/fit.sy))){roll=angle;fit=candidate;}
+  }
+ }
+ const scale=Math.min(fit.sx,fit.sy);
  const x=(left+right-scale*(fit.xLow+fit.xHigh))/2,y=(bottom+top-scale*(fit.yLow+fit.yHigh))/2;
  return {position:new Vector3(x,y,0),rotation:presentation(pitch,yaw,roll),scale,focus,closed:chapter===2||chapter===3?1:0};
 }

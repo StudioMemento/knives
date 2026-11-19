@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {Vector3,PerspectiveCamera,Euler} from 'three';
-import {chapterFrame,stageFrame,livingPose,heroTiltFit,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
+import {chapterFrame,stageFrame,livingPose,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
 import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography.ts';
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
 import {CATALOGUE,catalogueChoices,SURFACES} from '../app/lib/catalogue.ts';
@@ -33,17 +33,6 @@ for(const meta of metas)for(const [width,height] of sizes){
   count++;
  }
  const [hero,blade,handle,detail,inspect]=shots;
- assert.equal(heroTiltFit(meta,hero.focus,hero.rotation,hero.position,hero.scale,vw,vh,rect[3]+.025),1);
- for(const time of [.7,4,13]){
-  const pose=livingPose(time,0,0,false).rotation.multiply(hero.rotation);
-  const scale=hero.scale*heroTiltFit(meta,hero.focus,pose,hero.position,hero.scale,vw,vh,rect[3]+.025);
-  const hull=hulls[meta.id].assembled,point=new Vector3();
-  for(let j=0;j<hull.length;j+=3){
-   point.fromArray(hull,j).multiplyScalar(.00001).sub(hero.focus).multiplyScalar(scale*DISPLAY/meta.bounds.size[0]).applyQuaternion(pose).add(hero.position).project(camera);
-   assert.ok(Math.abs(point.x)<=.86601&&point.y<=.87801&&point.y>=1-2*(rect[3]+.025)-1e-5);
-  }
- }
-
  assert.ok(blade.scale>hero.scale*1.4,'The blade has its own close-up');
  if(width/height<=3)assert.ok(handle.scale>hero.scale*1.24,'Folded handles are magnified');
  assert.equal(handle.closed,1);assert.equal(detail.closed,1);assert.equal(blade.closed,0);

@@ -4,11 +4,11 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion,compactExplosion,type ExplodedPart} from './lib/explosion';
-import {stageFrame,chapterFrame,livingPose,heroTiltFit,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
-import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
+import {stageFrame,chapterFrame,livingPose,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
+import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
-import {assemblyWeight,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
-import {MotionValue,focusWeight,orbitAngle} from './lib/motion';
+import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
+import {MotionValue,orbitAngle} from './lib/motion';
 import {createLightStage} from './lib/lighting';
 import {fitBoundsScale,slideTravel} from './lib/framing';
 import {createCutSurface,setCutPlane} from './lib/cut-surface';
@@ -21,11 +21,10 @@ type Props={
  state:MutableRefObject<DemoState>;onFrame:(progress:number,id:number,ready:number)=>void;
  onError:(message:string)=>void;onInteract:()=>void;onChapter:(target:number)=>void;
 };
-type Departure={position:THREE.Vector3;rotation:THREE.Quaternion;content:THREE.Vector3;scale:number;fold:number;explosion:number};
 type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
  parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:THREE.Mesh[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
- fold:number;explosion:number;fit:number;sharp:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];slideX:number;departure:Departure|null;
+ fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
@@ -38,24 +37,16 @@ export default function Stage({state,...callbacks}:Props){
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.localClippingEnabled=true;renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const textures=makeTextures(),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
-  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
-  const studioCards=[
-   [-3,7,6,8,1.4,4],[5,4,-3,2,6,2.5],
-   [.8,4.4,6,8,5,2.2],[-6,3.8,2.3,3,7,3],
-  ];
-  for(const [x,y,z,w,h,intensity] of studioCards){
-   const card=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(intensity,intensity*.97,intensity*.92),side:THREE.DoubleSide}));
-   card.position.set(x,y,z);card.lookAt(0,3.5,0);room.add(card);
+  const pmrem=new THREE.PMREMGenerator(renderer),studio=new THREE.Scene();
+  studio.background=new THREE.Color('#101119');
+  for(const [x,y,z,w,h,power] of [[-3,4.8,4.3,5.4,1.8,5.4],[4,1.6,2.8,1.5,4.2,3.6],[-.7,3,-3.2,4.2,1.1,4.2],[0,.4,5.6,5,3,1.15]]){
+   const card=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(power,power*.99,power*.97),side:THREE.DoubleSide}));
+   card.position.set(x,y,z);card.lookAt(0,0,0);studio.add(card);
   }
-  const env=pmrem.fromScene(room,.025);scene.environment=env.texture;scene.environmentRotation.y=.18;room.dispose();pmrem.dispose();
-  // The generator releases its temporary framebuffer and textures. Rebind
-  // renderer state before the carousel starts sampling its own blur targets.
-  renderer.resetState();
-  const ambient=new THREE.HemisphereLight('#eaf2fa','#242326',.45);ambient.layers.enableAll();scene.add(ambient);
-  const key=new THREE.DirectionalLight('#fff6e9',2.65);key.position.set(3,4,5);key.layers.enableAll();scene.add(key);
-  const face=new THREE.DirectionalLight('#ffffff',1.5);face.position.set(.5,1,7);face.layers.enableAll();scene.add(face);
-  const rim=new THREE.DirectionalLight('#ffdfb9',2.2);rim.position.set(-3,2,-3);rim.layers.enableAll();scene.add(rim);
-  const fill=new THREE.DirectionalLight('#bdd6ea',.85);fill.position.set(-4,1,3);fill.layers.enableAll();scene.add(fill);
+  const env=pmrem.fromScene(studio,.045);scene.environment=env.texture;scene.environmentRotation.y=.18;
+  studio.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();o.material.dispose();}});pmrem.dispose();renderer.resetState();
+  const ambient=new THREE.HemisphereLight('#e0e5ed','#191921',.23);ambient.layers.enableAll();scene.add(ambient);
+  const rim=new THREE.DirectionalLight('#d5e2ee',.82);rim.position.set(-2,1,-3);rim.layers.set(FRONT);scene.add(rim);
   const lightStage=createLightStage();scene.add(lightStage.group);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);let metas:ModelMeta[]=[],warmed=false;
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
@@ -81,7 +72,7 @@ export default function Stage({state,...callbacks}:Props){
     proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
    });
    const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),
-    fold:0,explosion:0,fit:1,sharp:0,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,slideX:0,departure:null};
+    fold:0,explosion:0,fit:1,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,details:inspectionParts(gltf.scene,meshes,meta.focusPoints.handle[2])};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
@@ -97,6 +88,7 @@ export default function Stage({state,...callbacks}:Props){
   const host=element.parentElement!;
   const panels=[host.querySelector<HTMLElement>('[data-pose]')!,...host.querySelectorAll<HTMLElement>('.hud-layer [data-panel]')];
   let areas:ScreenRect[]=[];
+  const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
    const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,areas[0]);
    rig.shots=[hero,...[1,2,3,4].map(i=>chapterFrame(i,rig.meta,hero,viewWidth,viewHeight,portrait,areas[i])),hero];
@@ -110,6 +102,7 @@ export default function Stage({state,...callbacks}:Props){
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();camera.updateMatrixWorld();
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;viewWidth=viewHeight*camera.aspect;
+    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
     soft.resize(w,h);
    }
    const top=element.getBoundingClientRect().top;
@@ -149,14 +142,15 @@ export default function Stage({state,...callbacks}:Props){
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
   element.addEventListener('pointermove',cursorMove,{passive:true});element.addEventListener('pointerleave',cursorLeave);
-  const carousel=new Carousel(),scroll=new MotionValue(),zoom=new MotionValue(1),idleAmount=new MotionValue(1),fold=new MotionValue(),explosion=new MotionValue();
+  const carousel=new Carousel(),scroll=new MotionValue(),fold=new MotionValue(),explosion=new MotionValue();
   const customFold=s.customFold.map(x=>new MotionValue(x)),customExplode=s.customExplode.map(x=>new MotionValue(x));
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
   const mirrorMatrix=new THREE.Matrix4(),mirrorFlip=new THREE.Matrix4().makeScale(1,-1,1);
   function renderProducts(sharp:boolean){
+   scene.environmentIntensity=sharp?1.10:.36;
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
-    const opacity=rig.visibility*(sharp?rig.sharp:1-rig.sharp);
+    const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
     for(const mat of Object.values(rig.materials))mat.opacity=opacity;
     for(const mesh of rig.meshes){
      mesh.layers.set(opacity>.001?(sharp?FRONT:REAR_LAYER):4);
@@ -167,7 +161,7 @@ export default function Stage({state,...callbacks}:Props){
   let railPhase=0,showBackdrop=true;
   let last=performance.now(),time=0,lastActivity=-1,frames=0,frameWindow=0;
   const visibility=()=>{last=performance.now();};document.addEventListener('visibilitychange',visibility);
-  const identity=new THREE.Quaternion();
+  const identity=new THREE.Quaternion(),lightAim=new THREE.Vector3();
   let lifeTime=0,idle=livingPose(0,0,0,s.reduced);
   function animate(now:number){
    if(dead)return;
@@ -180,7 +174,8 @@ export default function Stage({state,...callbacks}:Props){
    s.progress=scroll.step(s.target,dt,s.reduced?25:8);
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
-   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0;
+   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&!hasManualRotation(s);
+   if(!auto&&s.knifeDestination===null&&!carousel.manuallyTravelling&&Math.abs(carousel.phase-Math.round(carousel.phase))>1e-5)carousel.request(Math.round(carousel.phase),s.reduced);
    const phase=carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
    if(s.knifeDestination!==null&&Math.abs(phase-s.knifeDestination)<1e-7)s.knifeDestination=null;
@@ -188,99 +183,86 @@ export default function Stage({state,...callbacks}:Props){
    if(headingToStage){railPhase=phase;showBackdrop=true;}
    else if(stageDistance>=.62)showBackdrop=false;
    const rearAlpha=showBackdrop?backdropOpacity(stageDistance):0;
-   const inDetail=!showBackdrop&&!headingToStage;
    const nearest=mod(Math.round(phase));
    if(rigs[nearest]&&nearest!==s.selected){
-    const leaving=rigs[s.selected];
-    if(leaving&&inDetail){
-     const position=leaving.group.position.clone();position.x-=leaving.slideX;
-     leaving.departure={position,rotation:leaving.group.quaternion.clone(),content:leaving.content.position.clone(),
-      scale:leaving.group.scale.x,fold:leaving.fold,explosion:leaving.explosion};
-    }
-    s.selected=nearest;resetInspection(s);
-    if(inDetail){
-     fold.reset(0);explosion.reset(0);zoom.reset(1);viewRotation.identity();
-     customFold.forEach((m,i)=>m.reset(s.customFold[i]));customExplode.forEach(m=>m.reset(0));
-    }
+    s.selected=nearest;resetInspection(s);fold.reset(0);explosion.reset(0);viewRotation.identity();
+    customFold.forEach((m,i)=>m.reset(s.customFold[i]));customExplode.forEach(m=>m.reset(0));
    }
-   if(s.closed===0&&s.exploded===0&&fold.value<.0001&&explosion.value<.0001){
+   if(!hasManualRotation(s)&&!s.interacting&&s.closed===0&&s.exploded===0&&fold.value<.0001&&explosion.value<.0001){
     lifeTime+=dt;idle=livingPose(lifeTime,cursorX.step(cursor.x,dt,5),cursorY.step(cursor.y,dt,5),s.reduced);
    }
-   const idleWeight=idleAmount.step(s.interacting?.3:1,dt,7);
-   const view=views[s.view],orbit=new THREE.Quaternion().setFromEuler(new THREE.Euler(view[0]*inspectWeight,view[1]*inspectWeight,0,'YXZ')).premultiply(s.rotation);
+   const current=rigs[s.selected],macro=s.view==='clip'||s.view==='screw'?s.view:null;
+   let viewOffset:THREE.Quaternion;
+   if(macro&&current){
+    const part=current.details[macro];
+    const shot=presentation(macro==='clip'?.13:.04,part.positiveZ?Math.PI-.09:.09,portrait?.74:.10);
+    viewOffset=shot.multiply(current.shots[4].rotation.clone().invert());
+   }else{
+    const angles=views[s.view as keyof typeof views]??views.side;
+    viewOffset=new THREE.Quaternion().setFromEuler(new THREE.Euler(angles[0],angles[1],0,'YXZ'));
+   }
+   const orbit=identity.clone().slerp(viewOffset,inspectWeight).premultiply(s.rotation);
    viewRotation.slerp(orbit,1-Math.exp(-dt*11));
-   const zoomValue=zoom.step(s.zoom,dt,12),foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
+   const foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
    customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
    mirrorMatrix.makeTranslation(0,2*RAIL.floorY,0).multiply(mirrorFlip);
-   let caps:THREE.Plane[]=[];
+   let caps:THREE.Plane[]=[],visibleRear=false;
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
-    const delta=slotOffset(i,phase),traveller=inDetail&&Math.abs(delta)<1;
-    if(front||!traveller)rig.departure=null;
-    const held=rig.departure;
-    const slot=mod(i-(front?phase:railPhase)),distance=Math.min(slot,5-slot),weight=focusWeight(distance);
-    rig.visibility=front||traveller?1:rearAlpha;
+    const delta=slotOffset(i,phase),railSlot=slotOffset(i,railPhase);
+    rig.visibility=front?1:rearAlpha*railVisibility(railSlot);
     rig.group.visible=rig.visibility>.001;
     if(!rig.group.visible){for(const mirror of rig.mirrors)mirror.visible=false;continue;}
-    rig.sharp=inDetail?1:front?THREE.MathUtils.lerp(1,weight,heroWeight):weight;
-    const assembly=assemblyWeight(distance);
-    const scenery=inDetail?0:(1-assembly)*(front?heroWeight:1);
-    const angle=orbitAngle(slot);
-    const stage=rig.shots[0],rail=railPoint(angle);
-    const scenicScale=.43;
-    const heroScale=THREE.MathUtils.lerp(scenicScale,stage.scale,weight);
-    rail.y+=scenicScale*DISPLAY*.45;
-    const heroPos=rail.lerp(stage.position,weight);
-    const spin=s.reduced?0:time*.56+i*1.31;
-    const heroRotation=presentation(.15+.24*Math.sin(spin),.45*Math.sin(spin*.76)+.24*Math.sin(angle),1.03+.22*Math.cos(spin)-.14*Math.cos(angle)).slerp(stage.rotation,weight);
-    const hero={...stage,position:heroPos,rotation:heroRotation,scale:heroScale};
-    const base=(n:number)=>(!front&&!traveller)||n===0||n===5?hero:rig.shots[n];
-    const a=base(chapter),b=base(chapter+1);
-    const pose=new THREE.Quaternion().slerpQuaternions(a.rotation,b.rotation,blend);
-    const lifeStrength=heroWeight*weight*idleWeight;
-    pose.premultiply(identity.clone().slerp(idle.rotation,lifeStrength));
-    if(front)pose.premultiply(identity.clone().slerp(viewRotation,inDetail?1:weight));
-    rig.group.quaternion.copy(pose);
-    rig.group.position.lerpVectors(a.position,b.position,blend);
-    let scale=THREE.MathUtils.lerp(a.scale,b.scale,blend);
-    const controlWeight=front?heroWeight+inspectWeight:0;
-    const authored=(n:number,value:number)=>n>=1&&n<=3&&front?customFold[n-1].value:value;
-    const spread=(n:number)=>n>=1&&n<=3&&front?customExplode[n-1].value:0;
-    rig.fold=THREE.MathUtils.lerp(authored(chapter,a.closed),authored(chapter+1,b.closed),blend)+foldValue*controlWeight*assembly;
-    rig.explosion=.75*scenery+rig.compact*(explodeValue*controlWeight*assembly+THREE.MathUtils.lerp(spread(chapter),spread(chapter+1),blend));
-    if(held){
-     rig.group.position.copy(held.position);rig.group.quaternion.copy(held.rotation);
-     scale=held.scale;rig.fold=held.fold;rig.explosion=held.explosion;
+    const stage=rig.shots[0],scenicScale=.36;
+    if(!front){
+     const angle=orbitAngle(railSlot),spin=s.reduced?i*1.31:time*.43+i*1.31;
+     rig.group.position.copy(railPoint(angle));rig.group.position.y+=scenicScale*DISPLAY*.56;
+     rig.group.quaternion.copy(presentation(.12+.20*Math.sin(spin),.42*Math.sin(spin*.76)+.20*Math.sin(angle),1.03+.18*Math.cos(spin)));
+     rig.group.scale.setScalar(scenicScale);rig.content.position.copy(stage.focus).negate();
+     rig.fold=0;rig.explosion=rig.compact*.55;rig.fit=1;
+    }else{
+     const a=rig.shots[chapter],b=rig.shots[chapter+1];
+     const pose=new THREE.Quaternion().slerpQuaternions(a.rotation,b.rotation,blend);
+     pose.premultiply(identity.clone().slerp(idle.rotation,heroWeight)).premultiply(viewRotation);
+     rig.group.quaternion.copy(pose);rig.group.position.lerpVectors(a.position,b.position,blend);
+     const scale=THREE.MathUtils.lerp(a.scale,b.scale,blend);
+     rig.group.scale.setScalar(scale);
+     const value=(n:number,custom:MotionValue[],normal:number)=>n>=1&&n<=3?custom[n-1].value:normal;
+     rig.fold=THREE.MathUtils.lerp(value(chapter,customFold,foldValue),value(chapter+1,customFold,foldValue),blend);
+     rig.explosion=rig.compact*THREE.MathUtils.lerp(value(chapter,customExplode,explodeValue),value(chapter+1,customExplode,explodeValue),blend);
     }
-    rig.open.time=clamp(rig.fold)*rig.meta.motion.closedTime;rig.mixer.update(0);
-    sampleExplosion(rig.parts,rig.explosion);
-    animateBackdrop(rig.parts,s.reduced?0:scenery,time,i);
-    const focus=new THREE.Vector3().lerpVectors(a.focus,b.focus,blend);
-    if(s.focus&&front&&inspectWeight>.001)focus.lerp(v(s.focus),inspectWeight);
-    focus.negate();
-    if(held)rig.content.position.copy(held.content);
-    else if(!wasVisible)rig.content.position.copy(focus);
-    else rig.content.position.lerp(focus,1-Math.exp(-dt*(s.reduced?28:14)));
-    rig.group.scale.setScalar(scale);rig.group.updateMatrixWorld(true);
-    if(inspectWeight>.001&&front){
-     const moved=s.view!=='side'||hasManualRotation(s);
-     if(moved)for(const mesh of rig.fitMeshes)mesh.matrixWorld.multiplyMatrices(rig.scene.matrixWorld,mesh.matrix);
-     const cap=moved&&!s.focus?fitBoundsScale(camera,rig.group,rig.fitMeshes,areas[4]):1;
-     const desired=1+(cap-1)*inspectWeight;
-     rig.fit+=(desired-rig.fit)*(1-Math.exp(-dt*10));
-     scale*=rig.fit*(1+(zoomValue-1)*inspectWeight);
-     rig.group.scale.setScalar(scale);rig.group.updateMatrixWorld(true);
-    }else if(front&&heroWeight>.005&&weight>.9){
-     const cap=heroTiltFit(rig.meta,stage.focus,pose,rig.group.position,scale,viewWidth,viewHeight,areas[0][3]+.025);
-     rig.fit=1+(cap-1)*heroWeight*smooth((weight-.9)/.1);
-     rig.group.scale.setScalar(scale*rig.fit);rig.group.updateMatrixWorld(true);
-    }else rig.fit=1;
-    rig.slideX=0;
-    if(traveller&&Math.abs(delta)>.00001){
-     rig.slideX=delta*slideTravel(camera,rig.meshes,Math.sign(delta));rig.group.position.x+=rig.slideX;
+    rig.open.time=clamp(rig.fold)*rig.meta.motion.closedTime;rig.mixer.update(0);sampleExplosion(rig.parts,rig.explosion);
+    if(!front)animateBackdrop(rig.parts,s.reduced?0:.64,time,i);
+    if(front){
+     const a=rig.shots[chapter],b=rig.shots[chapter+1],focus=new THREE.Vector3().lerpVectors(a.focus,b.focus,blend);
+     const detail=macro&&inspectWeight>.001?rig.details[macro]:null;
+     if(inspectWeight>.001){
+      if(s.focus)focus.lerp(v(s.focus),inspectWeight);
+      else if(detail)focus.lerp(partCenter(rig.scene,detail),inspectWeight);
+     }
+     focus.negate();
+     if(!wasVisible||heroWeight>.999)rig.content.position.copy(focus);
+     else rig.content.position.lerp(focus,1-Math.exp(-dt*(s.reduced?28:14)));
      rig.group.updateMatrixWorld(true);
+     let cap=1;
+     if(detail){
+      const extent=detail.span*DISPLAY/rig.meta.bounds.size[0]*rig.group.scale.x;
+      cap=clamp(Math.min(viewWidth*.67,viewHeight*.52)*(macro==='screw'?.24:1)/extent,1,12);
+     }else if(inspectWeight>.001&&(s.view!=='side'||hasManualRotation(s))&&!s.focus){
+      for(const mesh of rig.fitMeshes)mesh.matrixWorld.multiplyMatrices(rig.scene.matrixWorld,mesh.matrix);
+      cap=fitBoundsScale(camera,rig.group,rig.fitMeshes,areas[4]);
+     }
+     if(inspectWeight>.001)rig.fit+=(1+(cap-1)*inspectWeight-rig.fit)*(1-Math.exp(-dt*10));
+     else rig.fit=1;
+     rig.group.scale.multiplyScalar(rig.fit);rig.group.updateMatrixWorld(true);
+     if(Math.abs(delta)>.00001){
+      const direction=Math.sign(delta);
+      rig.group.position.x+=direction*exitFraction(delta)*slideTravel(camera,rig.meshes,direction);
+     }
     }
+    rig.group.updateMatrixWorld(true);
+    if(!front&&!visibleRear)visibleRear=rig.meshes.some(mesh=>frustum.intersectsObject(mesh));
     const configKey=JSON.stringify(s.configs[i]);
     if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],role,s.configs[i][role],textures);rig.key=configKey;}
     const planes:THREE.Plane[]=[];
@@ -297,13 +279,17 @@ export default function Stage({state,...callbacks}:Props){
     });
    }
    const active=rigs[s.selected];
-   lightStage.update(s.selected,dt);
+   if(active)lightAim.lerpVectors(active.shots[chapter].position,active.shots[chapter+1].position,blend);
+   const tint=lightStage.update(s.selected,dt,lightAim);
+   // Rear motion is slow and defocused. Reuse its optical integration between
+   // updates, and indefinitely while reduced motion holds the scenery still.
+   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.reduced?0:Math.floor(time*30)].join('/');
+
    try{
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
-    renderProducts(false);soft.render(scene,camera,rearAlpha>.001,CAMERA_DISTANCE-(active?.group.position.z??0));
+    renderProducts(false);soft.render(scene,camera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
     renderProducts(true);renderer.clearDepth();camera.layers.set(FRONT);
-    if(rigs.some(r=>r?.group.visible&&r.sharp>.001&&(r.sharp<.999||r.visibility<.999))){scene.overrideMaterial=depthOnly;renderer.render(scene,camera);scene.overrideMaterial=null;}
     renderer.render(scene,camera);
     if(active&&caps.length)cutSurface.render(camera,active.meshes,caps);
    }catch(e){props.current.onError('Errore di rendering. Riprova per ripristinare la scena.');cancelAnimationFrame(raf);console.error(e);return;}

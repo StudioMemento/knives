@@ -1,11 +1,11 @@
 'use client';
-import {useCallback,useEffect,useRef,useState} from 'react';
+import {Fragment,useCallback,useEffect,useRef,useState} from 'react';
 import Stage from './Stage';
 import {CATALOGUE_KEY,SURFACES,catalogueChoices} from './lib/catalogue';
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,VariantRecall} from './Hud';
+import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary} from './Hud';
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,PRODUCTS,createState,defaultConfiguration,mod,resetInspection,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
@@ -15,12 +15,11 @@ export default function Experience(){
  const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
  const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
  if(choices.current===null)choices.current=catalogueChoices();
- const lastSurface=useRef(new Map<number,Surface>());
  const previous=useRef(frame),[,setRevision]=useState(0);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
  const go=useCallback((target:number)=>{
   const s=state.current;
-  if(s.target===target)return;
+  if(s.target===target){if(sectionAt(target)===0){resetView(s);s.activity++;refresh();}return;}
   if(sectionAt(s.progress)===0&&sectionAt(target)!==0)chooseSlot(s,Math.round(s.orbit));
   resetView(s);s.target=target;s.activity++;refresh();
  },[refresh]);
@@ -38,7 +37,6 @@ export default function Experience(){
  const onFrame=useCallback((_progress:number,selected:number,ready:number)=>{
   const section=sectionAt(state.current.target),last=previous.current;
   if(last.section!==section||last.selected!==selected||last.ready!==ready){
-   if(section>=1&&section<=3)lastSurface.current.set(selected,SURFACES[section-1]);
    previous.current={section,selected,ready};setFrame(previous.current);
   }
  },[]);
@@ -81,32 +79,31 @@ export default function Experience(){
  },[go,stepKnife,refresh]);
  const {selected,section,ready}=frame,s=state.current;
  const isCustom=section>=1&&section<=3;
- const setRange=(key:'closed'|'exploded'|'zoom',value:number)=>{
-  if(isCustom&&key!=='zoom')(key==='closed'?s.customFold:s.customExplode)[section-1]=value;
+ const setRange=(key:'closed'|'exploded',value:number)=>{
+  if(isCustom)(key==='closed'?s.customFold:s.customExplode)[section-1]=value;
   else s[key]=value;
   s.activity++;refresh();
  };
  const material=(surface:Surface,key:'color'|'style',value:number)=>{
   choices.current![selected][surface][key]=value;
-  lastSurface.current.set(selected,surface);
   try{localStorage.setItem(CATALOGUE_KEY,JSON.stringify(Object.fromEntries(KNIVES.map((id,i)=>[id,choices.current![i]]))));}catch{}
   refresh();
  };
- const preset=(v:View)=>{s.rotation.identity();s.view=v;s.activity++;refresh();};
+ const preset=(v:View)=>{s.rotation.identity();s.focus=null;s.view=v;s.activity++;refresh();};
  const selectedConfig=choices.current[selected];
- const surface=isCustom?SURFACES[section-1]:(lastSurface.current.get(selected)??'handle');
  const product=PRODUCTS[selected],knifeAnchor=s.knifeDestination??Math.round(s.orbit);
- return <main ref={root} className="experience" data-version="53" data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
+ return <main ref={root} className="experience" data-version="54" data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
   <div className="environment" aria-hidden="true"/>
-  <h1 className="atmospheric-title" data-product-name>{KNIVES[selected]}</h1>
+  <div className="product-info">
+   <h1 className="atmospheric-title" data-product-name aria-label={KNIVES[selected]}>{Array.from(KNIVES[selected],(letter,i)=><Fragment key={i}>{i>0&&<i aria-hidden="true"/>}<span aria-hidden="true">{letter}</span></Fragment>)}</h1>
+   <div className="price" aria-label={'Prezzo dimostrativo '+product.price+' euro'}><span className="currency">€</span>{product.price}</div>
+   <ConfigurationSummary model={selected} config={selectedConfig}/>
+  </div>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
-  <div className="price" aria-label={'Prezzo dimostrativo '+product.price+' euro'}><span className="currency">€</span>{product.price}</div>
-  {section===0?<p className="stage-caption" data-summary>{product.copy[0]}<br/>{product.copy[1]}</p>
-   :<VariantRecall surface={surface} model={selected} config={selectedConfig}/>}
   <header><button className="brand" data-chrome aria-label="Torna allo stage" onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button></header>
   {SURFACES.map((surface,i)=><section key={surface} className="hud-layer material-layer" aria-hidden={section!==i+1} inert={section!==i+1} aria-label={'Materiali '+CHAPTERS[i+1]}><MaterialHud surface={surface} model={selected} config={selectedConfig} onChange={material}/></section>)}
-  <section className="hud-layer technical-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Inspect / Explore"><TechnicalHud value={s} onValue={setRange} onView={preset} onCut={(i,v)=>{s.cuts[i]=v;refresh();}} onReset={()=>{resetInspection(s);refresh();}}/></section>
+  <section className="hud-layer technical-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Inspect / Explore"><TechnicalHud value={s} model={selected} onView={preset} onCut={(i,v)=>{s.cuts[i]=v;refresh();}} onReset={()=>{resetInspection(s);refresh();}}/></section>
   <div className="knife-nav" role="group" aria-label="Scelta del coltello">
    {([-1,1] as const).map(dir=>{
     const name=dir===-1?'Coltello precedente':'Coltello successivo';
@@ -114,8 +111,8 @@ export default function Experience(){
      disabled={!s.ready.includes(mod(knifeAnchor+dir))} onClick={()=>stepKnife(dir)}><Glyph name={dir===-1?'left':'right'} size={31}/></button>;
    })}
   </div>
+  <PoseHud value={isCustom?{...s,closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
   <footer className="control-dock">
-   <PoseHud value={isCustom?{...s,closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    <nav className="sequence-nav" data-chrome aria-label="Navigazione showroom">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Vai a '+name} title={name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>

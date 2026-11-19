@@ -4,12 +4,13 @@ import {Vector3,Group,Plane,Quaternion,AnimationMixer,LoopOnce,ExtrudeGeometry,P
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {Carousel} from '../app/lib/carousel.ts';
-import {animateBackdrop,assemblyWeight,HERO_PERIOD,HERO_HOLD} from '../app/lib/choreography.ts';
+import {animateBackdrop,exitFraction,railVisibility,HERO_PERIOD,HERO_HOLD} from '../app/lib/choreography.ts';
 import {createExplosion,sampleExplosion,compactExplosion} from '../app/lib/explosion.ts';
 import {setCutPlane,CUT_DIRECTIONS,sectionGeometry} from '../app/lib/cut-surface.ts';
 import {nearestChapter} from '../app/lib/navigation.ts';
 import {bindGestures} from '../app/lib/gestures.ts';
-import {createLightStage} from '../app/lib/lighting.ts';
+import {inspectionParts,partCenter} from '../app/lib/inspection.ts';
+import {createLightStage,STAGE_COLORS} from '../app/lib/lighting.ts';
 import {RAIL} from '../app/lib/choreography.ts';
 import {slideTravel} from '../app/lib/framing.ts';
 import {createState,hasManualRotation,mod} from '../app/lib/state.ts';
@@ -38,11 +39,16 @@ for(const hz of [20,30,60,120,144])for(const time of [0,HERO_HOLD,6.55,6.91,7.14
  assert.equal(ring.phase,dest);assert.equal(ring.velocity,0);assert.equal(ring.acceleration,0);swipes++;
 }
 for(let i=-15;i<15;i++)for(let n=0;n<5;n++)assert.equal(mod(nearestChapter(i+.1,n)),n);
-assert.equal(assemblyWeight(0),1);assert.equal(assemblyWeight(1),0);
+for(const direction of [-1,1]){
+ for(const distance of [.48,.49,.5])assert.equal(exitFraction(direction*distance),1);
+ assert.equal(exitFraction(0),0);assert.equal(railVisibility(direction*.5),0);assert.equal(railVisibility(direction),1);
+}
 
 const stageLight=createLightStage();stageLight.group.updateMatrixWorld(true);
 const stageMatrix=stageLight.group.matrixWorld.clone(),lamps=stageLight.group.children.filter(o=>o.isPointLight);
-assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));assert.ok(!stageLight.group.children.some(o=>o.isSpotLight));
+assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));const spot=stageLight.group.children.find(o=>o.isSpotLight);
+assert.ok(spot&&spot.penumbra>0&&spot.position.y>spot.target.position.y&&spot.decay===2);
+assert.equal(new Set(Object.values(STAGE_COLORS)).size,5);
 assert.ok(lamps.every(l=>Math.abs(Math.hypot(l.position.x,l.position.z)-RAIL.radius)<1e-7));
 for(let i=0;i<5;i++){stageLight.update(i,1);stageLight.group.updateMatrixWorld(true);assert.ok(stageMatrix.equals(stageLight.group.matrixWorld));}
 stageLight.dispose();
@@ -124,6 +130,12 @@ for(const meta of manifest.models){
  }
  sampleExplosion(parts,0);animateBackdrop(parts,0,40,2);assert.ok(parts.every(p=>p.node.position.equals(p.assembled)));
  const meshes=[];scene.traverse(o=>{if(o.isMesh)meshes.push(o);});group.updateMatrixWorld(true);
+ const details=inspectionParts(scene,meshes,meta.focusPoints.handle[2]);
+ for(const part of Object.values(details)){
+  assert.ok(part.span>0&&part.span<meta.bounds.size[0]);assert.ok(partCenter(scene,part).toArray().every(Number.isFinite));
+ }
+ assert.ok(details.screw.mesh.name.includes('screw'));
+ assert.ok(details.clip.mesh.name.includes(meta.id==='EDGE'?'tail_loop':'clip'));
  const handle=meshes.find(o=>String(o.userData.materialRole||o.material.name).toLowerCase().includes('handle'));
  assert.ok(handle);const home=handle.matrixWorld.clone(),mixer=new AnimationMixer(scene);
  const action=mixer.clipAction(animations.find(c=>c.name===meta.motion.openCloseClip));

@@ -5,9 +5,11 @@ import {mod,smooth} from './state.ts';
 export const HERO_PERIOD=8;
 export const HERO_TRAVEL=2.2;
 export const HERO_HOLD=HERO_PERIOD-HERO_TRAVEL;
-export const RAIL={radius:4.35,floorY:-1.63,centerZ:-2.25} as const;
+export const RAIL={radius:4.35,floorY:-1.14,centerZ:-2.25} as const;
 export const backdropOpacity=(stageDistance:number)=>1-smooth(stageDistance/.62);
-export const assemblyWeight=(distance:number)=>1-smooth((distance-.12)/.78);
+// Reach the edge before the selection boundary. Both directions share the same path.
+export const exitFraction=(distance:number)=>Math.sin(Math.min(1,Math.abs(distance)/.48)*Math.PI/2);
+export const railVisibility=(distance:number)=>smooth((Math.abs(distance)-.5)/.32);
 export const slotOffset=(index:number,phase:number)=>mod(index-phase+2.5)-2.5;
 
 export function railPoint(angle:number){

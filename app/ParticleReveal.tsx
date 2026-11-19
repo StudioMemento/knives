@@ -114,7 +114,6 @@ export default function ParticleReveal({root,chapter,model,ready}:{root:RefObjec
     if(first)host!.querySelectorAll<HTMLElement>('[data-chrome]').forEach(el=>add(el));
     if(newModel)add(host!.querySelector('[data-product-name]'),true);
     if(newChapter)for(const el of jobs.keys())if(el.closest('.hud-layer[aria-hidden=true]'))stop(el);
-    if(nextChapter===0&&(newModel||newChapter))add(host!.querySelector('[data-summary]'));
     if(newChapter&&nextChapter>0)add(host!.querySelector('.hud-layer[aria-hidden=false] [data-panel]'));
     if(!raf&&jobs.size)raf=requestAnimationFrame(draw);
    }
