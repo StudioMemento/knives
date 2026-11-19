@@ -1,30 +1,24 @@
-# Memento Knives V51
+# Memento Knives V52
 
-Lo ZIP contiene lo showroom Next.js completo, i cinque modelli GLB, i font e i campioni dell’interfaccia. La base è la V50 di StudioMemento/knives, commit `ed993668ddeaa1b3301660931226aac5c640471f`.
+Lo ZIP contiene il progetto Next.js, i cinque modelli originali, i font e i campioni del catalogo. L’ordine nello showroom è Hyper, Vertex, Edge, Tris e Quad.
 
-## Aggiornare il progetto Vercel
+## Avvio e pubblicazione
 
-Estrai lo ZIP nella radice della copia di lavoro della repo V50, consentendo la sovrascrittura dei file corrispondenti. Allo stesso livello devono comparire `package.json`, `vercel.json`, `app/` e `public/`. Puoi verificare le modifiche in un branch e usare l’anteprima Vercel prima di unirle a `main`.
+Estrai lo ZIP nella radice della copia di lavoro del progetto. Allo stesso livello devono comparire `package.json`, `vercel.json`, `app/` e `public/`. Vercel usa il preset Next.js. La build genera il sito statico in `out/`.
 
-Il progetto usa il preset Next.js. Il comando `npm run build` genera l’esportazione statica in `out/`. Le cartelle `public/models/v46` e `public/models/v48` contengono le revisioni dei modelli usati dalla V51.
-
-## Avvio e verifica locale
-
-Con Node.js 22.18 o successivo, esegui questi comandi dalla radice del progetto.
+Con Node.js 22.18 o successivo puoi avviare l’anteprima locale.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Questi comandi verificano tipi, navigazione, pose e inquadrature e producono la build di produzione.
+Per verificare la versione prima della pubblicazione esegui `npm run check`, `npm test` e `npm run build`.
 
-```sh
-npm run check
-npm test
-npm run build
-```
+## Interazioni
 
-## Selettori
+Scorri verso l’alto per avanzare di scena e verso il basso per tornare. Il trascinamento orizzontale ruota il modello. I chevron cambiano coltello nella scena aperta. In basso a sinistra trovi i controlli continui di apertura ed esploso. In Inspect, le quattro camere e lo zoom sono affiancati alla sezione XYZ. Il reset ripristina posa, camera e sezioni.
 
-Le cinque icone aprono Stage, Blade, Handle, Details e Inspect. I chevron cambiano coltello nella sezione aperta. In Blade, Handle e Details, Color e Style memorizzano separatamente le scelte di ogni modello nel browser. I nomi, le palette e le descrizioni dei campioni sono in `app/lib/catalogue-data.json`. In questa revisione le selezioni aggiornano soltanto l’interfaccia.
+Material e Color memorizzano le scelte per modello e componente. Il richiamo sotto il nome mostra la coppia selezionata e la descrizione del campione appena scelto. Il catalogo UI è in `app/lib/catalogue-data.json`.
+
+L’incavo luminoso e il percorso orbitale condividono le coordinate definite in `app/lib/choreography.ts`. La tinta di ciascun modello si imposta in `STAGE_COLORS` in `app/lib/lighting.ts`. I cinque valori iniziali usano lo stesso bianco caldo.

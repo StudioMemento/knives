@@ -25,9 +25,9 @@ export function makeMaterial(role:Surface){
     for(int axis=0;axis<NUM_CLIPPING_PLANES;axis++){
      cutDistance=min(cutDistance,clippingPlanes[axis].w-dot(vClipPosition,clippingPlanes[axis].xyz));
     }
-    float edgeWidth=clamp(fwidth(cutDistance)*1.25,.004,.021);
-    float cutEdge=1.-smoothstep(0.,edgeWidth,cutDistance);
-    outgoingLight+=vec3(1.65,.44,.13)*cutEdge;
+    float pixels=cutDistance/max(fwidth(cutDistance),.00045);
+    float core=1.-smoothstep(.0,1.1,pixels);
+    outgoingLight+=vec3(3.4,.38,.06)*exp(-max(pixels,0.)*.68)+vec3(4.2,3.0,1.6)*core;
    #endif
    #include <opaque_fragment>
   `);

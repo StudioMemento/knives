@@ -4,27 +4,28 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion,compactExplosion,type ExplodedPart} from './lib/explosion';
-import {stageFrame,chapterFrame,livingPose,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
+import {stageFrame,chapterFrame,livingPose,heroTiltFit,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {Carousel} from './lib/carousel';
-import {assemblyWeight,backdropOpacity,detailOpacity,railPoint,animateBackdrop} from './lib/choreography';
+import {assemblyWeight,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
 import {MotionValue,focusWeight,orbitAngle} from './lib/motion';
 import {createLightStage} from './lib/lighting';
-import {fitBoundsScale} from './lib/framing';
+import {fitBoundsScale,slideTravel} from './lib/framing';
 import {createCutSurface,setCutPlane} from './lib/cut-surface';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
 import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
-import {KNIVES,mod,clamp,smooth,sectionAt,type DemoState,type ModelMeta,type Surface} from './lib/state';
+import {KNIVES,mod,clamp,smooth,sectionAt,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
 
 type Props={
  state:MutableRefObject<DemoState>;onFrame:(progress:number,id:number,ready:number)=>void;
- onError:(message:string)=>void;onInteract:()=>void;onChapter:(target:number)=>void;onSelect:(slot:number)=>void;
+ onError:(message:string)=>void;onInteract:()=>void;onChapter:(target:number)=>void;
 };
+type Departure={position:THREE.Vector3;rotation:THREE.Quaternion;content:THREE.Vector3;scale:number;fold:number;explosion:number};
 type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
  parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:THREE.Mesh[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
- fold:number;explosion:number;fit:number;sharp:number;visibility:number;compact:number;shots:Frame[];center:THREE.Vector3;oldFold:number;oldExplode:number;
+ fold:number;explosion:number;fit:number;sharp:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];slideX:number;departure:Departure|null;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
@@ -55,8 +56,6 @@ export default function Stage({state,...callbacks}:Props){
   const face=new THREE.DirectionalLight('#ffffff',1.5);face.position.set(.5,1,7);face.layers.enableAll();scene.add(face);
   const rim=new THREE.DirectionalLight('#ffdfb9',2.2);rim.position.set(-3,2,-3);rim.layers.enableAll();scene.add(rim);
   const fill=new THREE.DirectionalLight('#bdd6ea',.85);fill.position.set(-4,1,3);fill.layers.enableAll();scene.add(fill);
-  const spot=new THREE.SpotLight('#fff2df',7,30,.32,.88,0);spot.position.set(.4,6,3.5);spot.layers.enableAll();scene.add(spot,spot.target);
-  // The reference has no opaque floor or horizon: just light and soft reflections.
   const lightStage=createLightStage();scene.add(lightStage.group);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);let metas:ModelMeta[]=[],warmed=false;
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
@@ -76,8 +75,13 @@ export default function Stage({state,...callbacks}:Props){
    const mixer=new THREE.AnimationMixer(gltf.scene),openClip=gltf.animations.find(c=>c.name===meta.motion.openCloseClip),explodeClip=gltf.animations.find(c=>c.name===meta.motion.explodeClip);if(!openClip||!explodeClip)throw Error('Animazioni non disponibili: '+meta.id);
    const open=mixer.clipAction(openClip),parts=createExplosion(gltf.scene,explodeClip,meta.motion.explodePeakTime);for(const action of [open]){action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
    group.updateMatrixWorld(true);
+   const toLocal=gltf.scene.matrixWorld.clone().invert();
+   const fitMeshes=meshes.map(mesh=>{
+    const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
+    proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
+   });
    const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),
-    fold:0,explosion:0,fit:1,sharp:0,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],center:v(meta.focusPoints.assembled),oldFold:-1,oldExplode:-1};
+    fold:0,explosion:0,fit:1,sharp:0,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,slideX:0,departure:null};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
@@ -89,7 +93,7 @@ export default function Stage({state,...callbacks}:Props){
    // Never leave an override material on the live scene while compilation waits.
    await Promise.all([shaders,depthShaders]);if(!dead)warmed=true;
   }catch(e){if(!dead)props.current.onError('Caricamento 3D non riuscito: '+(e instanceof Error?e.message:String(e)));}})();
-  let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3,floorY=-1.51,radius=3.8;
+  let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const panels=Array.from(element.parentElement!.querySelectorAll<HTMLElement>('.hud-layer [data-panel]'));
   let areas:ScreenRect[]=[];
   function frameShots(rig:Rig){
@@ -105,7 +109,7 @@ export default function Stage({state,...callbacks}:Props){
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();camera.updateMatrixWorld();
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;viewWidth=viewHeight*camera.aspect;
-    radius=viewWidth*(portrait?.41:.397);soft.resize(w,h);
+    soft.resize(w,h);
    }
    const top=element.getBoundingClientRect().top;
    const next=panels.map(panel=>productArea(portrait,(panel.getBoundingClientRect().top-top)/h));
@@ -136,7 +140,7 @@ export default function Stage({state,...callbacks}:Props){
   const unbind=bindGestures(element,s,{
    hitsProduct:(x,y)=>!!hitAt(x,y),
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
-   chapter:target=>props.current.onChapter(target),select:slot=>props.current.onSelect(slot),renderUI:()=>props.current.onInteract(),
+   chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
   const lost=(e:Event)=>{e.preventDefault();props.current.onError('La sessione grafica è stata interrotta. Riprova per ripristinare lo showroom.');};
   element.addEventListener('webglcontextlost',lost);
@@ -145,21 +149,9 @@ export default function Stage({state,...callbacks}:Props){
   const cursorLeave=()=>cursor.set(0,0);
   element.addEventListener('pointermove',cursorMove,{passive:true});element.addEventListener('pointerleave',cursorLeave);
   const carousel=new Carousel(),scroll=new MotionValue(),zoom=new MotionValue(1),idleAmount=new MotionValue(1),fold=new MotionValue(),explosion=new MotionValue();
+  const customFold=s.customFold.map(x=>new MotionValue(x)),customExplode=s.customExplode.map(x=>new MotionValue(x));
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
   const mirrorMatrix=new THREE.Matrix4(),mirrorFlip=new THREE.Matrix4().makeScale(1,-1,1);
-  const localBox=new THREE.Box3(),bounds=new THREE.Box3(),inverse=new THREE.Matrix4(),matrix=new THREE.Matrix4();
-  function assembledCenter(rig:Rig){
-   if(Math.abs(rig.oldFold-rig.fold)<.0002&&Math.abs(rig.oldExplode-rig.explosion)<.0002)return rig.center;
-   rig.oldFold=rig.fold;rig.oldExplode=rig.explosion;
-   if(rig.fold<.001&&rig.explosion<.001)return rig.center.copy(v(rig.meta.focusPoints.assembled));
-   rig.scene.updateWorldMatrix(true,true);inverse.copy(rig.scene.matrixWorld).invert();bounds.makeEmpty();
-   for(const mesh of rig.meshes){
-    if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
-    matrix.multiplyMatrices(inverse,mesh.matrixWorld);
-    bounds.union(localBox.copy(mesh.geometry.boundingBox!).applyMatrix4(matrix));
-   }
-   return bounds.getCenter(rig.center);
-  }
   function renderProducts(sharp:boolean){
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
@@ -174,7 +166,8 @@ export default function Stage({state,...callbacks}:Props){
   let railPhase=0,showBackdrop=true;
   let last=performance.now(),time=0,lastActivity=-1,frames=0,frameWindow=0;
   const visibility=()=>{last=performance.now();};document.addEventListener('visibilitychange',visibility);
-  const white=new THREE.Color('#f5dcb8'),identity=new THREE.Quaternion();
+  const identity=new THREE.Quaternion();
+  let lifeTime=0,idle=livingPose(0,0,0,s.reduced);
   function animate(now:number){
    if(dead)return;
    raf=requestAnimationFrame(animate);
@@ -186,7 +179,7 @@ export default function Stage({state,...callbacks}:Props){
    s.progress=scroll.step(s.target,dt,s.reduced?25:8);
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
-   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed;
+   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0;
    const phase=s.dragging?carousel.dragTo(s.dragPhase,dt):carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
    if(s.knifeDestination!==null&&Math.abs(phase-s.knifeDestination)<1e-7)s.knifeDestination=null;
@@ -194,72 +187,99 @@ export default function Stage({state,...callbacks}:Props){
    if(headingToStage){railPhase=phase;showBackdrop=true;}
    else if(stageDistance>=.62)showBackdrop=false;
    const rearAlpha=showBackdrop?backdropOpacity(stageDistance):0;
-   const floorRatio=THREE.MathUtils.lerp(areas[chapter][3],areas[chapter+1][3],blend);
-   floorY=viewHeight*(.5-floorRatio-.009);lightStage.group.position.y=floorY;
+   const inDetail=!showBackdrop&&!headingToStage;
    const nearest=mod(Math.round(phase));
    if(rigs[nearest]&&nearest!==s.selected){
-    s.selected=nearest;s.closed=0;s.exploded=0;s.focus=null;s.yaw=0;s.pitch=0;s.view='side';s.zoom=1;s.cuts=[0,0,0];
+    const leaving=rigs[s.selected];
+    if(leaving&&inDetail){
+     const position=leaving.group.position.clone();position.x-=leaving.slideX;
+     leaving.departure={position,rotation:leaving.group.quaternion.clone(),content:leaving.content.position.clone(),
+      scale:leaving.group.scale.x,fold:leaving.fold,explosion:leaving.explosion};
+    }
+    s.selected=nearest;resetInspection(s);
+    if(inDetail){
+     fold.reset(0);explosion.reset(0);zoom.reset(1);viewRotation.identity();
+     customFold.forEach((m,i)=>m.reset(s.customFold[i]));customExplode.forEach(m=>m.reset(0));
+    }
    }
-   const authority=focusWeight(Math.abs(phase-Math.round(phase)));
-   const idle=livingPose(time,cursorX.step(cursor.x,dt,5),cursorY.step(cursor.y,dt,5),s.reduced);
+   if(s.closed===0&&s.exploded===0&&fold.value<.0001&&explosion.value<.0001){
+    lifeTime+=dt;idle=livingPose(lifeTime,cursorX.step(cursor.x,dt,5),cursorY.step(cursor.y,dt,5),s.reduced);
+   }
    const idleWeight=idleAmount.step(s.interacting?.3:1,dt,7);
    const view=views[s.view],orbit=new THREE.Quaternion().setFromEuler(new THREE.Euler(s.pitch+view[0]*inspectWeight,s.yaw+view[1]*inspectWeight,0,'YXZ'));
    viewRotation.slerp(orbit,1-Math.exp(-dt*11));
    const zoomValue=zoom.step(s.zoom,dt,12),foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
-   mirrorMatrix.makeTranslation(0,2*floorY,0).multiply(mirrorFlip);
+   customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
+   mirrorMatrix.makeTranslation(0,2*RAIL.floorY,0).multiply(mirrorFlip);
    let caps:THREE.Plane[]=[];
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
-    const activeDistance=Math.abs(phase-Math.round(phase));
+    const delta=slotOffset(i,phase),traveller=inDetail&&Math.abs(delta)<1;
+    if(front||!traveller)rig.departure=null;
+    const held=rig.departure;
     const slot=mod(i-(front?phase:railPhase)),distance=Math.min(slot,5-slot),weight=focusWeight(distance);
-    rig.visibility=front?THREE.MathUtils.lerp(detailOpacity(activeDistance),1,rearAlpha):rearAlpha;
+    rig.visibility=front||traveller?1:rearAlpha;
     rig.group.visible=rig.visibility>.001;
     if(!rig.group.visible){for(const mirror of rig.mirrors)mirror.visible=false;continue;}
-    rig.sharp=front?THREE.MathUtils.lerp(1,weight,heroWeight):weight;
+    rig.sharp=inDetail?1:front?THREE.MathUtils.lerp(1,weight,heroWeight):weight;
     const assembly=assemblyWeight(distance);
-    const scenery=(1-assembly)*(front?heroWeight:1);
+    const scenery=inDetail?0:(1-assembly)*(front?heroWeight:1);
     const angle=orbitAngle(slot);
-    const stage=rig.shots[0],railFloor=viewHeight*(.5-areas[0][3]-.009),rail=railPoint(angle,radius,0,railFloor);
-    const scenicScale=Math.min(viewHeight*.28,viewWidth*.43)/DISPLAY;
+    const stage=rig.shots[0],rail=railPoint(angle);
+    const scenicScale=.43;
     const heroScale=THREE.MathUtils.lerp(scenicScale,stage.scale,weight);
-    rail.y+=scenicScale*DISPLAY*.42;rail.z-=1.25;
+    rail.y+=scenicScale*DISPLAY*.45;
     const heroPos=rail.lerp(stage.position,weight);
-    const heroRotation=presentation(.14+.13*Math.sin(angle),.24*Math.sin(angle),1.03-.14*Math.cos(angle)).slerp(stage.rotation,weight);
+    const spin=s.reduced?0:time*.56+i*1.31;
+    const heroRotation=presentation(.15+.24*Math.sin(spin),.45*Math.sin(spin*.76)+.24*Math.sin(angle),1.03+.22*Math.cos(spin)-.14*Math.cos(angle)).slerp(stage.rotation,weight);
     const hero={...stage,position:heroPos,rotation:heroRotation,scale:heroScale};
-    const base=(n:number)=>!front||n===0||n===5?hero:rig.shots[n];
+    const base=(n:number)=>(!front&&!traveller)||n===0||n===5?hero:rig.shots[n];
     const a=base(chapter),b=base(chapter+1);
     const pose=new THREE.Quaternion().slerpQuaternions(a.rotation,b.rotation,blend);
     const lifeStrength=heroWeight*weight*idleWeight;
     pose.premultiply(identity.clone().slerp(idle.rotation,lifeStrength));
-    if(front)pose.premultiply(identity.clone().slerp(viewRotation,weight));
+    if(front)pose.premultiply(identity.clone().slerp(viewRotation,inDetail?1:weight));
     rig.group.quaternion.copy(pose);
     rig.group.position.lerpVectors(a.position,b.position,blend);
     let scale=THREE.MathUtils.lerp(a.scale,b.scale,blend);
     const controlWeight=front?heroWeight+inspectWeight:0;
-    rig.fold=THREE.MathUtils.lerp(a.closed,b.closed,blend)+foldValue*controlWeight*assembly;
-    rig.explosion=.75*scenery+rig.compact*explodeValue*controlWeight*assembly;
+    const authored=(n:number,value:number)=>n>=1&&n<=3&&front?customFold[n-1].value:value;
+    const spread=(n:number)=>n>=1&&n<=3&&front?customExplode[n-1].value:0;
+    rig.fold=THREE.MathUtils.lerp(authored(chapter,a.closed),authored(chapter+1,b.closed),blend)+foldValue*controlWeight*assembly;
+    rig.explosion=.75*scenery+rig.compact*(explodeValue*controlWeight*assembly+THREE.MathUtils.lerp(spread(chapter),spread(chapter+1),blend));
+    if(held){
+     rig.group.position.copy(held.position);rig.group.quaternion.copy(held.rotation);
+     scale=held.scale;rig.fold=held.fold;rig.explosion=held.explosion;
+    }
     rig.open.time=clamp(rig.fold)*rig.meta.motion.closedTime;rig.mixer.update(0);
     sampleExplosion(rig.parts,rig.explosion);
     animateBackdrop(rig.parts,s.reduced?0:scenery,time,i);
     const focus=new THREE.Vector3().lerpVectors(a.focus,b.focus,blend);
-    if(controlWeight*weight>.001){
-     const animated=assembledCenter(rig);
-     focus.addScaledVector(animated.clone().sub(stage.focus),controlWeight*weight);
-    }
     if(s.focus&&front&&inspectWeight>.001)focus.lerp(v(s.focus),inspectWeight);
     focus.negate();
-    if(!wasVisible)rig.content.position.copy(focus);
+    if(held)rig.content.position.copy(held.content);
+    else if(!wasVisible)rig.content.position.copy(focus);
     else rig.content.position.lerp(focus,1-Math.exp(-dt*(s.reduced?28:14)));
     rig.group.scale.setScalar(scale);rig.group.updateMatrixWorld(true);
     if(inspectWeight>.001&&front){
-     const moved=s.view!=='side'||Math.abs(s.yaw)+Math.abs(s.pitch)>.001||explodeValue>.001||foldValue>.001;
-     const cap=moved&&!s.focus?fitBoundsScale(camera,rig.group,rig.meshes,areas[4]):1;
+     const moved=s.view!=='side'||Math.abs(s.yaw)+Math.abs(s.pitch)>.001;
+     if(moved)for(const mesh of rig.fitMeshes)mesh.matrixWorld.multiplyMatrices(rig.scene.matrixWorld,mesh.matrix);
+     const cap=moved&&!s.focus?fitBoundsScale(camera,rig.group,rig.fitMeshes,areas[4]):1;
      const desired=1+(cap-1)*inspectWeight;
      rig.fit+=(desired-rig.fit)*(1-Math.exp(-dt*10));
      scale*=rig.fit*(1+(zoomValue-1)*inspectWeight);
      rig.group.scale.setScalar(scale);rig.group.updateMatrixWorld(true);
+    }else if(front&&heroWeight>.005&&weight>.9){
+     const cap=heroTiltFit(rig.meta,stage.focus,pose,rig.group.position,scale,viewWidth,viewHeight,areas[0][3]+.025);
+     rig.fit=1+(cap-1)*heroWeight*smooth((weight-.9)/.1);
+     rig.group.scale.setScalar(scale*rig.fit);rig.group.updateMatrixWorld(true);
     }else rig.fit=1;
+    rig.slideX=0;
+    if(traveller&&Math.abs(delta)>.00001){
+     rig.slideX=delta*slideTravel(camera,rig.meshes,Math.sign(delta));rig.group.position.x+=rig.slideX;
+     rig.group.updateMatrixWorld(true);
+    }
     const configKey=JSON.stringify(s.configs[i]);
     if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],role,s.configs[i][role],textures);rig.key=configKey;}
     const planes:THREE.Plane[]=[];
@@ -276,17 +296,15 @@ export default function Stage({state,...callbacks}:Props){
     });
    }
    const active=rigs[s.selected];
-   if(active)spot.target.position.copy(active.group.position);
-   spot.position.x=.4+(s.reduced?0:Math.sin(time*.25)*.24);spot.intensity=1.4+(5.6+12*authority)*heroWeight;
-   lightStage.update(time,white,.58+.42*heroWeight,authority,radius);
+   lightStage.update(s.selected,dt);
    try{
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
-    renderProducts(false);soft.render(scene,camera,heroWeight>.005);
+    renderProducts(false);soft.render(scene,camera,rearAlpha>.001,CAMERA_DISTANCE-(active?.group.position.z??0));
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
     renderProducts(true);renderer.clearDepth();camera.layers.set(FRONT);
     if(rigs.some(r=>r?.group.visible&&r.sharp>.001&&(r.sharp<.999||r.visibility<.999))){scene.overrideMaterial=depthOnly;renderer.render(scene,camera);scene.overrideMaterial=null;}
     renderer.render(scene,camera);
-    if(active&&caps.length)cutSurface.render(camera,active.meshes,caps,s.reduced?0:time);
+    if(active&&caps.length)cutSurface.render(camera,active.meshes,caps);
    }catch(e){props.current.onError('Errore di rendering. Riprova per ripristinare la scena.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.progress,s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
@@ -304,5 +322,5 @@ export default function Stage({state,...callbacks}:Props){
    textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();cutSurface.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} aria-label="Showroom 3D. Trascina il modello per ruotarlo, oppure lo sfondo per navigare."/>;
+ return <canvas className="stage" ref={canvas} aria-label="Showroom 3D. Trascina in orizzontale per ruotare. Scorri verso l’alto per avanzare o verso il basso per tornare."/>;
 }

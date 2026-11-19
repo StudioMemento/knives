@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {Vector3,PerspectiveCamera,Euler} from 'three';
-import {chapterFrame,stageFrame,livingPose,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
-import {backdropOpacity,detailOpacity} from '../app/lib/choreography.ts';
+import {chapterFrame,stageFrame,livingPose,heroTiltFit,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
+import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography.ts';
+import {KNIVES,PREVIOUS_ORDER,TILT_LIMIT} from '../app/lib/state.ts';
 import {CATALOGUE,catalogueChoices,SURFACES} from '../app/lib/catalogue.ts';
 
 const metas=JSON.parse(fs.readFileSync('public/models/v48/manifest.json')).models;
@@ -32,6 +33,17 @@ for(const meta of metas)for(const [width,height] of sizes){
   count++;
  }
  const [hero,blade,handle,detail,inspect]=shots;
+ assert.equal(heroTiltFit(meta,hero.focus,hero.rotation,hero.position,hero.scale,vw,vh,rect[3]+.025),1);
+ for(const time of [.7,4,13]){
+  const pose=livingPose(time,0,0,false).rotation.multiply(hero.rotation);
+  const scale=hero.scale*heroTiltFit(meta,hero.focus,pose,hero.position,hero.scale,vw,vh,rect[3]+.025);
+  const hull=hulls[meta.id].assembled,point=new Vector3();
+  for(let j=0;j<hull.length;j+=3){
+   point.fromArray(hull,j).multiplyScalar(.00001).sub(hero.focus).multiplyScalar(scale*DISPLAY/meta.bounds.size[0]).applyQuaternion(pose).add(hero.position).project(camera);
+   assert.ok(Math.abs(point.x)<=.86601&&point.y<=.87801&&point.y>=1-2*(rect[3]+.025)-1e-5);
+  }
+ }
+
  assert.ok(blade.scale>hero.scale*1.4,'The blade has its own close-up');
  if(width/height<=3)assert.ok(handle.scale>hero.scale*1.24,'Folded handles are magnified');
  assert.equal(handle.closed,1);assert.equal(detail.closed,1);assert.equal(blade.closed,0);
@@ -45,14 +57,16 @@ for(const meta of metas)for(const [width,height] of sizes){
 }
 for(let time=0;time<120;time+=.11){
  const e=new Euler().setFromQuaternion(livingPose(time,1,-1,false).rotation);
- for(const angle of [e.x,e.y,e.z])assert.ok(Math.abs(angle)<=5*Math.PI/180+1e-8);
+ for(const angle of [e.x,e.y,e.z])assert.ok(Math.abs(angle)<=TILT_LIMIT+1e-8);
 }
 assert.equal(livingPose(4,1,1,true).rotation.w,1);
 assert.equal(backdropOpacity(0),1);assert.equal(backdropOpacity(.62),0);
 for(let i=0;i<=100;i++){
  const phase=i/100;
  assert.ok(backdropOpacity(phase+.01)<=backdropOpacity(phase));
- assert.ok(detailOpacity(phase)*detailOpacity(1-phase)===0,'Detail items never overlap during a switch');
+ assert.equal(Math.abs(slotOffset(0,phase)+phase)<1e-8,true);
+ assert.equal(Math.abs(slotOffset(1,phase)-(1-phase))<1e-8,true);
+ const p=railPoint(phase*2*Math.PI);assert.ok(Math.abs(Math.hypot(p.x,p.z-RAIL.centerZ)-RAIL.radius)<1e-8);assert.equal(p.y,RAIL.floorY);
 }
 for(const zones of Object.values(CATALOGUE))for(const surface of SURFACES){
  const {colors,styles,default:pair}=zones[surface];
@@ -61,7 +75,11 @@ for(const zones of Object.values(CATALOGUE))for(const surface of SURFACES){
   assert.ok(options.every(o=>o.description.length>0));assert.ok(options[pair[i]]);
  }
 }
-const stored=catalogueChoices();stored[1].handle={color:5,style:5};stored[0].blade={color:8,style:-1};
-const restored=catalogueChoices(stored);
-assert.deepEqual(restored[1].handle,{color:5,style:5});assert.deepEqual(restored[0].blade,catalogueChoices()[0].blade);
-console.log('PASS — '+count+' fitted silhouettes, per-section diagonals, isolated fades and per-item catalogue choices');
+assert.deepEqual(KNIVES,['HYPER','VERTEX','EDGE','TRIS','QUAD']);
+const previous=PREVIOUS_ORDER.map((_,i)=>({blade:{color:i,style:5-i}}));
+const migrated=catalogueChoices(previous);
+KNIVES.forEach((id,i)=>assert.deepEqual(migrated[i].blade,previous[PREVIOUS_ORDER.indexOf(id)].blade));
+const keyed=Object.fromEntries(KNIVES.map((id,i)=>[id,migrated[i]]));keyed.EDGE.handle={color:8,style:-1};
+assert.deepEqual(catalogueChoices(keyed)[2].handle,catalogueChoices()[2].handle);
+assert.deepEqual(catalogueChoices(keyed)[3].blade,migrated[3].blade);
+console.log('PASS — '+count+' fitted silhouettes, 15° tilt, circular rail, bidirectional slide and keyed catalogue migration');

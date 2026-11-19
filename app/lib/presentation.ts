@@ -1,7 +1,7 @@
 import {Vector3,Quaternion,Euler} from 'three';
 import outlines from './shot-outlines.json' with {type:'json'};
 import type {ModelMeta} from './state';
-import {RAIL_DEPTH} from './choreography.ts';
+import {TILT_LIMIT} from './state.ts';
 
 export const DISPLAY=4.2;
 export const CAMERA_DISTANCE=9.5;
@@ -13,13 +13,27 @@ export const presentation=(pitch:number,yaw:number,roll:number)=>rotation(0,0,ro
 
 /** The product can cross the UI gutters. Portrait reserves the actual space above each panel. */
 export function productArea(portrait:boolean,panelTop=portrait?.77:.89):ScreenRect{
- // Project the nearest part of the floor ellipse just above the mobile controls.
- const ringLimit=Math.min(.89,panelTop-.013);
- const aboveRing=.5+(ringLimit-.5)*(1-RAIL_DEPTH/CAMERA_DISTANCE)-.009;
- return [.10,.095,.90,portrait?Math.max(.40,aboveRing):.825];
+ return [.10,.095,.90,portrait?Math.max(.40,Math.min(.835,panelTop-.018)):.825];
 }
 
 const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;
+/** Fit the rotated hero using the actual open-model hull, so folding never
+ * changes its projection pivot or lens. A transformed mesh AABB is too loose. */
+export function heroTiltFit(meta:ModelMeta,focus:Vector3,pose:Quaternion,position:Vector3,scale:number,width:number,height:number,bottomEdge:number){
+ const hull=envelopes[meta.id].assembled,k=scale*DISPLAY/meta.bounds.size[0],p=new Vector3();
+ const left=-.433*width,right=.433*width,top=.439*height,bottom=(.5-bottomEdge)*height;
+ const depth=1-position.z/CAMERA_DISTANCE;
+ const roomL=position.x-left*depth,roomR=right*depth-position.x,roomB=position.y-bottom*depth,roomT=top*depth-position.y;
+ let fit=1;
+ for(let i=0;i<hull.length;i+=3){
+  p.fromArray(hull,i).multiplyScalar(.00001).sub(focus).multiplyScalar(k).applyQuaternion(pose);
+  const z=p.z/CAMERA_DISTANCE;
+  const l=-p.x-left*z,r=p.x+right*z,b=-p.y-bottom*z,t=p.y+top*z;
+  if(l>0)fit=Math.min(fit,roomL/l);if(r>0)fit=Math.min(fit,roomR/r);
+  if(b>0)fit=Math.min(fit,roomB/b);if(t>0)fit=Math.min(fit,roomT/t);
+ }
+ return Math.max(.01,fit);
+}
 type Prepared={positions:Float32Array; focus:Vector3; pitch:number; yaw:number};
 const cached=new WeakMap<ModelMeta,Map<number,Prepared>>();
 function prepare(meta:ModelMeta,chapter:number){
@@ -73,10 +87,10 @@ export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:numb
  return chapter===0||chapter===5?hero:fittedShot(meta,chapter,width,height,portrait,rect);
 }
 export function livingPose(time:number,pointerX:number,pointerY:number,reduced:boolean){
- const limit=5*Math.PI/180;
+ const limit=TILT_LIMIT;
  if(reduced)return {rotation:new Quaternion(),offset:new Vector3()};
  return {
-  rotation:rotation(limit*(.88*Math.sin(time*.43)+.12*pointerY),limit*(.86*Math.sin(time*.33+.7)+.14*pointerX),limit*.77*Math.sin(time*.29)),
+  rotation:rotation(limit*Math.sin(time*.43+.38*pointerY),limit*Math.sin(time*.33+.7+.4*pointerX),limit*Math.sin(time*.29)),
   offset:new Vector3(),
  };
 }

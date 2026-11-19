@@ -29,6 +29,29 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
    c+=texture2D(uMap,vUv-uStep*7.3029407160)*0.0125949686;
    gl_FragColor=c;
   }`});
+ // Integrate a circular aperture over the per-pixel depth buffer. A sample
+ // may cover neighbouring empty pixels only inside its own circle of confusion.
+ const bokeh=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,blending:THREE.NoBlending,toneMapped:false,
+  uniforms:{uMap:{value:source.texture},uDepth:{value:source.depthTexture},uPixel:{value:new THREE.Vector2()},
+   uNear:{value:.05},uFar:{value:80},uFocus:{value:9.5},uAperture:{value:30},uMax:{value:12}},
+  vertexShader:vertex,fragmentShader:`varying vec2 vUv; uniform sampler2D uMap,uDepth; uniform vec2 uPixel;
+   uniform float uNear,uFar,uFocus,uAperture,uMax;
+   float distanceAt(vec2 uv){float z=texture2D(uDepth,uv).r;return uNear*uFar/(uFar-(uFar-uNear)*z);}
+   float coc(float z){return min(uMax,uAperture*abs(1.-uFocus/z));}
+   void main(){
+    vec4 centre=texture2D(uMap,vUv);float centreZ=distanceAt(vUv),centreR=coc(centreZ);
+    vec4 sum=vec4(0.);
+    for(int i=0;i<32;i++){
+     float t=(float(i)+.5)/32.,r=uMax*t,angle=float(i)*2.39996323;
+     vec2 pos=clamp(vUv+uPixel*vec2(cos(angle),sin(angle))*r,0.,1.);
+     vec4 c=texture2D(uMap,pos);float z=distanceAt(pos),disk=max(.75,coc(z));
+     float visibility=centre.a>.98&&centreR<1.&&z>centreZ+.12?0.:1.;
+     float w=(2.*uMax*uMax*t/32.)/max(1.,disk*disk);
+     sum+=c*visibility*w*(1.-smoothstep(max(0.,disk-.6),disk+.6,r));
+    }
+    sum/=max(1.,sum.a);
+    gl_FragColor=mix(centre,sum,centre.a<.001?1.:smoothstep(.6,2.,centreR));
+   }`});
  const composite=new THREE.ShaderMaterial({transparent:true,premultipliedAlpha:true,depthTest:false,depthWrite:false,
   uniforms:{uMap:{value:source.texture},uOpacity:{value:1},uFloor:{value:0}},vertexShader:vertex,
   fragmentShader:`varying vec2 vUv;uniform sampler2D uMap;uniform float uOpacity,uFloor;
@@ -50,10 +73,15 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
   // overlapping triangles/parts show through one another during the focus blend.
   if(index===REAR_LAYER){view.layers.set(REAR_DEPTH_LAYER);world.overrideMaterial=depthOnly;renderer.render(world,view);world.overrideMaterial=null;view.layers.set(REAR_LAYER);}
   renderer.render(world,view);
-  quad.material=blur;blur.uniforms.uMap.value=source.texture;blur.uniforms.uStep.value.set(radiusX/(width*8),0);
-  renderer.setRenderTarget(ping);renderer.render(scene,camera);
-  blur.uniforms.uMap.value=ping.texture;blur.uniforms.uStep.value.set(0,radiusY/(height*8));
-  renderer.setRenderTarget(source);renderer.render(scene,camera);
+  if(index===REAR_LAYER){
+   quad.material=bokeh;renderer.setRenderTarget(ping);renderer.render(scene,camera);
+   composite.uniforms.uMap.value=ping.texture;
+  }else{
+   quad.material=blur;blur.uniforms.uMap.value=source.texture;blur.uniforms.uStep.value.set(radiusX/(width*8),0);
+   renderer.setRenderTarget(ping);renderer.render(scene,camera);
+   blur.uniforms.uMap.value=ping.texture;blur.uniforms.uStep.value.set(0,radiusY/(height*8));
+   renderer.setRenderTarget(source);renderer.render(scene,camera);composite.uniforms.uMap.value=source.texture;
+  }
   quad.material=composite;composite.uniforms.uOpacity.value=opacity;composite.uniforms.uFloor.value=floor?1:0;
   renderer.setRenderTarget(null);renderer.render(scene,camera);
  }
@@ -63,9 +91,11 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
   disable(){enabled=false;},
   resize(w:number,h:number){
    width=w;height=h;const scale=Math.min(1,(w<800?480:960)/Math.max(w,h));
+   bokeh.uniforms.uPixel.value.set(1/w,1/h);
+   bokeh.uniforms.uMax.value=Math.min(18,Math.max(7,h*.016));bokeh.uniforms.uAperture.value=h*.057;
    source.setSize(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));ping.setSize(source.width,source.height);checked=false;
   },
-  render(world:THREE.Scene,view:THREE.Camera,hero:boolean){
+  render(world:THREE.Scene,view:THREE.PerspectiveCamera,hero:boolean,focusDistance:number){
    if(!enabled)return;
    const mask=view.layers.mask,autoClear=renderer.autoClear,clearAlpha=renderer.getClearAlpha();
    try{
@@ -75,11 +105,10 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
      checked=true;
     }
     layer(world,view,REFLECTION_LAYER,22,32,.64,true);
-    // Fixed optical blur. Each knife crossfades between this pass and the sharp
-    // pass according to its own continuous focus weight, never a global index.
-    if(hero)layer(world,view,REAR_LAYER,11,11,.86,false);
+    bokeh.uniforms.uNear.value=view.near;bokeh.uniforms.uFar.value=view.far;bokeh.uniforms.uFocus.value=focusDistance;
+    if(hero)layer(world,view,REAR_LAYER,0,0,1,false);
    }finally{view.layers.mask=mask;renderer.setRenderTarget(null);renderer.autoClear=autoClear;renderer.setClearAlpha(clearAlpha);}
   },
-  dispose(){source.dispose();ping.dispose();quad.geometry.dispose();blur.dispose();composite.dispose();depthOnly.dispose();}
+  dispose(){source.dispose();ping.dispose();quad.geometry.dispose();blur.dispose();bokeh.dispose();composite.dispose();depthOnly.dispose();}
  };
 }

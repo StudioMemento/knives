@@ -1,33 +1,28 @@
-import {Vector3} from 'three';
+import {Euler,Quaternion,Vector3} from 'three';
 import type {ExplodedPart} from './explosion';
-import {smooth} from './state.ts';
+import {mod,smooth} from './state.ts';
 
 export const HERO_PERIOD=8;
 export const HERO_TRAVEL=2.2;
 export const HERO_HOLD=HERO_PERIOD-HERO_TRAVEL;
-export const RAIL_DEPTH=1.22;
-// The supporting cast fades at its rail position. In a detail view a departing
-// knife becomes fully transparent before the next model occupies that same shot.
+export const RAIL={radius:4.35,floorY:-1.63,centerZ:-2.25} as const;
 export const backdropOpacity=(stageDistance:number)=>1-smooth(stageDistance/.62);
-export const detailOpacity=(slotDistance:number)=>1-smooth((slotDistance-.035)/.46);
 export const assemblyWeight=(distance:number)=>1-smooth((distance-.12)/.78);
+export const slotOffset=(index:number,phase:number)=>mod(index-phase+2.5)-2.5;
 
-export function railPoint(angle:number,radius:number,centerX:number,floorY:number){
- return new Vector3(centerX+Math.sin(angle)*radius,floorY,Math.cos(angle)*RAIL_DEPTH);
+export function railPoint(angle:number){
+ return new Vector3(Math.sin(angle)*RAIL.radius,RAIL.floorY,RAIL.centerZ+Math.cos(angle)*RAIL.radius);
 }
 
-/** Sample after the authored position tracks. The curl of this sinusoidal
- * vector field is bounded and stays anchored to each component's rest pose. */
+/** The authored exploded positions provide a local centre for each orbit.
+ * Sampling first keeps the swirl reversible and independent of frame rate. */
+const turn=new Quaternion(),delta=new Vector3(),euler=new Euler();
 export function animateBackdrop(parts:ExplodedPart[],weight:number,time:number,model:number){
  if(weight<=0)return;
  for(let i=0;i<parts.length;i++){
-  const {node,assembled}=parts[i];
-  const phase=i*2.39996+model*.79;
-  const x=assembled.x*13+phase+time*.34;
-  const y=assembled.y*17+phase*.68-time*.41;
-  const z=assembled.z*15-phase*.47+time*.29;
-  node.position.x+=weight*(.0018*(Math.cos(y)-Math.cos(z))+.0014*Math.sin(time*.61+phase));
-  node.position.y+=weight*(.0023*(Math.cos(z)-Math.cos(x))+.0017*Math.sin(time*.46+phase));
-  node.position.z+=weight*(.0020*(Math.cos(x)-Math.cos(y))+.0016*Math.cos(time*.38+phase));
+  const {node,assembled}=parts[i],phase=i*2.39996+model*.79;
+  delta.subVectors(node.position,assembled);
+  euler.set(.52*Math.sin(time*.58+phase),time*.58+phase,.36*Math.cos(time*.47-phase));
+  delta.applyQuaternion(turn.setFromEuler(euler)).add(assembled);node.position.lerp(delta,weight);
  }
 }
