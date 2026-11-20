@@ -1,10 +1,9 @@
 import {Euler,Quaternion} from 'three';
+import type {LightPreset} from './light-presets';
 export const KNIVES = ['HYPER','VERTEX','EDGE','TRIS','QUAD'] as const;
 export const PREVIOUS_ORDER = ['HYPER','VERTEX','QUAD','EDGE','TRIS'] as const;
 export const IDLE_TILT_LIMIT = Math.PI / 12;
 export const CHAPTERS = ['Stage','Blade','Handle','Details','Inspect'] as const;
-export type LightChannel = 'key' | 'fill' | 'rim';
-export type Lighting = Record<LightChannel, number>;
 export const ZOOM_LIMITS = {min: 0.8, max: 2.8} as const;
 export type Surface = 'blade'|'handle'|'metals';
 export type View = 'side'|'top'|'edge'|'perspective'|'clip'|'screw';
@@ -22,12 +21,12 @@ export type DemoState = {
  target:number; progress:number; selected:number; orbit:number; knifeRequest:number|null; knifeDestination:number|null;
  paused:boolean; reduced:boolean; interacting:boolean; activity:number;
  configs:Configuration[]; customFold:[number,number,number];customExplode:[number,number,number];closed:number; exploded:number; view:View;
- zoom:number; lighting:Lighting; rotation:Quaternion;
+ zoom:number; lightPreset:LightPreset; rotation:Quaternion;
  focus:[number,number,number]|null; ready:number[];
 };
 export const createState = ():DemoState => ({
  target:0,progress:0,selected:0,orbit:0,knifeRequest:null,knifeDestination:null,paused:false,reduced:false,interacting:false,activity:0,
- configs:KNIVES.map(defaultConfiguration),customFold:[0,1,1],customExplode:[0,0,0],closed:0,exploded:0,view:'side',zoom:1,lighting:{key:100,fill:100,rim:100},rotation:new Quaternion(),focus:null,ready:[],
+ configs:KNIVES.map(defaultConfiguration),customFold:[0,1,1],customExplode:[0,0,0],closed:0,exploded:0,view:'side',zoom:1,lightPreset:'studio',rotation:new Quaternion(),focus:null,ready:[],
 });
 export const mod = (x:number,n=5) => ((x%n)+n)%n;
 export const clamp = (x:number,a=0,b=1) => Math.min(b,Math.max(a,x));

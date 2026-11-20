@@ -1,7 +1,8 @@
 'use client';
 import type {CSSProperties} from 'react';
 import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
-import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Lighting,type LightChannel,type Surface,type View} from './lib/state';
+import {LIGHT_ORDER,LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
+import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
 export function Glyph({name,size=26}:{name:string;size?:number}){
  const paths:Record<string,React.ReactNode>={
   stageIcon:<><path d="m2.5 10 9.5-7.4 9.5 7.4M5.4 9v11h5v-6h3.2v6h5V9"/></>,
@@ -48,17 +49,26 @@ function Sample({item,index,row}:{item:Option;index:number;row:number}){
  return <span className={item.motif?'sample motif-'+item.motif:'sample atlas'} style={style}/>;
 }
 
-const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'DETAILS'};
+const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'METALS'};
 
 export function ConfigurationSummary({model, config}: {model:number; config:Configuration}) {
  return <dl className="configuration" aria-label="Configurazione attiva">
   {SURFACES.map(surface => {
    const options = CATALOGUE[KNIVES[model]][surface];
    const selected = config[surface];
+   const material = options.styles[selected.style], color = options.colors[selected.color];
    return <div key={surface} data-config={surface}>
     <dt>{partLabels[surface]}</dt>
-    <dd><span className="sr-only">Materiale, </span>{options.styles[selected.style].name}</dd>
-    <dd><span className="sr-only">Colore, </span>{options.colors[selected.color].name}</dd>
+    <dd>
+     <span className="config-swatch" aria-hidden="true">
+      <span className="config-finish"><Sample item={material} index={selected.style} row={options.swatchRow+1}/></span>
+      <span className="config-tone"><Sample item={color} index={selected.color} row={options.swatchRow}/></span>
+     </span>
+     <span className="config-values">
+      <span data-material-name><span className="sr-only">Materiale, </span>{material.name}</span>
+      <span data-color-name><span className="sr-only">Colore, </span>{color.name}</span>
+     </span>
+    </dd>
    </div>;
   })}
  </dl>;
@@ -100,21 +110,15 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
 }
 
 const cameraLabels:Record<View,string>={side:'Laterale',top:'Dall’alto',edge:'Frontale',perspective:'Prospettica',clip:'Clip',screw:'Viti'};
-const lightLabels: {channel:LightChannel; label:string; name:string}[] = [
- {channel:'key', label:'Key', name:'Luce principale'},
- {channel:'fill', label:'Fill', name:'Luce di riempimento'},
- {channel:'rim', label:'Rim', name:'Controluce'},
-];
-
 type TechnicalProps = {
  value: Pick<DemoState, 'view' | 'rotation'>;
- lighting: Lighting;
+ lightPreset: LightPreset;
  model: number;
  onView: (view:View) => void;
- onLight: (channel:LightChannel, percent:number) => void;
+ onLight: (preset:LightPreset) => void;
 };
 
-export function TechnicalHud({value, lighting, model, onView, onLight}: TechnicalProps) {
+export function TechnicalHud({value, lightPreset, model, onView, onLight}: TechnicalProps) {
  return <div className="technical-hud hud-panel" data-panel>
   <div className="control-group camera-block" role="group" aria-label="Inquadrature">
    <PanelTitle text="CAMERA"/>
@@ -129,14 +133,15 @@ export function TechnicalHud({value, lighting, model, onView, onLight}: Technica
   </div>
   <div className="control-group light-block" role="group" aria-label="Illuminazione">
    <PanelTitle text="LIGHTING"/>
-   <div className="light-ranges">{lightLabels.map(({channel, label, name}) =>
-    <label key={channel} title={name+' · '+lighting[channel]+'%'}>
-     <span>{label}</span>
-     <input type="range" min="0" max="200" step="1" value={lighting[channel]}
-      aria-label={name} aria-valuetext={lighting[channel]+'%'} data-light={channel}
-      onChange={event => onLight(channel, event.currentTarget.valueAsNumber)}/>
-    </label>
-   )}</div>
+   <div className="lighting-grid">{LIGHT_ORDER.map((id,index)=>{
+    const setup=LIGHT_PRESETS[id];
+    return <button type="button" key={id} data-light-preset={id} aria-label={'Luce '+setup.label}
+     aria-description={setup.description} title={setup.label+' · '+setup.description} aria-pressed={lightPreset===id}
+     onClick={()=>onLight(id)}>
+     <span className="lighting-preview" aria-hidden="true" style={{backgroundPosition:(index*20)+'% 50%'}}/>
+    </button>;
+   })}</div>
+   <span className="current-light" aria-live="polite">{LIGHT_PRESETS[lightPreset].label}</span>
   </div>
  </div>;
 }

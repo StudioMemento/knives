@@ -9,7 +9,8 @@ import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
 import {MotionValue,orbitAngle} from './lib/motion';
-import {createLightStage} from './lib/lighting';
+import {createLightStage,createStudioEnvironments} from './lib/lighting';
+import {LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {fitBoundsScale,slideTravel} from './lib/framing';
 import {alignStageCamera,focusLens} from './lib/optics';
 import {contactMaterial} from './lib/reflection';
@@ -39,17 +40,19 @@ export default function Stage({state,...callbacks}:Props){
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
   const textures=makeTextures(),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
-  const pmrem=new THREE.PMREMGenerator(renderer),studio=new THREE.Scene();
-  studio.background=new THREE.Color('#101119');
-  for(const [x,y,z,w,h,power] of [[-3,4.8,4.3,5.4,1.8,5.4],[4,1.6,2.8,1.5,4.2,3.6],[-.7,3,-3.2,4.2,1.1,4.2],[0,.4,5.6,5,3,1.15]]){
-   const card=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(power,power*.99,power*.97),side:THREE.DoubleSide}));
-   card.position.set(x,y,z);card.lookAt(0,0,0);studio.add(card);
+  const lightStage=createLightStage(FRONT),environments=createStudioEnvironments(renderer);
+  scene.add(lightStage.group);
+  let appliedPreset:LightPreset|null=null,environmentPower=1;
+  function applyStudio(id:LightPreset){
+   if(id===appliedPreset)return;
+   const setup=LIGHT_PRESETS[id];
+   scene.environment=environments.texture(id);
+   scene.environmentRotation.y=setup.environment.yaw;
+   environmentPower=setup.environment.intensity;
+   lightStage.setPreset(id);
+   appliedPreset=id;
   }
-  const env=pmrem.fromScene(studio,.045);scene.environment=env.texture;scene.environmentRotation.y=.18;
-  studio.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();o.material.dispose();}});pmrem.dispose();renderer.resetState();
-  const ambient=new THREE.HemisphereLight('#e0e5ed','#191921',.23);ambient.layers.enableAll();scene.add(ambient);
-  const rim=new THREE.DirectionalLight('#d5e2ee',.82);rim.position.set(-2,1,-3);rim.layers.set(FRONT);scene.add(rim);
-  const lightStage=createLightStage();scene.add(lightStage.group);
+  applyStudio(s.lightPreset);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);let metas:ModelMeta[]=[],warmed=false;
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
   const getRole=(mesh:THREE.Mesh):Surface=>{const mat=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;const name=String(mesh.userData.materialRole||mat.name||mesh.name).toLowerCase();return name.includes('blade')?'blade':name.includes('handle')?'handle':'metals';};
@@ -158,7 +161,7 @@ export default function Stage({state,...callbacks}:Props){
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
   const mirrorMatrix=new THREE.Matrix4(),mirrorFlip=new THREE.Matrix4().makeScale(1,-1,1);
   function renderProducts(sharp:boolean){
-   scene.environmentIntensity=(sharp?1.10:.36)*s.lighting.fill/100;
+   scene.environmentIntensity=environmentPower*(sharp?1:.33);
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
     const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
@@ -288,13 +291,12 @@ export default function Stage({state,...callbacks}:Props){
     }
    }
    const active=rigs[s.selected];
-   ambient.intensity=.23*s.lighting.fill/100;rim.intensity=.82*s.lighting.rim/100;
-   const tint=lightStage.update(s.selected,dt,lightAim,s.lighting.key);
-   // Rear motion is slow and defocused. Reuse its optical integration between
-   // updates, and indefinitely while reduced motion holds the scenery still.
-   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.lighting.key,s.lighting.fill,s.reduced?0:Math.floor(time*30)].join('/');
-
    try{
+    applyStudio(s.lightPreset);
+    const tint=lightStage.update(s.selected,dt,lightAim);
+    // A changed studio rig also invalidates the cached background pass.
+    const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.lightPreset,s.reduced?0:Math.floor(time*30)].join('/');
+    scene.environmentIntensity=environmentPower;
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
@@ -314,7 +316,7 @@ export default function Stage({state,...callbacks}:Props){
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
    element.removeEventListener('pointermove',cursorMove);element.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
-   textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
+   textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
  return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa le frecce per ruotare. Usa la rotella o due dita per lo zoom."/>;

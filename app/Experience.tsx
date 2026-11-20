@@ -94,7 +94,7 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main ref={root} className="experience" data-version="57" data-ui-pending={ready===0&&!error}
+ return <main ref={root} className="experience" data-version="58" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
@@ -116,15 +116,17 @@ export default function Experience(){
   </header>
 
   <div className="knife-nav" role="group" aria-label="Scelta del coltello">
+   <div className="knife-picker">
    <button type="button" className="knife-step previous" aria-label="Coltello precedente" title="Coltello precedente"
-    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={21}/></button>
+    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={16}/></button>
    <div className="knife-dots">
     {KNIVES.map((name,i)=><button type="button" key={name} data-knife={name} aria-label={'Seleziona '+name} title={name}
      aria-pressed={i===selected} disabled={!s.ready.includes(i)}
      onClick={()=>choose(nearestChapter(s.knifeDestination??s.orbit,i))}><span/></button>)}
    </div>
    <button type="button" className="knife-step next" aria-label="Coltello successivo" title="Coltello successivo"
-    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={21}/></button>
+    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={16}/></button>
+   </div>
   </div>
 
   <footer className="control-dock">
@@ -135,8 +137,8 @@ export default function Experience(){
       <MaterialHud surface={surface} model={selected} config={selectedConfig} onChange={material}/>
      </section>)}
     <section className="hud-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Camera e illuminazione">
-     <TechnicalHud value={s} lighting={s.lighting} model={selected} onView={preset}
-      onLight={(channel,percent)=>{s.lighting[channel]=percent;s.activity++;refresh();}}/>
+     <TechnicalHud value={s} lightPreset={s.lightPreset} model={selected} onView={preset}
+      onLight={id=>{s.lightPreset=id;s.activity++;refresh();}}/>
     </section>
     <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    </div>

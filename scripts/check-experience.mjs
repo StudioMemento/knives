@@ -22,8 +22,8 @@ assert.equal(pausedArrival.phase,1,'A manual next command must finish an already
 for(let k=-100;k<=100;k++){assert.equal(sectionAt(k),mod(k));assert.equal(nextAnchor(k,1),k+1);assert.equal(nextAnchor(k,-1),k-1);}
 assert.equal(smooth(0),0);assert.equal(smooth(1),1);
 assert.ok(smooth(.001)<1e-7&&1-smooth(.999)<1e-7,'Transitions must start and stop with zero velocity');
-const s=createState();s.configs[0].metals.color=5;s.closed=s.exploded=1;s.zoom=2.2;s.lighting.rim=68;rotateProduct(s,2,.4);s.focus=[1,2,3];s.view='top';resetInspection(s);
-assert.equal(s.closed+s.exploded,0);assert.deepEqual(s.rotation.toArray(),[0,0,0,1]);assert.equal(s.zoom,1);assert.equal(s.lighting.rim,68);assert.equal(s.focus,null);assert.equal(s.view,'side');assert.equal(s.configs[0].metals.color,5,'Reset must preserve configured materials');assert.equal(s.configs[1].metals.color,1,'Knife configurations must remain independent');
+const s=createState();s.configs[0].metals.color=5;s.closed=s.exploded=1;s.zoom=2.2;s.lightPreset='radente';rotateProduct(s,2,.4);s.focus=[1,2,3];s.view='top';resetInspection(s);
+assert.equal(s.closed+s.exploded,0);assert.deepEqual(s.rotation.toArray(),[0,0,0,1]);assert.equal(s.zoom,1);assert.equal(s.lightPreset,'radente');assert.equal(s.focus,null);assert.equal(s.view,'side');assert.equal(s.configs[0].metals.color,5,'Reset must preserve configured materials');assert.equal(s.configs[1].metals.color,1,'Knife configurations must remain independent');
 const m30=new MotionValue(),m60=new MotionValue(),m144=new MotionValue();
 for(let i=0;i<30;i++)m30.step(1,1/30);
 for(let i=0;i<60;i++)m60.step(1,1/60);
