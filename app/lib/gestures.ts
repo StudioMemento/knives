@@ -1,4 +1,4 @@
-import {hasManualRotation,mod,rotateProduct,sectionAt,type DemoState} from './state.ts';
+import {clamp,mod,rotateProduct,sectionAt,type DemoState} from './state.ts';
 
 type Point={x:number;y:number};
 type Contact={start:Point;last:Point};
@@ -9,6 +9,10 @@ type Callbacks={
  renderUI:()=>void;
 };
 const TAP_SLOP=7;
+export const ZOOM_LIMITS={min:.55,max:2.8} as const;
+function zoomBy(s:DemoState, factor:number){
+ s.zoom=clamp(s.zoom*factor,ZOOM_LIMITS.min,ZOOM_LIMITS.max);s.activity++;
+}
 const point=(e:PointerEvent):Point=>({x:e.clientX,y:e.clientY});
 const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 
@@ -36,6 +40,11 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   const p=point(e);
   if(mode==='multi'){
    if(distance(contact.start,p)>TAP_SLOP)multiFocus=null;
+   if(contacts.size===2){
+    const peer=[...contacts.values()].find(c=>c!==contact)!;
+    const before=distance(contact.last,peer.last),after=distance(p,peer.last);
+    if(before>8&&after>8)zoomBy(s,after/before);
+   }
   }else{
    if(mode==='tap'&&distance(contact.start,p)<=TAP_SLOP)return;
    mode='orbit';lastTap=null;
@@ -67,17 +76,17 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   multiFocus=null;s.interacting=false;s.activity++;callbacks.renderUI();
  }
  function wheel(e:WheelEvent){
-  if(e.ctrlKey||e.metaKey||!s.ready.length)return;
+  if(e.metaKey||!s.ready.length||!e.deltaY)return;
   e.preventDefault();
   const unit=e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1;
-  const wasRotated=hasManualRotation(s);
-  rotateProduct(s,-e.deltaX*unit*.005,-e.deltaY*unit*.005);
-  if(wasRotated!==hasManualRotation(s))callbacks.renderUI();
+  zoomBy(s,Math.exp(clamp(-e.deltaY*unit*(e.ctrlKey?.009:.0016),-1.6,1.6)));
  }
  function key(e:KeyboardEvent){
   if(e.altKey||e.ctrlKey||e.metaKey||!s.ready.length)return;
   const step=Math.PI/12;
   switch(e.key){
+   case '+':case '=':zoomBy(s,1.15);break;
+   case '-':zoomBy(s,1/1.15);break;
    case 'ArrowLeft':rotateProduct(s,-step,0);break;
    case 'ArrowRight':rotateProduct(s,step,0);break;
    case 'ArrowUp':rotateProduct(s,0,-step);break;

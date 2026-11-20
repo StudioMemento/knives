@@ -1,4 +1,4 @@
-# Memento Knives V54
+# Memento Knives V55
 
 Lo ZIP contiene il progetto Next.js, i cinque modelli originali, i font e i campioni del catalogo. L’ordine nello showroom è Hyper, Vertex, Edge, Tris e Quad.
 
@@ -17,10 +17,16 @@ Per verificare la versione prima della pubblicazione esegui `npm run check`, `np
 
 ## Interazioni
 
-Le cinque icone in basso aprono le sezioni. I chevron ai lati, a metà altezza, scorrono fra i coltelli nella sezione aperta. Trascina sullo stage in qualsiasi direzione per ruotare il modello. Il trackpad e la rotella ruotano sullo stesso canvas. Un tap deliberato sul modello nello Stage apre Blade. Da tastiera, le frecce orizzontali cambiano coltello e quelle verticali cambiano sezione. Con il focus sul modello le frecce lo ruotano. Con il focus su uno slider ne regolano il valore.
+Le cinque icone in basso aprono Stage, Blade, Handle, Details e Camera & Lighting. I chevron ai lati cambiano coltello nella sezione aperta. Trascina lo stage per ruotare il modello. La rotella e il pinch regolano lo zoom. Con il focus sul canvas funzionano anche i tasti più e meno. Un tap sul modello nello Stage apre Blade.
 
-I due pulsanti sopra la navbar aprono o chiudono la lama e attivano o richiudono la vista esplosa. La cornice indica lo stato. In Inspect, le viste laterale, dall’alto, frontale, prospettica, clip e viti affiancano i tagli X, Y e Z. Su Edge la quinta vista inquadra l’anello posteriore. Le macro seguono il particolare anche nell’esploso. I tagli seguono la rotazione. Il reset ripristina posa, camera e sezioni.
+Le frecce orizzontali della tastiera cambiano coltello e quelle verticali cambiano sezione. Con il focus sul canvas le quattro frecce ruotano il modello. I due comandi fissi sopra la navbar controllano l’apertura della lama e la vista esplosa.
 
-Il riepilogo sotto il prezzo mostra una riga per Blade, Handle e Details. Il campione combina la finitura e il colore. I selettori Material e Color conservano le scelte per modello e componente.
+Sotto il prezzo, ciascuna delle tre sezioni mostra la finitura e il colore con i rispettivi campioni. Seleziona un’intestazione per modificare quella parte. Il modello 3D, i campioni e il prezzo leggono la stessa configurazione. Il browser ricorda le scelte per modello.
 
-Il centro dell’anello e la sua quota sono definiti in `app/lib/choreography.ts`. In `app/lib/lighting.ts`, `STAGE_COLORS` assegna una luce a ogni modello. Uno spot superiore illumina il primo piano. La profondità di campo del gruppo sullo sfondo usa la distanza effettiva dei pixel dal piano di fuoco.
+Camera & Lighting offre sei inquadrature e i set Atelier, Ghiaccio, Ambra, Noir, Prisma e Seta. Su Edge la quinta vista inquadra l’anello posteriore. Le due viste macro seguono il particolare anche durante l’esploso.
+
+## Direzione artistica e listino
+
+La palette dei cinque stage e i sei set luce si trovano in `app/lib/art-direction.ts`. Il cilindro e le sue sorgenti luminose sono in `app/lib/lighting.ts`. La nebbia in primo piano è in `app/lib/foreground-fog.ts`.
+
+Il listino dimostrativo in euro si trova in `app/lib/pricing.ts`. Ogni modello ha una base e supplementi specifici di materiale e colore per lama, manico e dettagli. I centesimi distinguono le configurazioni con lo stesso subtotale. Il test del listino copre tutte le 233.280 configurazioni.

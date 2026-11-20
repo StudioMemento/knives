@@ -4,6 +4,7 @@ import {Vector3,PerspectiveCamera,Euler} from 'three';
 import {chapterFrame,stageFrame,livingPose,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
 import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography.ts';
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
+import {priceInCents} from '../app/lib/pricing.ts';
 import {CATALOGUE,catalogueChoices,SURFACES} from '../app/lib/catalogue.ts';
 
 const metas=JSON.parse(fs.readFileSync('public/models/v48/manifest.json')).models;
@@ -72,3 +73,15 @@ const keyed=Object.fromEntries(KNIVES.map((id,i)=>[id,migrated[i]]));keyed.EDGE.
 assert.deepEqual(catalogueChoices(keyed)[2].handle,catalogueChoices()[2].handle);
 assert.deepEqual(catalogueChoices(keyed)[3].blade,migrated[3].blade);
 console.log('PASS — '+count+' fitted silhouettes, 15° idle tilt, circular rail, bidirectional slide and keyed catalogue migration');
+
+const totals=new Set();
+for(const [model,config] of catalogueChoices().entries()){
+ for(let b=0;b<36;b++)for(let h=0;h<36;h++)for(let d=0;d<36;d++){
+  [b,h,d].forEach((value,i)=>{config[SURFACES[i]]={style:Math.floor(value/6),color:value%6};});
+  const amount=priceInCents(model,config);
+  assert.ok(Number.isInteger(amount)&&amount>=190000);
+  assert.ok(!totals.has(amount),'Edition prices must be distinct across the entire collection');totals.add(amount);
+ }
+}
+assert.equal(totals.size,233280);
+console.log('PASS — 233,280 deterministic, distinct high-end edition prices');

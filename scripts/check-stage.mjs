@@ -8,7 +8,7 @@ import {animateBackdrop,exitFraction,railVisibility,HERO_PERIOD,HERO_HOLD} from 
 import {createExplosion,sampleExplosion,compactExplosion} from '../app/lib/explosion.ts';
 import {setCutPlane,CUT_DIRECTIONS,sectionGeometry} from '../app/lib/cut-surface.ts';
 import {nearestChapter} from '../app/lib/navigation.ts';
-import {bindGestures} from '../app/lib/gestures.ts';
+import {bindGestures,ZOOM_LIMITS} from '../app/lib/gestures.ts';
 import {inspectionParts,partCenter} from '../app/lib/inspection.ts';
 import {createLightStage,STAGE_COLORS} from '../app/lib/lighting.ts';
 import {RAIL} from '../app/lib/choreography.ts';
@@ -44,9 +44,9 @@ for(const direction of [-1,1]){
  assert.equal(exitFraction(0),0);assert.equal(railVisibility(direction*.5),0);assert.equal(railVisibility(direction),1);
 }
 
-const stageLight=createLightStage();stageLight.group.updateMatrixWorld(true);
+const stageLight=createLightStage();stageLight.update(0,1);stageLight.group.updateMatrixWorld(true);
 const stageMatrix=stageLight.group.matrixWorld.clone(),lamps=stageLight.group.children.filter(o=>o.isPointLight);
-assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));const spot=stageLight.group.children.find(o=>o.isSpotLight);
+assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));const spot=stageLight.rig.children.find(o=>o.isSpotLight);
 assert.ok(spot&&spot.penumbra>0&&spot.position.y>spot.target.position.y&&spot.decay===2);
 assert.equal(new Set(Object.values(STAGE_COLORS)).size,5);
 assert.ok(lamps.every(l=>Math.abs(Math.hypot(l.position.x,l.position.z)-RAIL.radius)<1e-7));
@@ -62,15 +62,15 @@ globalThis.window=new EventTarget();
 const canvas=new TestCanvas(),s=createState();s.ready=[0,1,2,3,4];s.orbit=12;
 let hit=false,focusCount=0;const chapters=[];
 const unbind=bindGestures(canvas,s,{hitsProduct:()=>hit,focus:()=>focusCount++,chapter:n=>{s.target=n;chapters.push(n);},renderUI(){}});
-// Up, down, sideways and diagonal movements may rotate on any chapter, even when a cut is active.
-s.cuts=[.51,.43,.2];
+// Up, down, sideways and diagonal movements may rotate on any chapter, without switching chapters.
+
 for(const chapter of [0,1,2,3,4])for(const onModel of [true,false])for(const [dx,dy] of [[0,310],[0,-310],[290,0],[155,-205]]){
  hit=onModel;s.progress=s.target=chapter;s.rotation.identity();
  canvas.send('pointerdown',1,170,400,10);canvas.send('pointermove',1,170+dx,400+dy,90);
  assert.equal(s.target,chapter);assert.ok(s.rotation.angleTo(new Quaternion())>1);
  canvas.send('pointerup',1,170+dx,400+dy,115);
  assert.equal(s.target,chapter);assert.equal(s.knifeRequest,null);assert.equal(s.orbit,12);assert.equal(s.interacting,false);
- assert.deepEqual(s.cuts,[.51,.43,.2]);
+
 }
 assert.deepEqual(chapters,[]);
 hit=true;s.progress=s.target=0;s.rotation.identity();
@@ -91,16 +91,26 @@ canvas.send('pointermove',1,150,75+halfTurn,594);
 assert.ok(new Vector3(0,1,0).applyQuaternion(s.rotation).y<-.99999,'The top can rotate past the pole');
 canvas.send('pointerup',1,150,75+2*halfTurn,598);
 assert.ok(!hasManualRotation(s),'A full vertical revolution returns to the starting pose');
-assert.equal(s.target,4);assert.deepEqual(s.cuts,[.51,.43,.2]);
+assert.equal(s.target,4);
 canvas.send('pointerdown',1,170,400,600);canvas.send('pointerdown',2,220,405,605);
 canvas.send('pointerup',2,220,405,625);canvas.send('pointerup',1,170,400,640);assert.equal(focusCount,1);
 canvas.send('pointerdown',1,180,400,700);canvas.send('pointerup',1,180,400,725);
 canvas.send('pointerdown',1,181,401,820);canvas.send('pointerup',1,181,401,840);assert.equal(focusCount,2);
 s.rotation.identity();
-for(const control of [true,false]){
- const e=new Event('wheel',{cancelable:true});Object.assign(e,{deltaX:0,deltaY:-350,deltaMode:0,ctrlKey:control,metaKey:false});
- canvas.dispatchEvent(e);assert.equal(e.defaultPrevented,!control);assert.equal(hasManualRotation(s),!control);assert.equal(s.target,4);
+for(const ctrlKey of [true,false]){
+ s.zoom=1;
+ const e=new Event('wheel',{cancelable:true});Object.assign(e,{deltaX:0,deltaY:-350,deltaMode:0,ctrlKey,metaKey:false});
+ canvas.dispatchEvent(e);assert.equal(e.defaultPrevented,true);assert.ok(s.zoom>1&&s.zoom<=ZOOM_LIMITS.max);
+ assert.equal(hasManualRotation(s),false);assert.equal(s.target,4);
 }
+s.zoom=1;
+canvas.send('pointerdown',1,100,300,850);canvas.send('pointerdown',2,200,300,851);
+canvas.send('pointermove',2,250,300,856);assert.equal(s.zoom,1.5);
+canvas.send('pointermove',2,175,300,859);assert.equal(s.zoom,.75);
+canvas.send('pointermove',2,110,300,861);assert.equal(s.zoom,ZOOM_LIMITS.min);
+canvas.send('pointermove',2,700,300,863);assert.equal(s.zoom,ZOOM_LIMITS.max);
+canvas.send('pointerup',2,700,300,867);canvas.send('pointerup',1,100,300,870);
+assert.equal(hasManualRotation(s),false);assert.equal(focusCount,2);
 canvas.send('pointerdown',1,170,400,900);window.dispatchEvent(new Event('blur'));
 assert.equal(canvas.captures.size,0);assert.equal(s.interacting,false);unbind();
 
@@ -165,4 +175,4 @@ for(const meta of manifest.models){
   assert.ok(Math.abs(plane.constant-(a.constant+b.constant)/2)<1e-8);
  }
 }
-console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, independent two-axis orbit, cut-preserving touch and trackpad gestures, actual section holes, anchored handles and offscreen travel for five models');
+console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, independent two-axis orbit, bounded pinch and wheel zoom, actual section holes, anchored handles and offscreen travel for five models');

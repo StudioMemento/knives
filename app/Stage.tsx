@@ -11,10 +11,10 @@ import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,an
 import {MotionValue,orbitAngle} from './lib/motion';
 import {createLightStage} from './lib/lighting';
 import {fitBoundsScale,slideTravel} from './lib/framing';
-import {createCutSurface,setCutPlane} from './lib/cut-surface';
+import {createForegroundFog} from './lib/foreground-fog';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
-import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
+import {createSoftLayers,REAR_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
 import {KNIVES,mod,clamp,smooth,sectionAt,hasManualRotation,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
 
 type Props={
@@ -23,7 +23,7 @@ type Props={
 };
 type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
- parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:THREE.Mesh[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
+ parts:ExplodedPart[];meshes:THREE.Mesh[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
  fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
@@ -33,35 +33,33 @@ export default function Stage({state,...callbacks}:Props){
  const canvas=useRef<HTMLCanvasElement>(null);const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
   if(!canvas.current)return;const s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
-  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,stencil:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL non disponibile. Apri la demo in un browser con accelerazione grafica.');return;}
-  renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.localClippingEnabled=true;renderer.autoClear=false;
+  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL non disponibile. Apri la demo in un browser con accelerazione grafica.');return;}
+  renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
-  const textures=makeTextures(),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
+  const textures=makeTextures(),soft=createSoftLayers(renderer),fog=createForegroundFog(renderer,camera),rigs:(Rig|undefined)[]=Array(5);
   const pmrem=new THREE.PMREMGenerator(renderer),studio=new THREE.Scene();
-  studio.background=new THREE.Color('#101119');
-  for(const [x,y,z,w,h,power] of [[-3,4.8,4.3,5.4,1.8,5.4],[4,1.6,2.8,1.5,4.2,3.6],[-.7,3,-3.2,4.2,1.1,4.2],[0,.4,5.6,5,3,1.15]]){
+  studio.background=new THREE.Color('#2b2e35');
+  for(const [x,y,z,w,h,power] of [[-3,4.8,4.3,5.4,1.8,5.4],[4,1.6,2.8,1.5,4.2,3.6],[-.7,3,-3.2,4.2,1.1,4.2],[0,.4,5.6,6.6,3.8,1.85],[2,-1.7,-4.5,4.2,2.1,1.6]]){
    const card=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(power,power*.99,power*.97),side:THREE.DoubleSide}));
    card.position.set(x,y,z);card.lookAt(0,0,0);studio.add(card);
   }
   const env=pmrem.fromScene(studio,.045);scene.environment=env.texture;scene.environmentRotation.y=.18;
   studio.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();o.material.dispose();}});pmrem.dispose();renderer.resetState();
-  const ambient=new THREE.HemisphereLight('#e0e5ed','#191921',.23);ambient.layers.enableAll();scene.add(ambient);
-  const rim=new THREE.DirectionalLight('#d5e2ee',.82);rim.position.set(-2,1,-3);rim.layers.set(FRONT);scene.add(rim);
-  const lightStage=createLightStage();scene.add(lightStage.group);
+  const lightStage=createLightStage();scene.add(lightStage.group,lightStage.rig);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);let metas:ModelMeta[]=[],warmed=false;
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
-  const cutSurface=createCutSurface(renderer);
-  const clipPlanes=[new THREE.Plane(),new THREE.Plane(),new THREE.Plane()];
   const getRole=(mesh:THREE.Mesh):Surface=>{const mat=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;const name=String(mesh.userData.materialRole||mat.name||mesh.name).toLowerCase();return name.includes('blade')?'blade':name.includes('handle')?'handle':'metals';};
   async function load(index:number){
    const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Manifest modello mancante: '+KNIVES[index]);
    const gltf=await loader.loadAsync(meta.url);if(dead)return;
    const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
    const materials={blade:makeMaterial('blade'),handle:makeMaterial('handle'),metals:makeMaterial('metals')};
-   for(const role of ['blade','handle','metals'] as const){const m=materials[role];m.transparent=true;m.depthWrite=true;m.forceSinglePass=true;finishMaterial(m,role,state.current.configs[index][role],textures);}
-   const meshes:THREE.Mesh[]=[],mirrors:THREE.Mesh[]=[];
-   gltf.scene.traverse(o=>{if(!(o instanceof THREE.Mesh))return;const role=getRole(o);o.material=materials[role];o.frustumCulled=false;o.userData.surface=role;o.layers.set(index===state.current.selected?FRONT:REAR_LAYER);meshes.push(o);
-    const mirror=new THREE.Mesh(o.geometry,new THREE.MeshBasicMaterial({color:role==='handle'?'#5b5249':'#bca082',transparent:true,opacity:role==='handle'?.20:.35,side:THREE.DoubleSide,depthWrite:false,forceSinglePass:true}));mirror.matrixAutoUpdate=false;mirror.frustumCulled=false;mirror.layers.set(REFLECTION_LAYER);reflectionGroup.add(mirror);mirrors.push(mirror);
+   for(const role of ['blade','handle','metals'] as const)finishMaterial(materials[role],index,role,s.configs[index][role],textures);
+   const meshes:THREE.Mesh[]=[];
+   gltf.scene.traverse(o=>{
+    if(!(o instanceof THREE.Mesh))return;
+    const role=getRole(o);o.material=materials[role];o.frustumCulled=false;o.userData.surface=role;
+    o.layers.set(index===s.selected?FRONT:REAR_LAYER);meshes.push(o);
    });
    const mixer=new THREE.AnimationMixer(gltf.scene),openClip=gltf.animations.find(c=>c.name===meta.motion.openCloseClip),explodeClip=gltf.animations.find(c=>c.name===meta.motion.explodeClip);if(!openClip||!explodeClip)throw Error('Animazioni non disponibili: '+meta.id);
    const open=mixer.clipAction(openClip),parts=createExplosion(gltf.scene,explodeClip,meta.motion.explodePeakTime);for(const action of [open]){action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
@@ -71,7 +69,7 @@ export default function Stage({state,...callbacks}:Props){
     const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
     proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
    });
-   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),
+   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,materials,key:JSON.stringify(s.configs[index]),
     fold:0,explosion:0,fit:1,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,details:inspectionParts(gltf.scene,meshes,meta.focusPoints.handle[2])};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
@@ -87,7 +85,12 @@ export default function Stage({state,...callbacks}:Props){
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const panels=[host.querySelector<HTMLElement>('[data-pose]')!,...host.querySelectorAll<HTMLElement>('.hud-layer [data-panel]')];
-  let areas:ScreenRect[]=[];
+  const info=host.querySelector<HTMLElement>('.product-info')!;
+  let areas:ScreenRect[]=[],rimHeights:number[]=[],arrowKey='';
+  function placeArrows(section:number){
+   const area=areas[section],position=((area[1]+area[3])*50).toFixed(2)+'%';
+   if(position!==arrowKey){arrowKey=position;host.style.setProperty('--arrow-y',position);}
+  }
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
    const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,areas[0]);
@@ -103,15 +106,18 @@ export default function Stage({state,...callbacks}:Props){
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();camera.updateMatrixWorld();
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;viewWidth=viewHeight*camera.aspect;
     frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
-    soft.resize(w,h);
+    soft.resize(w,h);fog.resize(w,h);lightStage.resize(viewWidth);
    }
-   const top=element.getBoundingClientRect().top;
-   const next=panels.map(panel=>productArea(portrait,(panel.getBoundingClientRect().top-top)/h));
-   if(!changed&&next.every((rect,i)=>rect[3]===areas[i]?.[3]))return;
-   areas=[...next,next[0]];
+   const canvasRect=element.getBoundingClientRect(),masthead=info.getBoundingClientRect();
+   const top=(masthead.bottom-canvasRect.top)/h,left=(masthead.left-canvasRect.left)/w,right=(masthead.right-canvasRect.left)/w;
+   const panelTops=panels.map(panel=>(panel.getBoundingClientRect().top-canvasRect.top)/h);
+   const next=panelTops.map((panelTop,i)=>productArea(portrait,panelTop,top,left,right,i===0?.024:.085));
+   const rims=next.map((rect,i)=>i===0?rect[3]+.092:Math.min(rect[3]+.066,panelTops[i]-.018));
+   if(!changed&&next.every((rect,i)=>rims[i]===rimHeights[i]&&rect.every((n,k)=>n===areas[i]?.[k])))return;
+   areas=[...next,next[0]];rimHeights=[...rims,rims[0]];placeArrows(sectionAt(s.target));
    for(const rig of rigs)if(rig)frameShots(rig);
   };
-  resize();const observer=new ResizeObserver(resize);observer.observe(element);
+  resize();const observer=new ResizeObserver(resize);observer.observe(element);observer.observe(info);
   for(const panel of panels)observer.observe(panel);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
@@ -122,8 +128,7 @@ export default function Stage({state,...callbacks}:Props){
    ndc.set((x-rect.left)/rect.width*2-1,1-(y-rect.top)/rect.height*2);
    raycaster.setFromCamera(ndc,camera);
    const hits=raycaster.intersectObjects(rig.meshes,false);
-   const planes=rig.materials.blade.clippingPlanes??[];
-   const hit=hits.find(h=>planes.every(p=>p.distanceToPoint(h.point)>=-.0001));
+   const hit=hits[0];
    if(hit)return rig.scene.worldToLocal(hit.point.clone());
    if(!allowPlane)return null;
    const point=raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,0,1),-rig.group.position.z),new THREE.Vector3());
@@ -142,12 +147,11 @@ export default function Stage({state,...callbacks}:Props){
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
   element.addEventListener('pointermove',cursorMove,{passive:true});element.addEventListener('pointerleave',cursorLeave);
-  const carousel=new Carousel(),scroll=new MotionValue(),fold=new MotionValue(),explosion=new MotionValue();
+  const carousel=new Carousel(),scroll=new MotionValue(),zoom=new MotionValue(1),fold=new MotionValue(),explosion=new MotionValue();
   const customFold=s.customFold.map(x=>new MotionValue(x)),customExplode=s.customExplode.map(x=>new MotionValue(x));
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
-  const mirrorMatrix=new THREE.Matrix4(),mirrorFlip=new THREE.Matrix4().makeScale(1,-1,1);
   function renderProducts(sharp:boolean){
-   scene.environmentIntensity=sharp?1.10:.36;
+   scene.environmentIntensity=lightStage.environment*(sharp?1:.32);
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
     const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
@@ -174,12 +178,16 @@ export default function Stage({state,...callbacks}:Props){
    s.progress=scroll.step(s.target,dt,s.reduced?25:8);
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
-   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&!hasManualRotation(s);
+   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&Math.abs(s.zoom-1)<.001&&!hasManualRotation(s);
    if(!auto&&s.knifeDestination===null&&!carousel.manuallyTravelling&&Math.abs(carousel.phase-Math.round(carousel.phase))>1e-5)carousel.request(Math.round(carousel.phase),s.reduced);
    const phase=carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
    if(s.knifeDestination!==null&&Math.abs(phase-s.knifeDestination)<1e-7)s.knifeDestination=null;
-   const stageDistance=Math.min(u,5-u),headingToStage=sectionAt(s.target)===0;
+   const currentSection=sectionAt(s.target);
+   placeArrows(currentSection);
+   const rimY=THREE.MathUtils.lerp(rimHeights[chapter],rimHeights[chapter+1],blend);
+   lightStage.group.position.y=(.5-rimY)*viewHeight*(CAMERA_DISTANCE-RAIL.centerZ-RAIL.radius*lightStage.group.scale.z)/CAMERA_DISTANCE;
+   const stageDistance=Math.min(u,5-u),headingToStage=currentSection===0;
    if(headingToStage){railPhase=phase;showBackdrop=true;}
    else if(stageDistance>=.62)showBackdrop=false;
    const rearAlpha=showBackdrop?backdropOpacity(stageDistance):0;
@@ -205,19 +213,19 @@ export default function Stage({state,...callbacks}:Props){
    viewRotation.slerp(orbit,1-Math.exp(-dt*11));
    const foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
    customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
-   mirrorMatrix.makeTranslation(0,2*RAIL.floorY,0).multiply(mirrorFlip);
-   let caps:THREE.Plane[]=[],visibleRear=false;
+   const magnification=zoom.step(s.zoom,dt,s.reduced?32:14);
+   let visibleRear=false;
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
     const delta=slotOffset(i,phase),railSlot=slotOffset(i,railPhase);
     rig.visibility=front?1:rearAlpha*railVisibility(railSlot);
     rig.group.visible=rig.visibility>.001;
-    if(!rig.group.visible){for(const mirror of rig.mirrors)mirror.visible=false;continue;}
-    const stage=rig.shots[0],scenicScale=.36;
+    if(!rig.group.visible)continue;
+    const stage=rig.shots[0],scenicScale=.28*Math.min(1,Math.sqrt(lightStage.group.scale.x));
     if(!front){
      const angle=orbitAngle(railSlot),spin=s.reduced?i*1.31:time*.43+i*1.31;
-     rig.group.position.copy(railPoint(angle));rig.group.position.y+=scenicScale*DISPLAY*.56;
+     rig.group.position.copy(railPoint(angle));rig.group.position.x*=lightStage.group.scale.x;rig.group.position.z=RAIL.centerZ+(rig.group.position.z-RAIL.centerZ)*lightStage.group.scale.z;rig.group.position.y=lightStage.group.position.y+scenicScale*DISPLAY*.56;
      rig.group.quaternion.copy(presentation(.12+.20*Math.sin(spin),.42*Math.sin(spin*.76)+.20*Math.sin(angle),1.03+.18*Math.cos(spin)));
      rig.group.scale.setScalar(scenicScale);rig.content.position.copy(stage.focus).negate();
      rig.fold=0;rig.explosion=rig.compact*.55;rig.fit=1;
@@ -255,7 +263,7 @@ export default function Stage({state,...callbacks}:Props){
      }
      if(inspectWeight>.001)rig.fit+=(1+(cap-1)*inspectWeight-rig.fit)*(1-Math.exp(-dt*10));
      else rig.fit=1;
-     rig.group.scale.multiplyScalar(rig.fit);rig.group.updateMatrixWorld(true);
+     rig.group.scale.multiplyScalar(rig.fit*magnification);rig.group.updateMatrixWorld(true);
      if(Math.abs(delta)>.00001){
       const direction=Math.sign(delta);
       rig.group.position.x+=direction*exitFraction(delta)*slideTravel(camera,rig.meshes,direction);
@@ -264,26 +272,15 @@ export default function Stage({state,...callbacks}:Props){
     rig.group.updateMatrixWorld(true);
     if(!front&&!visibleRear)visibleRear=rig.meshes.some(mesh=>frustum.intersectsObject(mesh));
     const configKey=JSON.stringify(s.configs[i]);
-    if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],role,s.configs[i][role],textures);rig.key=configKey;}
-    const planes:THREE.Plane[]=[];
-    if(front&&inspectWeight>.98){
-     for(let k=0;k<3;k++)if(s.cuts[k]>0){setCutPlane(clipPlanes[k],k,s.cuts[k],rig.group.quaternion,rig.meshes);planes.push(clipPlanes[k]);}
-     caps=planes;
-    }
-    for(const mat of Object.values(rig.materials))mat.clippingPlanes=planes;
-    rig.mirrors.forEach((mirror,j)=>{
-     mirror.visible=rig.meshes[j].userData.surface!=='metals'&&(front||!portrait)&&!planes.length;
-     if(!mirror.visible)return;
-     (mirror.material as THREE.MeshBasicMaterial).opacity=(rig.meshes[j].userData.surface==='handle'?.14:.22)*rig.visibility;
-     mirror.matrix.multiplyMatrices(mirrorMatrix,rig.meshes[j].matrixWorld);mirror.matrixWorldNeedsUpdate=true;
-    });
+    if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],i,role,s.configs[i][role],textures);rig.key=configKey;}
    }
    const active=rigs[s.selected];
    if(active)lightAim.lerpVectors(active.shots[chapter].position,active.shots[chapter+1].position,blend);
-   const tint=lightStage.update(s.selected,dt,lightAim);
+   const tint=lightStage.update(s.selected,dt,lightAim,s.lighting);
+   scene.environmentRotation.y=lightStage.rotation;
    // Rear motion is slow and defocused. Reuse its optical integration between
    // updates, and indefinitely while reduced motion holds the scenery still.
-   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.reduced?0:Math.floor(time*30)].join('/');
+   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,lightStage.rotation.toFixed(3),s.reduced?0:Math.floor(time*30)].join('/');
 
    try{
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
@@ -291,7 +288,7 @@ export default function Stage({state,...callbacks}:Props){
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
     renderProducts(true);renderer.clearDepth();camera.layers.set(FRONT);
     renderer.render(scene,camera);
-    if(active&&caps.length)cutSurface.render(camera,active.meshes,caps);
+    fog.render(s.reduced?0:time,lightStage.tint,lightStage.fog);
    }catch(e){props.current.onError('Errore di rendering. Riprova per ripristinare la scena.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.progress,s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
@@ -299,15 +296,16 @@ export default function Stage({state,...callbacks}:Props){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
+   element.dataset.zoom=magnification.toFixed(3);element.dataset.light=String(s.lighting);
    element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.interacting);
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
    element.removeEventListener('pointermove',cursorMove);element.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
-   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());rig.mirrors.forEach(m=>(m.material as THREE.Material).dispose());}
-   textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();cutSurface.dispose();renderer.dispose();
+   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
+   Object.values(textures).forEach(t=>t.dispose());fog.dispose();env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa i tasti freccia per ruotare in tutte le direzioni."/>;
+ return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina per ruotare. Usa rotella, pinch o i tasti più e meno per lo zoom."/>;
 }

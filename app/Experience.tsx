@@ -1,20 +1,23 @@
 'use client';
-import {Fragment,useCallback,useEffect,useRef,useState} from 'react';
+import {type CSSProperties,useCallback,useEffect,useRef,useState} from 'react';
 import Stage from './Stage';
-import {CATALOGUE_KEY,SURFACES,catalogueChoices} from './lib/catalogue';
+import {CATALOGUE_KEY,SURFACES,catalogueChoices,restoreCatalogue} from './lib/catalogue';
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary} from './Hud';
-import {CHAPTERS,KNIVES,PREVIOUS_ORDER,PRODUCTS,createState,defaultConfiguration,mod,resetInspection,resetView,sectionAt,type Surface,type View} from './lib/state';
+import {Brand,Glyph,MaterialHud,PoseHud,CameraLightingHud,ConfigurationSummary,Spread} from './Hud';
+import {CHAPTERS,KNIVES,PRODUCTS,createState,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
-const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
+import {STAGE_COLORS} from './lib/art-direction';
+import {priceInCents} from './lib/pricing';
+
+const euros=new Intl.NumberFormat('it-IT',{useGrouping:'always'});
+const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','cameraIcon'] as const;
 
 export default function Experience(){
- const state=useRef(createState()),root=useRef<HTMLElement>(null);
+ const [session]=useState(()=>({...createState(),configs:catalogueChoices()}));
+ const state=useRef(session),root=useRef<HTMLElement>(null);
  const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
- const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
- if(choices.current===null)choices.current=catalogueChoices();
  const previous=useRef(frame),[,setRevision]=useState(0);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
  const go=useCallback((target:number)=>{
@@ -43,19 +46,7 @@ export default function Experience(){
  useEffect(()=>{
   const s=state.current,reduce=matchMedia('(prefers-reduced-motion: reduce)');
   s.reduced=reduce.matches;s.paused=reduce.matches;
-  try{
-   const stored=JSON.parse(localStorage.getItem('memento-knives-v46')||'null');
-   if(Array.isArray(stored)&&stored.length===KNIVES.length)s.configs=KNIVES.map(id=>{
-    const c=stored[PREVIOUS_ORDER.indexOf(id)];
-    const next=defaultConfiguration();
-    for(const k of ['blade','handle','metals'] as const){
-     if(Number.isInteger(c?.[k]?.color)&&c[k].color>=0&&c[k].color<8)next[k].color=c[k].color;
-     if(Number.isInteger(c?.[k]?.style)&&c[k].style>=0&&c[k].style<4)next[k].style=c[k].style;
-    }
-    return next;
-   });
-  }catch{}
-  try{choices.current=catalogueChoices(JSON.parse(localStorage.getItem(CATALOGUE_KEY)||localStorage.getItem('memento-knives-ui-v51')||'null'));}catch{}
+  try{s.configs=restoreCatalogue(localStorage);}catch{}
   refresh();
   const key=(e:KeyboardEvent)=>{
    if((e.target as Element).closest('input,textarea,select')||e.altKey||e.ctrlKey||e.metaKey)return;
@@ -67,7 +58,6 @@ export default function Experience(){
     case 'ArrowLeft':stepKnife(-1);break;
     case 'ArrowRight':stepKnife(1);break;
     case 'Home':case 'Escape':go(nearestChapter(s.target,0));break;
-    case '0':resetInspection(s);refresh();break;
     case ' ':s.paused=!s.paused;s.activity++;refresh();break;
     default:return;
    }
@@ -85,30 +75,36 @@ export default function Experience(){
   s.activity++;refresh();
  };
  const material=(surface:Surface,key:'color'|'style',value:number)=>{
-  choices.current![selected][surface][key]=value;
-  try{localStorage.setItem(CATALOGUE_KEY,JSON.stringify(Object.fromEntries(KNIVES.map((id,i)=>[id,choices.current![i]]))));}catch{}
+  s.configs[selected][surface][key]=value;s.activity++;
+  try{localStorage.setItem(CATALOGUE_KEY,JSON.stringify(Object.fromEntries(KNIVES.map((id,i)=>[id,s.configs[i]]))));}catch{}
   refresh();
  };
- const preset=(v:View)=>{s.rotation.identity();s.focus=null;s.view=v;s.activity++;refresh();};
- const selectedConfig=choices.current[selected];
+ const preset=(v:View)=>{s.rotation.identity();s.focus=null;s.zoom=1;s.view=v;s.activity++;refresh();};
+ const selectedConfig=s.configs[selected],cents=priceInCents(selected,selectedConfig);
+ const amount=euros.format(Math.floor(cents/100)),fraction=String(cents%100).padStart(2,'0');
  const product=PRODUCTS[selected],knifeAnchor=s.knifeDestination??Math.round(s.orbit);
- return <main ref={root} className="experience" data-version="54" data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
+ return <main ref={root} className="experience" data-version="55" style={{'--stage-color':STAGE_COLORS[KNIVES[selected]]} as CSSProperties} data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
-   <h1 className="atmospheric-title" data-product-name aria-label={KNIVES[selected]}>{Array.from(KNIVES[selected],(letter,i)=><Fragment key={i}>{i>0&&<i aria-hidden="true"/>}<span aria-hidden="true">{letter}</span></Fragment>)}</h1>
-   <div className="price" aria-label={'Prezzo dimostrativo '+product.price+' euro'}><span className="currency">€</span>{product.price}</div>
-   <ConfigurationSummary model={selected} config={selectedConfig}/>
+   <h1 className="atmospheric-title" data-product-name><Spread text={KNIVES[selected]}/></h1>
+   <div className="price-line">
+    <div className="price" data-price-cents={cents} aria-label={'Prezzo dimostrativo '+amount+','+fraction+' euro'}><span className="currency">€</span>{amount}<small>,{fraction}</small></div>
+    <p className="essence">{product.copy.map(line=><span key={line}>{line}</span>)}</p>
+   </div>
+   <ConfigurationSummary model={selected} config={selectedConfig} section={section} onSelect={chapter=>go(nearestChapter(s.target,chapter))}/>
   </div>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
   <header><button className="brand" data-chrome aria-label="Torna allo stage" onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button></header>
   {SURFACES.map((surface,i)=><section key={surface} className="hud-layer material-layer" aria-hidden={section!==i+1} inert={section!==i+1} aria-label={'Materiali '+CHAPTERS[i+1]}><MaterialHud surface={surface} model={selected} config={selectedConfig} onChange={material}/></section>)}
-  <section className="hud-layer technical-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Inspect / Explore"><TechnicalHud value={s} model={selected} onView={preset} onCut={(i,v)=>{s.cuts[i]=v;refresh();}} onReset={()=>{resetInspection(s);refresh();}}/></section>
+  <section className="hud-layer technical-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Camera e lighting">
+   <CameraLightingHud value={s} model={selected} onView={preset} onLight={index=>{s.lighting=index;s.activity++;refresh();}}/>
+  </section>
   <div className="knife-nav" role="group" aria-label="Scelta del coltello">
    {([-1,1] as const).map(dir=>{
     const name=dir===-1?'Coltello precedente':'Coltello successivo';
     return <button key={dir} type="button" className="knife-step" aria-label={name} title={name}
-     disabled={!s.ready.includes(mod(knifeAnchor+dir))} onClick={()=>stepKnife(dir)}><Glyph name={dir===-1?'left':'right'} size={31}/></button>;
+     disabled={!s.ready.includes(mod(knifeAnchor+dir))} onClick={()=>stepKnife(dir)}><Glyph name={dir===-1?'left':'right'} size={36}/></button>;
    })}
   </div>
   <PoseHud value={isCustom?{...s,closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>

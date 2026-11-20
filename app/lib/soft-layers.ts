@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const REFLECTION_LAYER=1,REAR_LAYER=2,REAR_DEPTH_LAYER=5;
+export const REAR_LAYER=2,REAR_DEPTH_LAYER=5;
 const vertex='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
 
 /** Split covered samples by optical depth before filtering. Each defocus band
@@ -8,7 +8,7 @@ const vertex='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0
 export function createSoftLayers(renderer:THREE.WebGLRenderer){
  const type=renderer.extensions.has('EXT_color_buffer_float')?THREE.HalfFloatType:THREE.UnsignedByteType;
  const target=(depth=false)=>new THREE.WebGLRenderTarget(1,1,{type,depthBuffer:depth,stencilBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
- const source=target(true),weighted=target(),bands=[target(),target(),target(),target()],reflection=target(true),blurBuffer=target();
+ const source=target(true),weighted=target(),bands=[target(),target(),target(),target()];
  source.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
  weighted.texture.generateMipmaps=true;weighted.texture.minFilter=THREE.LinearMipmapLinearFilter;
  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
@@ -37,21 +37,11 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
    }`);}
  const smallDisk=aperture(2),disk=aperture(4);
  const copy=shader({uMap:{value:weighted.texture}},'varying vec2 vUv;uniform sampler2D uMap;void main(){gl_FragColor=texture2D(uMap,vUv);}');
- const blur=shader({uMap:{value:reflection.texture},uStep:{value:new THREE.Vector2()}},`
-  varying vec2 vUv;uniform sampler2D uMap;uniform vec2 uStep;
-  void main(){
-   vec4 sum=texture2D(uMap,vUv)*.227027;
-   sum+=(texture2D(uMap,vUv+uStep*1.384615)+texture2D(uMap,vUv-uStep*1.384615))*.316216;
-   sum+=(texture2D(uMap,vUv+uStep*3.230769)+texture2D(uMap,vUv-uStep*3.230769))*.070270;
-   gl_FragColor=sum;
-  }`);
  const composite=new THREE.ShaderMaterial({transparent:true,premultipliedAlpha:true,depthTest:false,depthWrite:false,
-  uniforms:{uFine:{value:bands[0].texture},uClose:{value:bands[1].texture},uMiddle:{value:bands[2].texture},uFar:{value:bands[3].texture},uReflection:{value:reflection.texture},uFloor:{value:0}},
-  vertexShader:vertex,fragmentShader:`varying vec2 vUv;uniform sampler2D uFine,uClose,uMiddle,uFar,uReflection;uniform float uFloor;
+  uniforms:{uFine:{value:bands[0].texture},uClose:{value:bands[1].texture},uMiddle:{value:bands[2].texture},uFar:{value:bands[3].texture}},
+  vertexShader:vertex,fragmentShader:`varying vec2 vUv;uniform sampler2D uFine,uClose,uMiddle,uFar;
    void main(){
-    vec4 c;
-    if(uFloor>.5){c=texture2D(uReflection,vUv);c*=.50*smoothstep(.015,.32,vUv.y);}
-    else{c=texture2D(uFine,vUv)+texture2D(uClose,vUv)+texture2D(uMiddle,vUv)+texture2D(uFar,vUv);}
+    vec4 c=texture2D(uFine,vUv)+texture2D(uClose,vUv)+texture2D(uMiddle,vUv)+texture2D(uFar,vUv);
     gl_FragColor=vec4(c.rgb/max(c.a,.00001),min(1.,c.a));
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -59,16 +49,10 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
    }`});
  const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),copy);quad.frustumCulled=false;scene.add(quad);
  const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
- const targets=[source,weighted,...bands,reflection,blurBuffer];
- let checked=false,enabled=true,width=1,height=1,cachedKey='';
+ const targets=[source,weighted,...bands];
+ let checked=false,enabled=true,cachedKey='';
  function draw(material:THREE.ShaderMaterial,buffer:THREE.WebGLRenderTarget|null){
   quad.material=material;renderer.setRenderTarget(buffer);renderer.render(scene,camera);
- }
- function reflect(world:THREE.Scene,view:THREE.PerspectiveCamera){
-  view.layers.set(REFLECTION_LAYER);renderer.setRenderTarget(reflection);renderer.clear();renderer.render(world,view);
-  blur.uniforms.uMap.value=reflection.texture;blur.uniforms.uStep.value.set(5/width,0);draw(blur,blurBuffer);
-  blur.uniforms.uMap.value=blurBuffer.texture;blur.uniforms.uStep.value.set(0,8/height);draw(blur,reflection);
-  composite.uniforms.uFloor.value=1;draw(composite,null);
  }
  function rear(world:THREE.Scene,view:THREE.PerspectiveCamera,focusDistance:number){
   renderer.setRenderTarget(source);renderer.clear();view.layers.set(REAR_DEPTH_LAYER);world.overrideMaterial=depthOnly;
@@ -85,7 +69,7 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
  return {
   get enabled(){return enabled;},
   resize(w:number,h:number){
-   width=w;height=h;const scale=Math.min(renderer.getPixelRatio(),1.5,Math.sqrt(2100000/(w*h)));
+   const scale=Math.min(renderer.getPixelRatio(),1.5,Math.sqrt(2100000/(w*h)));
    const size=(buffer:THREE.WebGLRenderTarget,s:number)=>buffer.setSize(Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s)));
    size(source,scale);size(weighted,scale);size(bands[0],scale);
    // Approximately 3, 7 and 17 CSS pixels at 800 px high. The filled disk kernel
@@ -93,7 +77,7 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
    size(bands[1],Math.min(scale,2/Math.max(2.5,h*.004)));
    size(bands[2],Math.min(scale,4/Math.max(4,h*.009)));
    size(bands[3],Math.min(scale,4/Math.max(10,h*.022)));
-   const mirrorScale=Math.min(.45,720/Math.max(w,h));size(reflection,mirrorScale);size(blurBuffer,mirrorScale);checked=false;cachedKey='';
+   checked=false;cachedKey='';
   },
   render(world:THREE.Scene,view:THREE.PerspectiveCamera,hero:boolean,focusDistance:number,rearKey:string){
    if(!enabled)return;const mask=view.layers.mask,alpha=renderer.getClearAlpha();
@@ -104,14 +88,13 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
      for(const buffer of targets){renderer.setRenderTarget(buffer);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){enabled=false;return;}}
      checked=true;
     }
-    reflect(world,view);
     if(hero){
      if(rearKey!==cachedKey){rear(world,view,focusDistance);cachedKey=rearKey;}
-     composite.uniforms.uFloor.value=0;draw(composite,null);
+     draw(composite,null);
     }else cachedKey='';
 
    }finally{view.layers.mask=mask;renderer.setRenderTarget(null);renderer.setClearAlpha(alpha);}
   },
-  dispose(){targets.forEach(t=>t.dispose());[split,smallDisk,disk,copy,blur,composite,depthOnly].forEach(m=>m.dispose());quad.geometry.dispose();}
+  dispose(){targets.forEach(t=>t.dispose());[split,smallDisk,disk,copy,composite,depthOnly].forEach(m=>m.dispose());quad.geometry.dispose();}
  };
 }

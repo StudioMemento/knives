@@ -1,40 +1,90 @@
 import * as THREE from 'three';
-import {COLORS,type Finish,type Surface} from './state';
-export function makeTextures(){
- const output:THREE.CanvasTexture[]=[];
- for(let style=0;style<4;style++){
-  const canvas=document.createElement('canvas');canvas.width=canvas.height=512;const ctx=canvas.getContext('2d')!;const data=ctx.createImageData(512,512);
-  for(let y=0;y<512;y++)for(let x=0;x<512;x++){
-   const seed=Math.sin(x*127.1+y*311.7)*43758.5453,noise=seed-Math.floor(seed);
-   let value=220+noise*18;
-   if(style===1)value=202+Math.sin(y*2.7)*13+noise*12;
-   if(style===2)value=185+noise*45+Math.sin(x*.31+y*.7)*8;
-   if(style===3){const a=Math.floor(x/16),b=Math.floor(y/16),weave=(a+b)%2===0;const t=(weave?x:y)%16/16;value=65+Math.sin(t*Math.PI)*100+(weave?16:0)+noise*8;}
-   const k=(y*512+x)*4;data.data[k]=data.data[k+1]=data.data[k+2]=value;data.data[k+3]=255;
-  }
-  ctx.putImageData(data,0,0);const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(style===3?5:2,style===3?5:2);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;output.push(tex);
- }
- return output;
+import {CATALOGUE} from './catalogue';
+import {KNIVES, type Finish, type Surface} from './state';
+
+const finishes = {
+ satin: [.31,.92], polish: [.15,.98], grain: [.54,.78], stone: [.47,.82],
+ brush: [.35,.96], weave: [.36,.24], wave: [.30,.91], wood: [.42,.17], resin: [.25,.30]
+} as const;
+type Pattern=keyof typeof finishes;
+
+function patternFor(name:string,motif?:string):Pattern {
+ const key=(name+' '+(motif??'')).toLowerCase();
+ if(/carbon|weave|trama/.test(key))return 'weave';
+ if(/wood|legno|oliato|cerato|poro|stabilizz/.test(key))return 'wood';
+ if(/damasco|onda|onde|wave|radiale|mokume|timas|ladder|raindrop|venato|vein/.test(key))return 'wave';
+ if(/resina|opal|nuvola|goccia/.test(key))return 'resin';
+ if(/stone|fresat/.test(key))return 'stone';
+ if(/micr|blast|perlé|grana|matte|opaco|nebbia|cristall/.test(key))return 'grain';
+ if(/lucid|polish|specchio|film/.test(key))return 'polish';
+ if(/spazz|brush|incroci|doppio|doppia|contrasto/.test(key))return 'brush';
+ return 'satin';
 }
+
+export function makeTextures(){
+ const size=256;
+ const textures={} as Record<Pattern,THREE.CanvasTexture>;
+ for(const kind of Object.keys(finishes) as Pattern[]){
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d')!,data=ctx.createImageData(size,size);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+   const h=Math.sin(x*127.1+y*311.7)*43758.5453,noise=h-Math.floor(h);
+   let level=238+noise*8;
+   if(kind==='satin'||kind==='brush') level=229+Math.sin(y*(kind==='satin'?2.6:1.55))*10+noise*10;
+   if(kind==='grain')level=210+noise*42;
+   if(kind==='stone')level=208+noise*24+16*Math.sin(x*.31+y*.69+Math.sin(y*.2));
+   if(kind==='weave'){
+    const over=(Math.floor(x/8)+Math.floor(y/8))%4<2;
+    const thread=(over?x:y)%8;
+    level=161+Math.sin(thread*Math.PI/8)*46+(over?12:0)+Math.sin(thread*3.1)*4+noise*5;
+   }
+   if(kind==='wave'||kind==='wood'){
+    const wave=Math.sin(x*.12+y*.022+1.6*Math.sin(y*.071)+.77*Math.sin(y*.17+x*.019));
+    level=kind==='wood'?215+wave*21+noise*9:195+Math.tanh(wave*3)*34+noise*7;
+   }
+   if(kind==='resin')level=229+9*Math.sin(x*.055+.85*Math.sin(y*.073))+noise*7;
+   const i=(y*size+x)*4;data.data[i]=data.data[i+1]=data.data[i+2]=level;data.data[i+3]=255;
+  }
+  ctx.putImageData(data,0,0);
+  const texture=new THREE.CanvasTexture(canvas);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.setScalar(kind==='weave'?9:2);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
+  textures[kind]=texture;
+ }
+ return textures;
+}
+
 export function makeMaterial(role:Surface){
- const material=new THREE.MeshStandardMaterial({name:role,color:role==='handle'?'#34363b':'#b1b5b8',roughness:role==='handle'?.46:.28,metalness:role==='handle'?.15:1,envMapIntensity:1.7,side:THREE.DoubleSide});
+ const material=new THREE.MeshStandardMaterial({name:role,side:THREE.DoubleSide,transparent:true,depthWrite:true,forceSinglePass:true});
+ const palette={secondary:{value:new THREE.Color()},accent:{value:new THREE.Color()},multitone:{value:0},hardware:{value:role==='metals'?1:0}};
+ material.userData.palette=palette;
  material.onBeforeCompile=shader=>{
-  shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>',`
-   #if NUM_CLIPPING_PLANES > 0
-    float cutDistance=1.e5;
-    for(int axis=0;axis<NUM_CLIPPING_PLANES;axis++){
-     cutDistance=min(cutDistance,clippingPlanes[axis].w-dot(vClipPosition,clippingPlanes[axis].xyz));
-    }
-    float pixels=cutDistance/max(fwidth(cutDistance),.00045);
-    float core=1.-smoothstep(.0,1.1,pixels);
-    outgoingLight+=vec3(3.4,.38,.06)*exp(-max(pixels,0.)*.68)+vec3(4.2,3.0,1.6)*core;
-   #endif
-   #include <opaque_fragment>
+  shader.uniforms.uSecond=palette.secondary;shader.uniforms.uAccent=palette.accent;
+  shader.uniforms.uTones=palette.multitone;shader.uniforms.uHardware=palette.hardware;
+  shader.fragmentShader='uniform vec3 uSecond,uAccent; uniform float uTones,uHardware;\n'+shader.fragmentShader;
+  shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`
+   float grazing=1.-abs(dot(normalize(vNormal),normalize(vViewPosition)));
+   float band=smoothstep(.15,.83,grazing);
+   if(uHardware>.5) band=smoothstep(.14,.80,grazing+.12);
+   diffuseColor.rgb=mix(diffuseColor.rgb,uSecond,band*step(1.5,uTones));
+   diffuseColor.rgb=mix(diffuseColor.rgb,uAccent,smoothstep(.62,.95,grazing)*step(2.5,uTones));
+   #include <map_fragment>
   `);
  };
  return material;
 }
-export function finishMaterial(material:THREE.MeshStandardMaterial,role:Surface,finish:Finish,textures:THREE.Texture[]){
- material.color.set(COLORS[finish.color].hex);material.map=textures[finish.style];material.bumpMap=textures[finish.style];material.bumpScale=finish.style===3?.00006:finish.style===2?.000012:.000003;
- material.roughness=[.27,.35,.51,.43][finish.style];material.metalness=finish.style===3?.2:role==='handle'?.72:1;material.envMapIntensity=finish.style===3?1.35:1.75;material.needsUpdate=true;
+
+export function finishMaterial(material:THREE.MeshStandardMaterial,model:number,role:Surface,finish:Finish,textures:ReturnType<typeof makeTextures>){
+ const options=CATALOGUE[KNIVES[model]][role];
+ const style=options.styles[finish.style],colours=options.colors[finish.color].hex!;
+ const kind=patternFor(style.name,style.motif),[roughness,metalness]=finishes[kind];
+ const palette=material.userData.palette;
+ const lift=role==='blade'?.13:role==='metals'?.085:.012;
+ const silver=new THREE.Color('#f0f3f5');
+ material.color.set(colours[0]).lerp(silver,lift);palette.secondary.value.set(colours[1]??colours[0]).lerp(silver,lift);
+ palette.accent.value.set(colours[2]??colours[0]).lerp(silver,lift);palette.multitone.value=colours.length;
+ material.map=material.bumpMap=textures[kind];
+ material.bumpScale=kind==='weave'?.000014:kind==='wood'||kind==='wave'?.000016:.000006;
+ // Variants of a finish retain their own highlight width.
+ material.roughness=roughness+.009*finish.style;
+ material.metalness=metalness;material.envMapIntensity=role==='blade'?1.62:1.42;
 }
