@@ -1,30 +1,39 @@
-import {Euler,Quaternion,Vector3} from 'three';
-import type {ExplodedPart} from './explosion';
+import {Vector3,type Mesh,type Object3D} from 'three';
 import {mod,smooth} from './state.ts';
 
 export const HERO_PERIOD=8;
 export const HERO_TRAVEL=2.2;
 export const HERO_HOLD=HERO_PERIOD-HERO_TRAVEL;
-export const RAIL={radius:4.35,floorY:-1.14,centerZ:-2.25} as const;
-export const backdropOpacity=(stageDistance:number)=>1-smooth(stageDistance/.62);
-// Reach the edge before the selection boundary. Both directions share the same path.
-export const exitFraction=(distance:number)=>Math.sin(Math.min(1,Math.abs(distance)/.48)*Math.PI/2);
-export const railVisibility=(distance:number)=>smooth((Math.abs(distance)-.5)/.32);
+export const RAIL={radius:4.35,floorY:-1.14,centerZ:-17,landing:-.56,slope:.117} as const;
 export const slotOffset=(index:number,phase:number)=>mod(index-phase+2.5)-2.5;
+export const stationWeight=(slot:number)=>1-smooth(Math.abs(slot)/1.20);
 
-export function railPoint(angle:number){
- return new Vector3(Math.sin(angle)*RAIL.radius,RAIL.floorY,RAIL.centerZ+Math.cos(angle)*RAIL.radius);
+// More space between the pieces at the front of the track keeps the next
+// silhouette readable as it approaches. Angle and velocity wrap continuously.
+export function railAngle(slot:number){
+ const theta=slot*2*Math.PI/5;
+ return RAIL.landing+theta+.78*Math.sin(theta);
 }
 
-/** The authored exploded positions provide a local centre for each orbit.
- * Sampling first keeps the swirl reversible and independent of frame rate. */
-const turn=new Quaternion(),delta=new Vector3(),euler=new Euler();
-export function animateBackdrop(parts:ExplodedPart[],weight:number,time:number,model:number){
- if(weight<=0)return;
- for(let i=0;i<parts.length;i++){
-  const {node,assembled}=parts[i],phase=i*2.39996+model*.79;
-  delta.subVectors(node.position,assembled);
-  euler.set(.52*Math.sin(time*.58+phase),time*.58+phase,.36*Math.cos(time*.47-phase));
-  delta.applyQuaternion(turn.setFromEuler(euler)).add(assembled);node.position.lerp(delta,weight);
+export function railPoint(slot:number,scaleX:number,scaleZ:number,floorY:number,out=new Vector3(),slope:number=RAIL.slope){
+ const a=railAngle(slot);
+ const depth=Math.cos(a)*RAIL.radius*scaleZ/Math.hypot(1,slope);
+ return out.set(Math.sin(a)*RAIL.radius*scaleX,floorY+depth*slope,RAIL.centerZ+depth);
+}
+
+// In the supplied GLBs +X points from the handle to the open blade tip.
+// Read the actual vertex after all authored node transforms, once at load.
+export function openBladeTip(root:Object3D,meshes:Mesh[]){
+ const inverse=root.matrixWorld.clone().invert(),p=new Vector3(),tip=new Vector3(-Infinity,0,0);
+ for(const mesh of meshes){
+  if(mesh.userData.surface!=='blade')continue;
+  const transform=inverse.clone().multiply(mesh.matrixWorld),positions=mesh.geometry.getAttribute('position');
+  for(let i=0;i<positions.count;i++){
+   p.fromBufferAttribute(positions,i).applyMatrix4(transform);
+   // Bevels can share an extremum. Keep one vertex even after matrix round-off.
+   if(p.x>tip.x+1e-8)tip.copy(p);
+  }
  }
+ if(!Number.isFinite(tip.x))throw Error('Modello privo di superficie lama');
+ return tip;
 }

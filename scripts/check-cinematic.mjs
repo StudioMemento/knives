@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {Vector3,PerspectiveCamera,Euler} from 'three';
 import {chapterFrame,stageFrame,livingPose,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
-import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography.ts';
+import {slotOffset,stationWeight,railPoint,RAIL} from '../app/lib/choreography.ts';
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
 import {priceInCents} from '../app/lib/pricing.ts';
 import {CATALOGUE,catalogueChoices,SURFACES} from '../app/lib/catalogue.ts';
@@ -50,13 +50,13 @@ for(let time=0;time<120;time+=.11){
  for(const angle of [e.x,e.y,e.z])assert.ok(Math.abs(angle)<=IDLE_TILT_LIMIT+1e-8);
 }
 assert.equal(livingPose(4,1,1,true).rotation.w,1);
-assert.equal(backdropOpacity(0),1);assert.equal(backdropOpacity(.62),0);
+assert.equal(stationWeight(0),1);assert.equal(stationWeight(1.2),0);
 for(let i=0;i<=100;i++){
  const phase=i/100;
- assert.ok(backdropOpacity(phase+.01)<=backdropOpacity(phase));
+ assert.ok(stationWeight(phase+.01)<=stationWeight(phase));
  assert.equal(Math.abs(slotOffset(0,phase)+phase)<1e-8,true);
  assert.equal(Math.abs(slotOffset(1,phase)-(1-phase))<1e-8,true);
- const p=railPoint(phase*2*Math.PI);assert.ok(Math.abs(Math.hypot(p.x,p.z-RAIL.centerZ)-RAIL.radius)<1e-8);assert.equal(p.y,RAIL.floorY);
+ const p=railPoint(phase*5,1,1,RAIL.floorY);assert.ok(Math.abs(Math.hypot(p.x,(p.z-RAIL.centerZ)*Math.hypot(1,RAIL.slope))-RAIL.radius)<1e-8);assert.ok(Math.abs((p.y-RAIL.floorY)-(p.z-RAIL.centerZ)*RAIL.slope)<1e-8);
 }
 for(const zones of Object.values(CATALOGUE))for(const surface of SURFACES){
  const {colors,styles,default:pair}=zones[surface];
@@ -72,16 +72,19 @@ KNIVES.forEach((id,i)=>assert.deepEqual(migrated[i].blade,previous[PREVIOUS_ORDE
 const keyed=Object.fromEntries(KNIVES.map((id,i)=>[id,migrated[i]]));keyed.EDGE.handle={color:8,style:-1};
 assert.deepEqual(catalogueChoices(keyed)[2].handle,catalogueChoices()[2].handle);
 assert.deepEqual(catalogueChoices(keyed)[3].blade,migrated[3].blade);
-console.log('PASS — '+count+' fitted silhouettes, 15° idle tilt, circular rail, bidirectional slide and keyed catalogue migration');
+console.log('PASS — '+count+' fitted silhouettes, 15° idle tilt, circular rail, bidirectional rotation and keyed catalogue migration');
 
-const totals=new Set();
+let variants=0;
 for(const [model,config] of catalogueChoices().entries()){
+ const totals=new Set();
  for(let b=0;b<36;b++)for(let h=0;h<36;h++)for(let d=0;d<36;d++){
   [b,h,d].forEach((value,i)=>{config[SURFACES[i]]={style:Math.floor(value/6),color:value%6};});
   const amount=priceInCents(model,config);
-  assert.ok(Number.isInteger(amount)&&amount>=190000);
-  assert.ok(!totals.has(amount),'Edition prices must be distinct across the entire collection');totals.add(amount);
+  assert.ok(Number.isInteger(amount)&&amount>0&&amount<99900);
+  assert.ok(!totals.has(amount),KNIVES[model]+' has two configurations with the same price');totals.add(amount);
  }
+ assert.equal(totals.size,46656);variants+=totals.size;
+ console.log(KNIVES[model],Math.min(...totals)/100,Math.max(...totals)/100);
 }
-assert.equal(totals.size,233280);
-console.log('PASS — 233,280 deterministic, distinct high-end edition prices');
+assert.equal(variants,233280);
+console.log('PASS — 233,280 configurations below €999 and 46,656 distinct prices per model');

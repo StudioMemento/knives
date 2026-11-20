@@ -5,55 +5,41 @@ import {LIGHTS,STAGE_COLORS} from './art-direction.ts';
 export {STAGE_COLORS} from './art-direction.ts';
 
 export function createLightStage(){
- const group=new THREE.Group(),radius=RAIL.radius,edge=radius+.12,depth=18;
- group.position.set(0,RAIL.floorY,RAIL.centerZ);
+ const group=new THREE.Group(),radius=RAIL.radius,half=.043,depth=.005;
+ group.name='Stage rail';group.position.set(0,RAIL.floorY,RAIL.centerZ);group.rotation.x=-Math.atan(RAIL.slope);
  const tint=new THREE.Color(STAGE_COLORS.HYPER),target=new THREE.Color();
  const deck=new THREE.ShaderMaterial({uniforms:{uTint:{value:tint}},vertexShader:`varying vec2 p;
   void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
   fragmentShader:`varying vec2 p;uniform vec3 uTint;
    void main(){
-    float radius=length(p)/4.35,brim=smoothstep(.70,1.,radius);
-    float sweep=.5+.5*dot(normalize(p+vec2(.001)),normalize(vec2(-1.,.55)));
-    vec3 graphite=vec3(.004,.006,.009)+vec3(.006,.008,.010)*sweep*(.38+.62*brim);
-    gl_FragColor=vec4(graphite+uTint*.017*pow(brim,5.),1.);
+    float r=length(p),nearRing=exp(-abs(r-4.35)*1.8);
+    float field=exp(-r*r*.014),sweep=.5+.5*dot(normalize(p+vec2(.001)),normalize(vec2(-.8,.55)));
+    vec3 graphite=mix(vec3(.0012,.0015,.0021),vec3(.007,.008,.010),field*(.58+.42*sweep));
+    gl_FragColor=vec4(graphite+uTint*nearRing*.007,1.);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
    }`});
- const lip=new THREE.MeshStandardMaterial({color:'#31353b',roughness:.39,metalness:.81,envMapIntensity:.60});
- const emitter=new THREE.MeshBasicMaterial({color:tint,side:THREE.DoubleSide,toneMapped:false});
- const shell=new THREE.ShaderMaterial({
-  uniforms:{uTint:{value:tint}},vertexShader:`varying vec3 p;varying vec3 n;
-   void main(){p=position;n=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`varying vec3 p,n; uniform vec3 uTint;
-   void main(){
-    float h=max(0.,9.-p.y),angle=atan(n.x,n.z);
-    float shoulder=exp(-h*7.),fall=exp(-h*.91),strip=pow(max(0.,dot(normalize(n.xz),normalize(vec2(-.66,.86)))),5.);
-    float brush=.5+.5*sin(angle*680.);brush=mix(.5,brush,1.-smoothstep(.15,.95,fwidth(angle)*680.));
-    vec3 graphite=vec3(.014,.019,.026)*(.26+.82*fall+1.4*strip*fall);
-    graphite+=(vec3(.025,.034,.045)+uTint*.025)*shoulder;
-    graphite+=vec3(.003)*brush*fall;
-    gl_FragColor=vec4(graphite,1.);
-    #include <tonemapping_fragment>
-    #include <colorspace_fragment>
-   }`
- });
- const body=new THREE.Mesh(new THREE.CylinderGeometry(edge,edge,depth,144,1,true),shell);
- body.position.y=-depth/2;group.add(body);
- function flat(geometry:THREE.BufferGeometry,material:THREE.Material,y:number){
-  const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.y=y;group.add(mesh);
+ const lip=new THREE.MeshStandardMaterial({color:'#24262a',roughness:.72,metalness:.55,envMapIntensity:.15,side:THREE.DoubleSide});
+ const emitter=new THREE.MeshBasicMaterial({color:tint,side:THREE.DoubleSide});
+ function flat(geometry:THREE.BufferGeometry,material:THREE.Material,y:number,name:string){
+  const mesh=new THREE.Mesh(geometry,material);mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.position.y=y;group.add(mesh);
  }
- flat(new THREE.CircleGeometry(radius-.045,144),deck,0);
- flat(new THREE.RingGeometry(radius-.045,edge,144),lip,-.006);
- flat(new THREE.RingGeometry(radius-.034,radius+.025,144),emitter,.003);
+ flat(new THREE.CircleGeometry(radius-half,256),deck,0,'Stage interior');
+ flat(new THREE.RingGeometry(radius+half,900,256),deck,0,'Stage exterior');
+ for(const edge of [radius-half,radius+half]){
+  const wall=new THREE.Mesh(new THREE.CylinderGeometry(edge,edge,depth,256,1,true),lip);
+  wall.position.y=-depth/2;group.add(wall);
+ }
+ flat(new THREE.RingGeometry(radius-half,radius+half,256),lip,-depth,'Groove bed');
+ flat(new THREE.RingGeometry(radius-.024,radius+.024,256),emitter,-depth*.26,'Recessed light');
  const halo=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
-  uniforms:{uTint:{value:tint},uRadius:{value:radius}},
-  vertexShader:'varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 p;uniform vec3 uTint;uniform float uRadius;
-   void main(){float d=abs(length(p)-uRadius);gl_FragColor=vec4(uTint,.34*exp(-d*25.)+.07*exp(-d*5.));
+  uniforms:{uTint:{value:tint}},vertexShader:'varying vec2 p;void main(){p=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`varying vec2 p;uniform vec3 uTint;
+   void main(){float d=abs(length(p)-4.35);gl_FragColor=vec4(uTint,.032*exp(-d*38.)+.008*exp(-d*6.));
     #include <colorspace_fragment>
    }`
  });
- flat(new THREE.RingGeometry(radius-.8,edge,144,2),halo,.006);
+ flat(new THREE.RingGeometry(radius-.8,radius+.8,256,3),halo,.001,'Reflected rail light');
  const lamps:THREE.PointLight[]=[];
  for(let i=0;i<4;i++){
   const a=2*Math.PI*i/4,lamp=new THREE.PointLight(tint,3.8,9,2);
@@ -69,13 +55,12 @@ export function createLightStage(){
  let env=LIGHTS[0].env as number,rotation=LIGHTS[0].rotation as number,fog=LIGHTS[0].fog as number,first=true;
  return {group,rig,tint,get environment(){return env;},get rotation(){return rotation;},get fog(){return fog;},
   resize(viewWidth:number){
-   // Frame the platform as a shallow ellipse and keep both shoulders visible.
-   group.scale.x=Math.min(1.05,viewWidth*.49/edge);
-   group.scale.z=.53+.16*Math.min(1,group.scale.x);
+   group.scale.x=viewWidth*.675/radius;
+   group.scale.z=20/radius;
   },
   update(index:number,dt:number,hero?:THREE.Vector3,choice=0){
    const preset=LIGHTS[choice]??LIGHTS[0],mix=first?1:1-Math.exp(-dt*5.5);first=false;
-   tint.lerp(target.set(STAGE_COLORS[KNIVES[index]]),mix);emitter.color.copy(tint);lamps.forEach(lamp=>lamp.color.copy(tint));
+   tint.lerp(target.set(STAGE_COLORS[KNIVES[index]]),mix);emitter.color.copy(tint).multiplyScalar(1.10);lamps.forEach(lamp=>lamp.color.copy(tint));
    key.position.lerp(desired.fromArray(preset.position),mix);rim.position.lerp(desired.fromArray(preset.reverse),mix);
    key.color.lerp(colour.set(preset.key),mix);rim.color.lerp(colour.set(preset.rim),mix);
    key.intensity=THREE.MathUtils.lerp(key.intensity,preset.power,mix);
@@ -87,7 +72,7 @@ export function createLightStage(){
   },
   dispose(){
    group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});
-   [deck,lip,emitter,shell,halo].forEach(m=>m.dispose());[key,rim,fill,...lamps].forEach(l=>l.dispose());
+   [deck,lip,emitter,halo].forEach(m=>m.dispose());[key,rim,fill,...lamps].forEach(l=>l.dispose());
   }
  };
 }

@@ -10,8 +10,6 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   handleIcon:<><path d="m3.2 15 9.9-10.3a3.7 3.7 0 0 1 5.1-.1l2 2a3.5 3.5 0 0 1-1 5.6l-3.7 1.5-5.1 5.6a3.7 3.7 0 0 1-5.2.1l-2-2a1.9 1.9 0 0 1 0-2.4Z"/><circle cx="7.5" cy="16.1" r="1.15"/><path d="m12.4 9.1 2.5 2m-.4-4.2 2.3 1.8"/></>,
   detailsIcon:<><path d="m7.4 3.6 9.2 0 4.6 8.4-4.6 8.4H7.4L2.8 12Z"/><circle cx="12" cy="12" r="4"/><path d="m9.4 14.5 5.2-5"/></>,
   cameraIcon:<><path d="M2.5 8h4l2-3h7l2 3h4v11h-19Z"/><circle cx="12" cy="13" r="3.5"/></>,
-  left:<path d="M20 1h-7L2 12l11 11h7L9 12Z" stroke="none" fill="currentColor"/>,
-  right:<path d="M4 1h7l11 11-11 11H4l11-11Z" stroke="none" fill="currentColor"/>,
   blade:<><path d="M6.2 15.6h13a2 2 0 0 1 0 4H6.4a2.2 2.2 0 0 1-.2-4.4Z"/><circle cx="6.4" cy="17.6" r=".64" fill="currentColor" stroke="none"/><path d="m5.7 14 4-10.6c1.7 4.9.6 8.8-1.6 11M13.5 6.9a8.8 8.8 0 0 1 5.2 5.6m-3.1-.9 3.2 1.2 1-3.1"/></>,
   explode:<><path d="m3 7 9-4 9 4-9 4Z"/><path d="m3 11 9 4 9-4M3 15l9 4 9-4"/></>,
   orbit:<><path d="m7 3-4 4v6l4 4h8l5-5V6l-4-3h-4M20 3v4h-4"/><path d="m3 17 1-4 4 1"/><path d="M11 10h2v2h-2Z"/></>,
@@ -26,6 +24,14 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   perspective:<><path d="m3 16 6-8 4-1 8-3v4l-8 6-2-1-7 5Z"/><path d="m13 7 1 5"/></>,
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="butt" strokeLinejoin="miter" aria-hidden="true">{paths[name]}</svg>;
+}
+export function Chevron({left}:{left:boolean}){
+ return <svg viewBox="0 0 32 72" fill="currentColor" aria-hidden="true">
+  <g transform={left?'translate(32 0) scale(-1 1)':undefined}>
+   <path d="M1 1 4.7 2.8 30.2 42.8 26.4 40.2Z"/>
+   <path d="m28.2 46.3 2.5-1.7-21.9 26.3 1.9-6.1Z"/>
+  </g>
+ </svg>;
 }
 export function Brand(){
  // Individual view boxes use the original wordmark paths while the gaps follow the layout.
@@ -71,7 +77,7 @@ export function ConfigurationSummary({model,config,section,onSelect}:{
    const name=['Blade','Handle','Details'][i],material=options.styles[selected.style],color=options.colors[selected.color];
    return <button type="button" className="config-part" key={surface} data-config={surface} data-active={section===i+1}
     title={name+' · '+material.name+' / '+color.name} aria-label={name+', materiale '+material.name+', colore '+color.name+'. Modifica'} onClick={()=>onSelect(i+1)}>
-    <span className="config-name"><b aria-hidden="true">//</b>{name}</span>
+    <span className="config-name"><b aria-hidden="true">//</b> {name}</span>
     {[{item:material,index:selected.style,row:options.swatchRow+1,kind:'material'},{item:color,index:selected.color,row:options.swatchRow,kind:'color'}].map(({item,index,row,kind})=>
      <span key={kind} className={'config-value '+kind}><span className="mini-sample"><Sample item={item} index={index} row={row}/></span><span>{item.name}</span></span>)}
    </button>;

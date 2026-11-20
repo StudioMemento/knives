@@ -4,6 +4,7 @@ type Point={x:number;y:number};
 type Contact={start:Point;last:Point};
 type Callbacks={
  hitsProduct:(x:number,y:number)=>boolean;
+ emptyTap?:(x:number,y:number)=>void;
  focus:(x:number,y:number,allowPlane:boolean)=>void;
  chapter:(target:number)=>void;
  renderUI:()=>void;
@@ -27,7 +28,7 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   if(contacts.size===1){
    mode='tap';originChapter=s.target;settled=Math.abs(s.progress-originChapter)<.09;
    // Picking on pointer-up would make a tap on the moving carousel ambiguous.
-   tapOnProduct=settled&&[0,4].includes(sectionAt(originChapter))&&callbacks.hitsProduct(p.x,p.y);
+   tapOnProduct=settled&&callbacks.hitsProduct(p.x,p.y);
    s.interacting=true;s.activity++;
   }else{
    const [a,b]=[...contacts.values()];
@@ -71,7 +72,7 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
      if(lastTap&&e.timeStamp-lastTap.time<360&&distance(lastTap.point,p)<30){callbacks.focus(p.x,p.y,false);lastTap=null;}
      else lastTap={point:p,time:e.timeStamp};
     }
-   }else if(mode==='tap')lastTap=null;
+   }else if(mode==='tap'){lastTap=null;callbacks.emptyTap?.(e.clientX,e.clientY);}
   }
   multiFocus=null;s.interacting=false;s.activity++;callbacks.renderUI();
  }

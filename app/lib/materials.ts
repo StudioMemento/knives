@@ -54,7 +54,7 @@ export function makeTextures(){
 }
 
 export function makeMaterial(role:Surface){
- const material=new THREE.MeshStandardMaterial({name:role,side:THREE.DoubleSide,transparent:true,depthWrite:true,forceSinglePass:true});
+ const material=new THREE.MeshStandardMaterial({name:role,side:THREE.DoubleSide,depthWrite:true});
  const palette={secondary:{value:new THREE.Color()},accent:{value:new THREE.Color()},multitone:{value:0},hardware:{value:role==='metals'?1:0}};
  material.userData.palette=palette;
  material.onBeforeCompile=shader=>{

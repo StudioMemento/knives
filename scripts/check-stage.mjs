@@ -1,18 +1,16 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {Vector3,Group,Plane,Quaternion,AnimationMixer,LoopOnce,ExtrudeGeometry,Path,Shape,PerspectiveCamera} from 'three';
+import {Vector3,Group,Plane,Quaternion,AnimationMixer,LoopOnce,ExtrudeGeometry,Path,Shape} from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {Carousel} from '../app/lib/carousel.ts';
-import {animateBackdrop,exitFraction,railVisibility,HERO_PERIOD,HERO_HOLD} from '../app/lib/choreography.ts';
+import {openBladeTip,railPoint,slotOffset,stationWeight,HERO_PERIOD,HERO_HOLD,RAIL} from '../app/lib/choreography.ts';
 import {createExplosion,sampleExplosion,compactExplosion} from '../app/lib/explosion.ts';
 import {setCutPlane,CUT_DIRECTIONS,sectionGeometry} from '../app/lib/cut-surface.ts';
 import {nearestChapter} from '../app/lib/navigation.ts';
 import {bindGestures,ZOOM_LIMITS} from '../app/lib/gestures.ts';
 import {inspectionParts,partCenter} from '../app/lib/inspection.ts';
 import {createLightStage,STAGE_COLORS} from '../app/lib/lighting.ts';
-import {RAIL} from '../app/lib/choreography.ts';
-import {slideTravel} from '../app/lib/framing.ts';
 import {createState,hasManualRotation,mod} from '../app/lib/state.ts';
 
 assert.equal(HERO_PERIOD,8);
@@ -38,13 +36,31 @@ for(const hz of [20,30,60,120,144])for(const time of [0,HERO_HOLD,6.55,6.91,7.14
  }
  assert.equal(ring.phase,dest);assert.equal(ring.velocity,0);assert.equal(ring.acceleration,0);swipes++;
 }
-for(let i=-15;i<15;i++)for(let n=0;n<5;n++)assert.equal(mod(nearestChapter(i+.1,n)),n);
-for(const direction of [-1,1]){
- for(const distance of [.48,.49,.5])assert.equal(exitFraction(direction*distance),1);
- assert.equal(exitFraction(0),0);assert.equal(railVisibility(direction*.5),0);assert.equal(railVisibility(direction),1);
+const reversing=new Carousel();reversing.request(1);reversing.step(1.3,false,false,false);
+reversing.request(0);reversing.step(.55,false,false,false);reversing.request(1);
+for(let f=0;f<180;f++){
+ reversing.step(1/120,false,false,false);
+ assert.ok(Math.abs(reversing.velocity)<3,'Reversing at mid-arc must leave enough time to brake');
 }
+assert.equal(reversing.phase,1);
+for(let i=-15;i<15;i++)for(let n=0;n<5;n++)assert.equal(mod(nearestChapter(i+.1,n)),n);
+// Sampling either side of the selection boundary and the catalogue wrap
+// must give neighbouring positions for every carrier, in both directions.
+for(const direction of [-1,1])for(const boundary of [.5,2.5,4.5,5,5.5])for(let i=0;i<5;i++){
+ const at=t=>railPoint(slotOffset(i,t),1.2,2.3,-1.7);
+ const left=at(boundary-direction*.00001),on=at(boundary),right=at(boundary+direction*.00001);
+ assert.ok(left.distanceTo(right)<.001);
+ assert.ok(on.clone().sub(left).sub(right.clone().sub(on)).length()<1e-7);
+ assert.ok(at(boundary+5).distanceTo(on)<1e-10);
+}
+assert.equal(stationWeight(0),1);assert.equal(stationWeight(1.3),0);
+assert.ok(stationWeight(.49)>.5&&stationWeight(.51)>.5);
 
 const stageLight=createLightStage();stageLight.update(0,1);stageLight.group.updateMatrixWorld(true);
+const exterior=stageLight.group.getObjectByName('Stage exterior'),interior=stageLight.group.getObjectByName('Stage interior'),rail=stageLight.group.getObjectByName('Recessed light');
+assert.ok(exterior.geometry.parameters.outerRadius>100&&exterior.position.y===interior.position.y);
+assert.ok(rail.position.y<interior.position.y&&rail.geometry.parameters.outerRadius<exterior.geometry.parameters.innerRadius);
+assert.ok(rail.geometry.parameters.innerRadius>interior.geometry.parameters.radius);
 const stageMatrix=stageLight.group.matrixWorld.clone(),lamps=stageLight.group.children.filter(o=>o.isPointLight);
 assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));const spot=stageLight.rig.children.find(o=>o.isSpotLight);
 assert.ok(spot&&spot.penumbra>0&&spot.position.y>spot.target.position.y&&spot.decay===2);
@@ -138,7 +154,7 @@ for(const meta of manifest.models){
   const travel=part.node.position.clone().sub(part.assembled).multiply(part.node.parent.getWorldScale(new Vector3())).length();
   assert.ok(travel<=4.2*.16+1e-7);
  }
- sampleExplosion(parts,0);animateBackdrop(parts,0,40,2);assert.ok(parts.every(p=>p.node.position.equals(p.assembled)));
+ sampleExplosion(parts,0);assert.ok(parts.every(p=>p.node.position.equals(p.assembled)));
  const meshes=[];scene.traverse(o=>{if(o.isMesh)meshes.push(o);});group.updateMatrixWorld(true);
  const details=inspectionParts(scene,meshes,meta.focusPoints.handle[2]);
  for(const part of Object.values(details)){
@@ -154,19 +170,9 @@ for(const meta of manifest.models){
   action.time=meta.motion.closedTime*value;mixer.update(0);sampleExplosion(parts,0);group.updateMatrixWorld(true);
   assert.ok(home.elements.every((n,i)=>Math.abs(n-handle.matrixWorld.elements[i])<1e-7),meta.id+' handle pivot moved');
  }
- for(const aspect of [.46,1.78,2.54]){
-  const camera=new PerspectiveCamera(34,aspect,.05,80);camera.position.z=9.5;camera.updateMatrixWorld();
-  for(const direction of [-1,1]){
-   const travel=slideTravel(camera,meshes,direction);
-   for(const mesh of meshes){
-    const box=mesh.geometry.boundingBox;
-    for(let i=0;i<8;i++){
-     const p=new Vector3(i&1?box.max.x:box.min.x,i&2?box.max.y:box.min.y,i&4?box.max.z:box.min.z).applyMatrix4(mesh.matrixWorld);
-     p.x+=direction*travel;p.project(camera);assert.ok(direction*p.x>1.001);
-    }
-   }
-  }
- }
+ for(const mesh of meshes)mesh.userData.surface=String(mesh.userData.materialRole||mesh.material.name).toLowerCase().includes('blade')?'blade':'other';
+ const tip=openBladeTip(scene,meshes);
+ assert.ok(Math.abs(tip.x-meta.roleBounds.blade.max[0])<.00002,meta.id+' track contact is an actual open blade vertex');
  for(const axis of [0,1,2]){
   const direction=CUT_DIRECTIONS[axis];assert.equal(direction.getComponent(axis),axis===2?1:-1);
   const plane=new Plane(),a=new Plane(),b=new Plane(),q=new Quaternion();
@@ -175,4 +181,4 @@ for(const meta of manifest.models){
   assert.ok(Math.abs(plane.constant-(a.constant+b.constant)/2)<1e-8);
  }
 }
-console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, independent two-axis orbit, bounded pinch and wheel zoom, actual section holes, anchored handles and offscreen travel for five models');
+console.log('PASS — 8-second cycles at six frame rates, '+swipes+' one-item releases, independent two-axis orbit, bounded pinch and wheel zoom, actual section holes, anchored handles, continuous carriers and five measured blade contacts');

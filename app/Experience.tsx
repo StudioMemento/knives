@@ -1,11 +1,11 @@
 'use client';
-import {type CSSProperties,useCallback,useEffect,useRef,useState} from 'react';
+import {type CSSProperties,useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import Stage from './Stage';
 import {CATALOGUE_KEY,SURFACES,catalogueChoices,restoreCatalogue} from './lib/catalogue';
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,Glyph,MaterialHud,PoseHud,CameraLightingHud,ConfigurationSummary,Spread} from './Hud';
+import {Brand,Glyph,Chevron,MaterialHud,PoseHud,CameraLightingHud,ConfigurationSummary,Spread} from './Hud';
 import {CHAPTERS,KNIVES,PRODUCTS,createState,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 import {STAGE_COLORS} from './lib/art-direction';
@@ -68,6 +68,23 @@ export default function Experience(){
   return ()=>{window.removeEventListener('keydown',key);reduce.removeEventListener('change',onReduce);};
  },[go,stepKnife,refresh]);
  const {selected,section,ready}=frame,s=state.current;
+ const sheet=useRef<HTMLDivElement>(null);
+ useLayoutEffect(()=>{
+  const el=sheet.current;if(!el)return;
+  // All text samples the same vertical gradient, even inside buttons and flex rows.
+  const layout=()=>{
+   const area=el.getBoundingClientRect(),title=el.querySelector('h1')!.getBoundingClientRect();
+   el.style.setProperty('--ink-height',area.height+'px');
+   el.style.setProperty('--ink-white',(title.height*.5)+'px');
+   for(const node of el.querySelectorAll<HTMLElement>('.spread,.price>*,.essence span,.config-name,.config-value>span:last-child')){
+    node.style.setProperty('--ink-shift',(area.top-node.getBoundingClientRect().top)+'px');
+   }
+  };
+  layout();const observer=new ResizeObserver(layout);observer.observe(el);
+  for(const node of el.querySelectorAll('h1,.price-line,.config-part'))observer.observe(node);
+  let live=true;void document.fonts.ready.then(()=>{if(live)layout();});
+  return ()=>{live=false;observer.disconnect();};
+ },[selected]);
  const isCustom=section>=1&&section<=3;
  const setRange=(key:'closed'|'exploded',value:number)=>{
   if(isCustom)(key==='closed'?s.customFold:s.customExplode)[section-1]=value;
@@ -83,12 +100,12 @@ export default function Experience(){
  const selectedConfig=s.configs[selected],cents=priceInCents(selected,selectedConfig);
  const amount=euros.format(Math.floor(cents/100)),fraction=String(cents%100).padStart(2,'0');
  const product=PRODUCTS[selected],knifeAnchor=s.knifeDestination??Math.round(s.orbit);
- return <main ref={root} className="experience" data-version="55" style={{'--stage-color':STAGE_COLORS[KNIVES[selected]]} as CSSProperties} data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
+ return <main ref={root} className="experience" data-version="56" style={{'--stage-color':STAGE_COLORS[KNIVES[selected]]} as CSSProperties} data-ui-pending={ready===0&&!error} data-section={CHAPTERS[section].toLowerCase()} data-model={KNIVES[selected]}>
   <div className="environment" aria-hidden="true"/>
-  <div className="product-info">
+  <div ref={sheet} className="product-info">
    <h1 className="atmospheric-title" data-product-name><Spread text={KNIVES[selected]}/></h1>
    <div className="price-line">
-    <div className="price" data-price-cents={cents} aria-label={'Prezzo dimostrativo '+amount+','+fraction+' euro'}><span className="currency">€</span>{amount}<small>,{fraction}</small></div>
+    <div className="price" data-price-cents={cents} aria-label={'Prezzo dimostrativo '+amount+','+fraction+' euro'}><span className="currency">€</span><span>{amount}</span><small>,{fraction}</small></div>
     <p className="essence">{product.copy.map(line=><span key={line}>{line}</span>)}</p>
    </div>
    <ConfigurationSummary model={selected} config={selectedConfig} section={section} onSelect={chapter=>go(nearestChapter(s.target,chapter))}/>
@@ -104,10 +121,9 @@ export default function Experience(){
    {([-1,1] as const).map(dir=>{
     const name=dir===-1?'Coltello precedente':'Coltello successivo';
     return <button key={dir} type="button" className="knife-step" aria-label={name} title={name}
-     disabled={!s.ready.includes(mod(knifeAnchor+dir))} onClick={()=>stepKnife(dir)}><Glyph name={dir===-1?'left':'right'} size={36}/></button>;
+     disabled={!s.ready.includes(mod(knifeAnchor+dir))} onClick={()=>stepKnife(dir)}><Chevron left={dir===-1}/></button>;
    })}
   </div>
-  <PoseHud value={isCustom?{...s,closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
   <footer className="control-dock">
    <nav className="sequence-nav" data-chrome aria-label="Navigazione showroom">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Vai a '+name} title={name}
@@ -115,6 +131,7 @@ export default function Experience(){
      <span className="nav-tile"><Glyph name={chapterIcons[i]} size={23}/></span>
     </button>)}
    </nav>
+   <PoseHud value={isCustom?{...s,closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
   </footer>
   <ParticleReveal root={root} chapter={section} model={selected} ready={ready>0}/>
   <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>

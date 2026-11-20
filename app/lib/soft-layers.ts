@@ -1,100 +1,67 @@
 import * as THREE from 'three';
+import {RAIL} from './choreography.ts';
 
-export const REAR_LAYER=2,REAR_DEPTH_LAYER=5;
-const vertex='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
-
-/** Split covered samples by optical depth before filtering. Each defocus band
- * spreads premultiplied light and coverage through a filled circular aperture. */
-export function createSoftLayers(renderer:THREE.WebGLRenderer){
- const type=renderer.extensions.has('EXT_color_buffer_float')?THREE.HalfFloatType:THREE.UnsignedByteType;
- const target=(depth=false)=>new THREE.WebGLRenderTarget(1,1,{type,depthBuffer:depth,stencilBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
- const source=target(true),weighted=target(),bands=[target(),target(),target(),target()];
+// One colour and depth buffer for the entire stage. Optical blur and the
+// subdued distant light follow camera depth, independently of catalogue focus.
+export function createDepthOfField(renderer:THREE.WebGLRenderer){
+ const source=new THREE.WebGLRenderTarget(1,1,{
+  type:renderer.extensions.has('EXT_color_buffer_float')?THREE.HalfFloatType:THREE.UnsignedByteType,
+  depthBuffer:true,stencilBuffer:false,samples:Math.min(2,renderer.capabilities.maxSamples),
+  minFilter:THREE.LinearMipmapLinearFilter,generateMipmaps:true,
+ });
  source.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
- weighted.texture.generateMipmaps=true;weighted.texture.minFilter=THREE.LinearMipmapLinearFilter;
- const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
- function shader(uniforms:Record<string,THREE.IUniform>,fragmentShader:string){
-  return new THREE.ShaderMaterial({uniforms,vertexShader:vertex,fragmentShader,depthTest:false,depthWrite:false,blending:THREE.NoBlending,toneMapped:false});
- }
- const split=shader({uColor:{value:source.texture},uDepth:{value:source.depthTexture},uNear:{value:.05},uFar:{value:80},uFocus:{value:9.5},uBand:{value:0}},
-  `varying vec2 vUv;uniform sampler2D uColor,uDepth;uniform float uNear,uFar,uFocus,uBand;
+ const screen=new THREE.Scene(),lens=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+ const material=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,blending:THREE.NoBlending,
+  uniforms:{uColor:{value:source.texture},uDepth:{value:source.depthTexture},uNear:{value:.05},uFar:{value:80},
+   uFocus:{value:9.5},uFloorAtEye:{value:0},uSlope:{value:RAIL.slope},uTan:{value:.3},uRadius:{value:8},uTexel:{value:new THREE.Vector2()}},
+  vertexShader:'varying vec2 st;void main(){st=uv;gl_Position=vec4(position.xy,0.,1.);}',
+  fragmentShader:`varying vec2 st;uniform sampler2D uColor,uDepth;uniform vec2 uTexel;uniform float uNear,uFar,uFocus,uFloorAtEye,uSlope,uTan,uRadius;
+   float distanceAt(vec2 uv){float z=texture2D(uDepth,uv).r;return uNear*uFar/(uFar-z*(uFar-uNear));}
+   float blurAt(float d){return smoothstep(.10,.51,max(0.,1.-uFocus/d));}
+   bool floorAt(vec2 uv,float d){
+    float slope=(uv.y*2.-1.)*uTan+uSlope;
+    return abs(d*slope-uFloorAtEye)<.04&&d<uFar-.3;
+   }
+   vec4 lightAt(vec2 uv,float d,float lod){
+    vec4 c=textureLod(uColor,uv,lod);
+    if(floorAt(uv,d))return c;
+    c.rgb*=mix(1.,.27,smoothstep(uFocus+2.,uFocus+21.,d));
+    return c;
+   }
    void main(){
-    vec4 light=texture2D(uColor,vUv);float z=texture2D(uDepth,vUv).r;
-    float distanceToSample=uNear*uFar/(uFar-z*(uFar-uNear));
-    float coc=abs(1.-uFocus/distanceToSample);
-    float band=coc<.065?clamp((coc-.004)/.061,0.,1.):
-     (coc<.155?1.+(coc-.065)/.09:2.+clamp((coc-.155)/.225,0.,1.));
-    gl_FragColor=light*max(1.-abs(band-uBand),0.);
-   }`);
- function aperture(radius:2|4){return shader({uMap:{value:weighted.texture},uTexel:{value:new THREE.Vector2()}},
-  `varying vec2 vUv;uniform sampler2D uMap;uniform vec2 uTexel;
-   void main(){
-    vec4 sum=vec4(0.);float total=0.;
-    for(int y=-${radius};y<=${radius};y++){for(int x=-${radius};x<=${radius};x++){
-     vec2 p=vec2(float(x),float(y));float weight=1.-smoothstep(${radius-.15},${radius+.65},length(p));
-     if(weight>0.){sum+=texture2D(uMap,vUv+p*uTexel)*weight;total+=weight;}
-    }}
-    gl_FragColor=sum/total;
-   }`);}
- const smallDisk=aperture(2),disk=aperture(4);
- const copy=shader({uMap:{value:weighted.texture}},'varying vec2 vUv;uniform sampler2D uMap;void main(){gl_FragColor=texture2D(uMap,vUv);}');
- const composite=new THREE.ShaderMaterial({transparent:true,premultipliedAlpha:true,depthTest:false,depthWrite:false,
-  uniforms:{uFine:{value:bands[0].texture},uClose:{value:bands[1].texture},uMiddle:{value:bands[2].texture},uFar:{value:bands[3].texture}},
-  vertexShader:vertex,fragmentShader:`varying vec2 vUv;uniform sampler2D uFine,uClose,uMiddle,uFar;
-   void main(){
-    vec4 c=texture2D(uFine,vUv)+texture2D(uClose,vUv)+texture2D(uMiddle,vUv)+texture2D(uFar,vUv);
-    gl_FragColor=vec4(c.rgb/max(c.a,.00001),min(1.,c.a));
+    float d=distanceAt(st),blur=floorAt(st,d)?0.:blurAt(d);vec4 c=lightAt(st,d,0.);
+    if(c.a<.0001&&textureLod(uColor,st,4.).a<.00001){gl_FragColor=vec4(0.);return;}
+    if(blur>.01){
+     float lod=max(0.,log2(max(1.,uRadius*blur))-.95);
+     vec4 sum=lightAt(st,d,lod);float weights=1.;
+     for(int i=0;i<8;i++){
+      float k=float(i)+.5,r=sqrt(k/8.),a=k*2.399963;
+      vec2 uv=st+vec2(cos(a),sin(a))*r*uTexel*blur;
+      float sampleD=distanceAt(uv),w=smoothstep(.02,.42,blurAt(sampleD));
+      sum+=lightAt(uv,sampleD,lod)*w;weights+=w;
+     }
+     c=sum/weights;
+    }
+    gl_FragColor=vec4(c.rgb/max(c.a,.00001),c.a);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
     gl_FragColor.rgb*=gl_FragColor.a;
    }`});
- const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),copy);quad.frustumCulled=false;scene.add(quad);
- const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
- const targets=[source,weighted,...bands];
- let checked=false,enabled=true,cachedKey='';
- function draw(material:THREE.ShaderMaterial,buffer:THREE.WebGLRenderTarget|null){
-  quad.material=material;renderer.setRenderTarget(buffer);renderer.render(scene,camera);
- }
- function rear(world:THREE.Scene,view:THREE.PerspectiveCamera,focusDistance:number){
-  renderer.setRenderTarget(source);renderer.clear();view.layers.set(REAR_DEPTH_LAYER);world.overrideMaterial=depthOnly;
-  try{renderer.render(world,view);}finally{world.overrideMaterial=null;}
-  view.layers.set(REAR_LAYER);renderer.render(world,view);
-  split.uniforms.uNear.value=view.near;split.uniforms.uFar.value=view.far;split.uniforms.uFocus.value=focusDistance;
-  for(const [i,band] of bands.entries()){
-   split.uniforms.uBand.value=i;draw(split,weighted);
-   const filter=i===1?smallDisk:disk;
-   filter.uniforms.uTexel.value.set(1/band.width,1/band.height);
-   draw(i===0?copy:filter,band);
-  }
- }
+ const mesh=new THREE.Mesh(new THREE.PlaneGeometry(2,2),material);mesh.frustumCulled=false;screen.add(mesh);
+ let valid=true;
  return {
-  get enabled(){return enabled;},
   resize(w:number,h:number){
-   const scale=Math.min(renderer.getPixelRatio(),1.5,Math.sqrt(2100000/(w*h)));
-   const size=(buffer:THREE.WebGLRenderTarget,s:number)=>buffer.setSize(Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s)));
-   size(source,scale);size(weighted,scale);size(bands[0],scale);
-   // Approximately 3, 7 and 17 CSS pixels at 800 px high. The filled disk kernel
-   // operates on prefiltered mip levels, so bright edges stay continuous.
-   size(bands[1],Math.min(scale,2/Math.max(2.5,h*.004)));
-   size(bands[2],Math.min(scale,4/Math.max(4,h*.009)));
-   size(bands[3],Math.min(scale,4/Math.max(10,h*.022)));
-   checked=false;cachedKey='';
+   const ratio=renderer.getPixelRatio();source.setSize(Math.max(1,Math.round(w*ratio)),Math.max(1,Math.round(h*ratio)));
+   const radius=THREE.MathUtils.clamp(h*.009,3.8,11);material.uniforms.uRadius.value=radius*ratio;material.uniforms.uTexel.value.set(radius/w,radius/h);
+   renderer.setRenderTarget(source);const gl=renderer.getContext();
+   valid=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;renderer.setRenderTarget(null);
   },
-  render(world:THREE.Scene,view:THREE.PerspectiveCamera,hero:boolean,focusDistance:number,rearKey:string){
-   if(!enabled)return;const mask=view.layers.mask,alpha=renderer.getClearAlpha();
-   try{
-    renderer.setClearAlpha(0);
-    if(!checked){
-     const gl=renderer.getContext();
-     for(const buffer of targets){renderer.setRenderTarget(buffer);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){enabled=false;return;}}
-     checked=true;
-    }
-    if(hero){
-     if(rearKey!==cachedKey){rear(world,view,focusDistance);cachedKey=rearKey;}
-     draw(composite,null);
-    }else cachedKey='';
-
-   }finally{view.layers.mask=mask;renderer.setRenderTarget(null);renderer.setClearAlpha(alpha);}
+  render(world:THREE.Scene,camera:THREE.PerspectiveCamera,focusDistance:number,floorAtEye:number,slope:number){
+   material.uniforms.uSlope.value=slope;material.uniforms.uFloorAtEye.value=floorAtEye;material.uniforms.uTan.value=Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+   material.uniforms.uFocus.value=focusDistance;material.uniforms.uNear.value=camera.near;material.uniforms.uFar.value=camera.far;
+   renderer.setRenderTarget(valid?source:null);renderer.clear();renderer.render(world,camera);
+   if(valid){renderer.setRenderTarget(null);renderer.render(screen,lens);}
   },
-  dispose(){targets.forEach(t=>t.dispose());[split,smallDisk,disk,copy,composite,depthOnly].forEach(m=>m.dispose());quad.geometry.dispose();}
+  dispose(){source.dispose();material.dispose();mesh.geometry.dispose();}
  };
 }

@@ -20,6 +20,12 @@ export class Carousel {
  request(target:number,reduced=false){
   if(target===this.target){this.manual=true;return;}
   if(this.target===null&&Math.abs(target-this.phase)<1e-8){this.hold=0;return;}
+  // An arrow may reverse a moving carousel. Give its existing momentum time
+  // to decelerate before returning to the new slot.
+  if(this.target!==null){
+   const duration=reduced?.20:Math.min(3.25,Math.max(.78,Math.abs(target-this.phase)*1.25));
+   this.begin(target,duration,true);return;
+  }
   // Quintic Bézier control points enclose the entire release path. Shorten
   // the settle until the incoming derivatives fit the single-slot corridor.
   const distance=target-this.phase;
