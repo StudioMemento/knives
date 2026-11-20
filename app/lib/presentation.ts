@@ -11,11 +11,9 @@ export const rotation=(x:number,y:number,z:number)=>new Quaternion().setFromEule
 const CANONICAL=new Quaternion(0,1,0,0);
 export const presentation=(pitch:number,yaw:number,roll:number)=>rotation(0,0,roll).multiply(rotation(pitch,yaw,0)).multiply(CANONICAL);
 
-/** DOM measurements reserve the same masthead and control rails on every viewport. */
-export function productArea(portrait:boolean,panelTop=portrait?.81:.89,headerBottom=.035,left=.10,right=.90,clearance=.024):ScreenRect{
- const bottom=Math.min(.77,Math.max(.34,panelTop-clearance));
- const top=Math.max(.045,Math.min(bottom-.12,headerBottom+.018));
- return [left,top,right,bottom];
+/** The product can cross the UI gutters. Portrait reserves the actual space above each panel. */
+export function productArea(portrait:boolean,panelTop=portrait?.81:.89):ScreenRect{
+ return [.10,.045,.90,Math.max(.40,Math.min(portrait?.728:.74,panelTop-.018))];
 }
 
 const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;

@@ -26,34 +26,3 @@ export function catalogueChoices(stored:unknown=null):Configuration[] {
   return result;
  });
 }
-
-export function restoreCatalogue(storage: Pick<Storage,'getItem'>) {
- for (const key of [CATALOGUE_KEY, 'memento-knives-ui-v51']) {
-  try {
-   const value = JSON.parse(storage.getItem(key) ?? 'null');
-   if (value && typeof value === 'object') return catalogueChoices(value);
-  } catch { /* Continue to the previous catalogue if a saved entry is damaged. */ }
- }
- const defaults = catalogueChoices();
- let old: unknown;
- try { old = JSON.parse(storage.getItem('memento-knives-v46') ?? 'null'); } catch { return defaults; }
- if (!Array.isArray(old)) return defaults;
- const legacyColours = ['bfc3c6','777e82','35383c','141619','b89c72','ae6950','66313e','273f58'];
- const channels = (hex:string) => [0,2,4].map(i => parseInt(hex.replace('#','').slice(i,i+2),16));
- const finishNames = [/satin|seta/i,/spazz|fresat/i,/stonewash|blast|micro/i,/carbon|trama|venat/i];
- for (const [i,id] of KNIVES.entries()) for (const part of SURFACES) {
-  const saved = old[PREVIOUS_ORDER.indexOf(id)]?.[part];
-  if (!saved) continue;
-  const options = CATALOGUE[id][part];
-  if (Number.isInteger(saved.color) && legacyColours[saved.color]) {
-   const rgb = channels(legacyColours[saved.color]);
-   const distances = options.colors.map(c => channels(c.hex![0]).reduce((d,v,k)=>d+(v-rgb[k])**2,0));
-   defaults[i][part].color = distances.indexOf(Math.min(...distances));
-  }
-  if (Number.isInteger(saved.style) && finishNames[saved.style]) {
-   const match = options.styles.findIndex(v=>finishNames[saved.style].test(v.name));
-   if (match >= 0) defaults[i][part].style=match;
-  }
- }
- return defaults;
-}
