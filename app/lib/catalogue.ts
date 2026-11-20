@@ -1,7 +1,7 @@
 import catalogue from './catalogue-data.json' with {type:'json'};
 import {KNIVES, PREVIOUS_ORDER, type Configuration, type Surface} from './state.ts';
 
-export type Option = {name:string; description:string; motif?:string; hex?:string[]};
+export type Option = {name:string; description:string; surcharge:number; motif?:string; hex?:string[]};
 export type Collection = {swatchRow:number; default:number[]; colors:Option[]; styles:Option[]};
 type Knife = typeof KNIVES[number];
 export const CATALOGUE:Record<Knife,Record<Surface,Collection>>=catalogue;
@@ -25,4 +25,15 @@ export function catalogueChoices(stored:unknown=null):Configuration[] {
   }
   return result;
  });
+}
+
+// Demo prices in whole euros. Each option carries its own supplement in the catalogue.
+const basePrices: Record<Knife, number> = {HYPER:179, VERTEX:219, EDGE:169, TRIS:199, QUAD:209};
+
+export function configurationPrice(knife: Knife, config: Configuration): number {
+ return SURFACES.reduce((total, surface) => {
+  const options = CATALOGUE[knife][surface];
+  const selection = config[surface];
+  return total + options.styles[selection.style].surcharge + options.colors[selection.color].surcharge;
+ }, basePrices[knife]);
 }

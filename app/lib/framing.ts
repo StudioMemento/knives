@@ -66,14 +66,16 @@ export function sliceRange(meshes:Mesh[],axis:Vector3,axisIndex=0){
 /** Translate the complete, posed object past a screen edge. The extra width
  * accounts for the off-camera handle in a blade close-up. */
 export function slideTravel(camera:PerspectiveCamera,meshes:Mesh[],direction:number){
- const p=new Vector3(),t=Math.tan(camera.fov*Math.PI/360)*camera.aspect;
+ const p=new Vector3();
+ const projection=camera.projectionMatrix.elements;
+ const edge=(1.05+direction*projection[8])/projection[0];
  let distance=0;
  for(const mesh of meshes){
   if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
   const box=mesh.geometry.boundingBox!;
   for(let i=0;i<8;i++){
    p.set(i&1?box.max.x:box.min.x,i&2?box.max.y:box.min.y,i&4?box.max.z:box.min.z).applyMatrix4(mesh.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
-   distance=Math.max(distance,-p.z*t*1.05-direction*p.x);
+   distance=Math.max(distance,-p.z*edge-direction*p.x);
   }
  }
  return distance;

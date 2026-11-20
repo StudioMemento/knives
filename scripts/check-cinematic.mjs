@@ -4,7 +4,7 @@ import {Vector3,PerspectiveCamera,Euler} from 'three';
 import {chapterFrame,stageFrame,livingPose,productArea,CAMERA_DISTANCE,DISPLAY} from '../app/lib/presentation.ts';
 import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography.ts';
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
-import {CATALOGUE,catalogueChoices,SURFACES} from '../app/lib/catalogue.ts';
+import {CATALOGUE,catalogueChoices,configurationPrice,SURFACES} from '../app/lib/catalogue.ts';
 
 const metas=JSON.parse(fs.readFileSync('public/models/v48/manifest.json')).models;
 const hulls=JSON.parse(fs.readFileSync('app/lib/shot-outlines.json'));
@@ -72,3 +72,24 @@ const keyed=Object.fromEntries(KNIVES.map((id,i)=>[id,migrated[i]]));keyed.EDGE.
 assert.deepEqual(catalogueChoices(keyed)[2].handle,catalogueChoices()[2].handle);
 assert.deepEqual(catalogueChoices(keyed)[3].blade,migrated[3].blade);
 console.log('PASS — '+count+' fitted silhouettes, 15° idle tilt, circular rail, bidirectional slide and keyed catalogue migration');
+
+const defaults=catalogueChoices();
+for(const [i,knife] of KNIVES.entries()){
+ const configuration=defaults[i],base=configurationPrice(knife,configuration);
+ let maximum=base;
+ for(const surface of SURFACES){
+  for(const [key,options] of [['color',CATALOGUE[knife][surface].colors],['style',CATALOGUE[knife][surface].styles]]){
+   const initial=configuration[surface][key];
+   assert.equal(options[initial].surcharge,0);
+   assert.equal(new Set(options.map(o=>o.surcharge)).size,options.length);
+   for(const [n,option] of options.entries()){
+    configuration[surface][key]=n;
+    assert.equal(configurationPrice(knife,configuration),base+option.surcharge);
+   }
+   configuration[surface][key]=initial;
+   maximum+=Math.max(...options.map(o=>o.surcharge));
+  }
+ }
+ assert.ok(base>=100 && maximum<=999);
+}
+console.log('PASS — each of the 180 catalogue options updates its own three-digit configuration price');

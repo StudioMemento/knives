@@ -1,4 +1,4 @@
-import {hasManualRotation,mod,rotateProduct,sectionAt,type DemoState} from './state.ts';
+import {clamp,ZOOM_LIMITS,mod,rotateProduct,sectionAt,type DemoState} from './state.ts';
 
 type Point={x:number;y:number};
 type Contact={start:Point;last:Point};
@@ -11,6 +11,11 @@ type Callbacks={
 const TAP_SLOP=7;
 const point=(e:PointerEvent):Point=>({x:e.clientX,y:e.clientY});
 const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+function zoomBy(s:DemoState, factor:number) {
+ const next = clamp(s.zoom * factor, ZOOM_LIMITS.min, ZOOM_LIMITS.max);
+ if (next !== s.zoom) {s.zoom = next;s.activity++;}
+}
 
 export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Callbacks){
  const contacts=new Map<number,Contact>();
@@ -36,6 +41,11 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   const p=point(e);
   if(mode==='multi'){
    if(distance(contact.start,p)>TAP_SLOP)multiFocus=null;
+   if(contacts.size===2 && !multiFocus) {
+    const other=[...contacts.values()].find(c=>c!==contact)!;
+    const before=distance(other.last,contact.last),after=distance(other.last,p);
+    if(before>8 && after>8)zoomBy(s,after/before);
+   }
   }else{
    if(mode==='tap'&&distance(contact.start,p)<=TAP_SLOP)return;
    mode='orbit';lastTap=null;
@@ -70,9 +80,8 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   if(e.ctrlKey||e.metaKey||!s.ready.length)return;
   e.preventDefault();
   const unit=e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1;
-  const wasRotated=hasManualRotation(s);
-  rotateProduct(s,-e.deltaX*unit*.005,-e.deltaY*unit*.005);
-  if(wasRotated!==hasManualRotation(s))callbacks.renderUI();
+  const delta = clamp(e.deltaY * unit, -300, 300);
+  zoomBy(s, Math.exp(-delta * .0024));
  }
  function key(e:KeyboardEvent){
   if(e.altKey||e.ctrlKey||e.metaKey||!s.ready.length)return;

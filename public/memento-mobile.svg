@@ -1,4 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="110 110 1424 64" fill="white">
+  <view id="letter-m" viewBox="112.30 121.735 40 40"/>
+  <view id="letter-e" viewBox="342.20 121.735 40 40"/>
+  <view id="letter-n" viewBox="1031.90 121.735 40 40"/>
+  <view id="letter-t" viewBox="1261.80 121.735 40 40"/>
+  <view id="letter-o" viewBox="1491.70 121.735 40 40"/>
   <g id="V_E_C" data-name="V E C">
     <g>
       <polygon points="170.08 113.39 170.08 170.08 164.41 164.41 164.41 126.62 141.73 149.29 119.05 126.62 119.05 164.41 113.39 170.08 113.39 113.39 141.73 141.73 170.08 113.39" transform="translate(132.30 141.735) scale(.66) translate(-141.735 -141.735)" />

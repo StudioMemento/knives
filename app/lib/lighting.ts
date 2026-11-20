@@ -52,7 +52,8 @@ export function createLightStage(){
  group.add(spot,spot.target);
  const aim=new THREE.Vector3();
  const lightColor=new THREE.Color(STAGE_COLORS.HYPER),target=new THREE.Color();
- return {group,update(index:number,dt:number,hero?:THREE.Vector3){
+ return {group,update(index:number,dt:number,hero?:THREE.Vector3,keyPercent=100){
+  spot.intensity=145*keyPercent/100;
   aim.set(hero?.x??0,hero?.y??.35,hero?.z??0).sub(group.position);spot.target.position.copy(aim);
   target.set(STAGE_COLORS[KNIVES[index]]);lightColor.lerp(target,1-Math.exp(-4*dt));
   emitter.color.copy(lightColor);halo.uniforms.uLight.value.copy(lightColor);

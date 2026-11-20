@@ -11,7 +11,8 @@ import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,an
 import {MotionValue,orbitAngle} from './lib/motion';
 import {createLightStage} from './lib/lighting';
 import {fitBoundsScale,slideTravel} from './lib/framing';
-import {createCutSurface,setCutPlane} from './lib/cut-surface';
+import {alignStageCamera,focusLens} from './lib/optics';
+import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
 import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
@@ -23,7 +24,7 @@ type Props={
 };
 type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
- parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:THREE.Mesh[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
+ parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:{source:THREE.Mesh;image:THREE.Mesh}[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
  fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
@@ -33,9 +34,10 @@ export default function Stage({state,...callbacks}:Props){
  const canvas=useRef<HTMLCanvasElement>(null);const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
   if(!canvas.current)return;const s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
-  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,stencil:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL non disponibile. Apri la demo in un browser con accelerazione grafica.');return;}
-  renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.localClippingEnabled=true;renderer.autoClear=false;
+  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL non disponibile. Apri la demo in un browser con accelerazione grafica.');return;}
+  renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
+  const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
   const textures=makeTextures(),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
   const pmrem=new THREE.PMREMGenerator(renderer),studio=new THREE.Scene();
   studio.background=new THREE.Color('#101119');
@@ -50,8 +52,6 @@ export default function Stage({state,...callbacks}:Props){
   const lightStage=createLightStage();scene.add(lightStage.group);
   const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);let metas:ModelMeta[]=[],warmed=false;
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
-  const cutSurface=createCutSurface(renderer);
-  const clipPlanes=[new THREE.Plane(),new THREE.Plane(),new THREE.Plane()];
   const getRole=(mesh:THREE.Mesh):Surface=>{const mat=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;const name=String(mesh.userData.materialRole||mat.name||mesh.name).toLowerCase();return name.includes('blade')?'blade':name.includes('handle')?'handle':'metals';};
   async function load(index:number){
    const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Manifest modello mancante: '+KNIVES[index]);
@@ -59,9 +59,17 @@ export default function Stage({state,...callbacks}:Props){
    const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
    const materials={blade:makeMaterial('blade'),handle:makeMaterial('handle'),metals:makeMaterial('metals')};
    for(const role of ['blade','handle','metals'] as const){const m=materials[role];m.transparent=true;m.depthWrite=true;m.forceSinglePass=true;finishMaterial(m,role,state.current.configs[index][role],textures);}
-   const meshes:THREE.Mesh[]=[],mirrors:THREE.Mesh[]=[];
-   gltf.scene.traverse(o=>{if(!(o instanceof THREE.Mesh))return;const role=getRole(o);o.material=materials[role];o.frustumCulled=false;o.userData.surface=role;o.layers.set(index===state.current.selected?FRONT:REAR_LAYER);meshes.push(o);
-    const mirror=new THREE.Mesh(o.geometry,new THREE.MeshBasicMaterial({color:role==='handle'?'#5b5249':'#bca082',transparent:true,opacity:role==='handle'?.20:.35,side:THREE.DoubleSide,depthWrite:false,forceSinglePass:true}));mirror.matrixAutoUpdate=false;mirror.frustumCulled=false;mirror.layers.set(REFLECTION_LAYER);reflectionGroup.add(mirror);mirrors.push(mirror);
+   const meshes:THREE.Mesh[]=[],mirrors:Rig['mirrors']=[];
+   gltf.scene.traverse(object=>{
+    if(!(object instanceof THREE.Mesh))return;
+    const role=getRole(object);
+    object.material=materials[role];object.frustumCulled=false;object.userData.surface=role;
+    object.layers.set(index===state.current.selected?FRONT:REAR_LAYER);meshes.push(object);
+    if(role!=='metals'){
+     const image=new THREE.Mesh(object.geometry,contact);
+     image.matrixAutoUpdate=false;image.frustumCulled=false;image.layers.set(REFLECTION_LAYER);
+     reflectionGroup.add(image);mirrors.push({source:object,image});
+    }
    });
    const mixer=new THREE.AnimationMixer(gltf.scene),openClip=gltf.animations.find(c=>c.name===meta.motion.openCloseClip),explodeClip=gltf.animations.find(c=>c.name===meta.motion.explodeClip);if(!openClip||!explodeClip)throw Error('Animazioni non disponibili: '+meta.id);
    const open=mixer.clipAction(openClip),parts=createExplosion(gltf.scene,explodeClip,meta.motion.explodePeakTime);for(const action of [open]){action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
@@ -86,33 +94,38 @@ export default function Stage({state,...callbacks}:Props){
   }catch(e){if(!dead)props.current.onError('Caricamento 3D non riuscito: '+(e instanceof Error?e.message:String(e)));}})();
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
-  const panels=[host.querySelector<HTMLElement>('[data-pose]')!,...host.querySelectorAll<HTMLElement>('.hud-layer [data-panel]')];
-  let areas:ScreenRect[]=[];
+  const pager=host.querySelector<HTMLElement>('.knife-nav')!;
+  const dock=host.querySelector<HTMLElement>('.control-dock')!;
+  let shotRect:ScreenRect=productArea(false),lastRingLine=-1;
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
-   const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,areas[0]);
-   rig.shots=[hero,...[1,2,3,4].map(i=>chapterFrame(i,rig.meta,hero,viewWidth,viewHeight,portrait,areas[i])),hero];
+   const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,shotRect);
+   rig.shots=[hero,...[1,2,3,4].map(i=>chapterFrame(i,rig.meta,hero,viewWidth,viewHeight,portrait,shotRect)),hero];
   }
   const resize=()=>{
    const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);
+   const ringLine=(pager.getBoundingClientRect().top-element.getBoundingClientRect().top)/h;
    const changed=w!==width||h!==height;
-   width=w;height=h;portrait=h>w;
+   if(!changed && Math.abs(lastRingLine-ringLine)<.00001)return;
+   width=w;height=h;portrait=h>w;lastRingLine=ringLine;
    if(changed){
     const pixels=portrait?1150000:2250000;
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
-    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();camera.updateMatrixWorld();
-    viewHeight=2*Math.tan(camera.fov*Math.PI/360)*camera.position.z;viewWidth=viewHeight*camera.aspect;
-    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+    renderer.setSize(w,h,false);
+    viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
-   const top=element.getBoundingClientRect().top;
-   const next=panels.map(panel=>productArea(portrait,(panel.getBoundingClientRect().top-top)/h));
-   if(!changed&&next.every((rect,i)=>rect[3]===areas[i]?.[3]))return;
-   areas=[...next,next[0]];
+   const shift=alignStageCamera(camera,w,h,ringLine);
+   productCamera.copy(camera,false);productCamera.updateMatrixWorld();
+   frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+   const [left,top,right,bottom]=productArea(portrait,ringLine);
+   // The fitted-shot solver uses an unshifted lens. Account for the stage composition once here.
+   shotRect=[left,top+shift,right,bottom+shift];
    for(const rig of rigs)if(rig)frameShots(rig);
   };
-  resize();const observer=new ResizeObserver(resize);observer.observe(element);
-  for(const panel of panels)observer.observe(panel);
+  resize();
+  const observer=new ResizeObserver(resize);
+  for(const observed of [element,pager,dock])observer.observe(observed);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
   raycaster.layers.enableAll();
@@ -120,10 +133,8 @@ export default function Stage({state,...callbacks}:Props){
    const rig=rigs[s.selected];if(!rig)return null;
    const rect=element.getBoundingClientRect();
    ndc.set((x-rect.left)/rect.width*2-1,1-(y-rect.top)/rect.height*2);
-   raycaster.setFromCamera(ndc,camera);
-   const hits=raycaster.intersectObjects(rig.meshes,false);
-   const planes=rig.materials.blade.clippingPlanes??[];
-   const hit=hits.find(h=>planes.every(p=>p.distanceToPoint(h.point)>=-.0001));
+   raycaster.setFromCamera(ndc,productCamera);
+   const [hit]=raycaster.intersectObjects(rig.meshes,false);
    if(hit)return rig.scene.worldToLocal(hit.point.clone());
    if(!allowPlane)return null;
    const point=raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,0,1),-rig.group.position.z),new THREE.Vector3());
@@ -142,12 +153,12 @@ export default function Stage({state,...callbacks}:Props){
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
   element.addEventListener('pointermove',cursorMove,{passive:true});element.addEventListener('pointerleave',cursorLeave);
-  const carousel=new Carousel(),scroll=new MotionValue(),fold=new MotionValue(),explosion=new MotionValue();
+  const carousel=new Carousel(),scroll=new MotionValue(),zoom=new MotionValue(1),fold=new MotionValue(),explosion=new MotionValue();
   const customFold=s.customFold.map(x=>new MotionValue(x)),customExplode=s.customExplode.map(x=>new MotionValue(x));
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
   const mirrorMatrix=new THREE.Matrix4(),mirrorFlip=new THREE.Matrix4().makeScale(1,-1,1);
   function renderProducts(sharp:boolean){
-   scene.environmentIntensity=sharp?1.10:.36;
+   scene.environmentIntensity=(sharp?1.10:.36)*s.lighting.fill/100;
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
     const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
@@ -174,7 +185,7 @@ export default function Stage({state,...callbacks}:Props){
    s.progress=scroll.step(s.target,dt,s.reduced?25:8);
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
-   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&!hasManualRotation(s);
+   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&s.zoom===1&&!hasManualRotation(s);
    if(!auto&&s.knifeDestination===null&&!carousel.manuallyTravelling&&Math.abs(carousel.phase-Math.round(carousel.phase))>1e-5)carousel.request(Math.round(carousel.phase),s.reduced);
    const phase=carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
@@ -192,6 +203,10 @@ export default function Stage({state,...callbacks}:Props){
     lifeTime+=dt;idle=livingPose(lifeTime,cursorX.step(cursor.x,dt,5),cursorY.step(cursor.y,dt,5),s.reduced);
    }
    const current=rigs[s.selected],macro=s.view==='clip'||s.view==='screw'?s.view:null;
+   if(current)lightAim.lerpVectors(current.shots[chapter].position,current.shots[chapter+1].position,blend);
+   const magnification=s.reduced?s.zoom:zoom.step(s.zoom,dt,16);
+   focusLens(productCamera,camera,lightAim,magnification);
+   reflectionProjection.value=height*productCamera.projectionMatrix.elements[5];
    let viewOffset:THREE.Quaternion;
    if(macro&&current){
     const part=current.details[macro];
@@ -206,14 +221,14 @@ export default function Stage({state,...callbacks}:Props){
    const foldValue=fold.step(s.closed,dt,10),explodeValue=explosion.step(s.exploded,dt,9);
    customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
    mirrorMatrix.makeTranslation(0,2*RAIL.floorY,0).multiply(mirrorFlip);
-   let caps:THREE.Plane[]=[],visibleRear=false;
+   let visibleRear=false;
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
     const delta=slotOffset(i,phase),railSlot=slotOffset(i,railPhase);
     rig.visibility=front?1:rearAlpha*railVisibility(railSlot);
     rig.group.visible=rig.visibility>.001;
-    if(!rig.group.visible){for(const mirror of rig.mirrors)mirror.visible=false;continue;}
+    if(!rig.group.visible){for(const {image} of rig.mirrors)image.visible=false;continue;}
     const stage=rig.shots[0],scenicScale=.36;
     if(!front){
      const angle=orbitAngle(railSlot),spin=s.reduced?i*1.31:time*.43+i*1.31;
@@ -251,47 +266,40 @@ export default function Stage({state,...callbacks}:Props){
       cap=clamp(Math.min(viewWidth*.67,viewHeight*.52)*(macro==='screw'?.24:1)/extent,1,12);
      }else if(inspectWeight>.001&&(s.view!=='side'||hasManualRotation(s))&&!s.focus){
       for(const mesh of rig.fitMeshes)mesh.matrixWorld.multiplyMatrices(rig.scene.matrixWorld,mesh.matrix);
-      cap=fitBoundsScale(camera,rig.group,rig.fitMeshes,areas[4]);
+      cap=fitBoundsScale(camera,rig.group,rig.fitMeshes,shotRect);
      }
      if(inspectWeight>.001)rig.fit+=(1+(cap-1)*inspectWeight-rig.fit)*(1-Math.exp(-dt*10));
      else rig.fit=1;
      rig.group.scale.multiplyScalar(rig.fit);rig.group.updateMatrixWorld(true);
      if(Math.abs(delta)>.00001){
       const direction=Math.sign(delta);
-      rig.group.position.x+=direction*exitFraction(delta)*slideTravel(camera,rig.meshes,direction);
+      rig.group.position.x+=direction*exitFraction(delta)*slideTravel(productCamera,rig.meshes,direction);
      }
     }
     rig.group.updateMatrixWorld(true);
     if(!front&&!visibleRear)visibleRear=rig.meshes.some(mesh=>frustum.intersectsObject(mesh));
     const configKey=JSON.stringify(s.configs[i]);
     if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],role,s.configs[i][role],textures);rig.key=configKey;}
-    const planes:THREE.Plane[]=[];
-    if(front&&inspectWeight>.98){
-     for(let k=0;k<3;k++)if(s.cuts[k]>0){setCutPlane(clipPlanes[k],k,s.cuts[k],rig.group.quaternion,rig.meshes);planes.push(clipPlanes[k]);}
-     caps=planes;
+    for(const {source,image} of rig.mirrors) {
+     image.visible=front;
+     if(!front)continue;
+     image.matrix.multiplyMatrices(mirrorMatrix,source.matrixWorld);
+     image.matrixWorldNeedsUpdate=true;
     }
-    for(const mat of Object.values(rig.materials))mat.clippingPlanes=planes;
-    rig.mirrors.forEach((mirror,j)=>{
-     mirror.visible=rig.meshes[j].userData.surface!=='metals'&&(front||!portrait)&&!planes.length;
-     if(!mirror.visible)return;
-     (mirror.material as THREE.MeshBasicMaterial).opacity=(rig.meshes[j].userData.surface==='handle'?.14:.22)*rig.visibility;
-     mirror.matrix.multiplyMatrices(mirrorMatrix,rig.meshes[j].matrixWorld);mirror.matrixWorldNeedsUpdate=true;
-    });
    }
    const active=rigs[s.selected];
-   if(active)lightAim.lerpVectors(active.shots[chapter].position,active.shots[chapter+1].position,blend);
-   const tint=lightStage.update(s.selected,dt,lightAim);
+   ambient.intensity=.23*s.lighting.fill/100;rim.intensity=.82*s.lighting.rim/100;
+   const tint=lightStage.update(s.selected,dt,lightAim,s.lighting.key);
    // Rear motion is slow and defocused. Reuse its optical integration between
    // updates, and indefinitely while reduced motion holds the scenery still.
-   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.reduced?0:Math.floor(time*30)].join('/');
+   const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.lighting.key,s.lighting.fill,s.reduced?0:Math.floor(time*30)].join('/');
 
    try{
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
-    renderProducts(false);soft.render(scene,camera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
+    renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
-    renderProducts(true);renderer.clearDepth();camera.layers.set(FRONT);
-    renderer.render(scene,camera);
-    if(active&&caps.length)cutSurface.render(camera,active.meshes,caps);
+    renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
+    renderer.render(scene,productCamera);
    }catch(e){props.current.onError('Errore di rendering. Riprova per ripristinare la scena.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.progress,s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
@@ -299,15 +307,15 @@ export default function Stage({state,...callbacks}:Props){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
-   element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.interacting);
+   element.dataset.zoom=magnification.toFixed(3);element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.interacting);
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
    element.removeEventListener('pointermove',cursorMove);element.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
-   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());rig.mirrors.forEach(m=>(m.material as THREE.Material).dispose());}
-   textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();cutSurface.dispose();renderer.dispose();
+   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
+   textures.forEach(t=>t.dispose());env.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa i tasti freccia per ruotare in tutte le direzioni."/>;
+ return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa le frecce per ruotare. Usa la rotella o due dita per lo zoom."/>;
 }

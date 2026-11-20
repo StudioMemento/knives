@@ -1,26 +1,23 @@
-# Memento Knives V54
+# Memento Knives V57
 
-Lo ZIP contiene il progetto Next.js, i cinque modelli originali, i font e i campioni del catalogo. L’ordine nello showroom è Hyper, Vertex, Edge, Tris e Quad.
+Showroom dei cinque modelli, sviluppato sulla V54. La radice dello ZIP è la radice del progetto Next.js per Vercel. Il preset è Next.js e la build produce il sito statico in `out/`.
 
-## Avvio e pubblicazione
+## Avvio
 
-Estrai lo ZIP nella radice della copia di lavoro del progetto. Allo stesso livello devono comparire `package.json`, `vercel.json`, `app/` e `public/`. Vercel usa il preset Next.js. La build genera il sito statico in `out/`.
+Con Node.js 22.18 o successivo, esegui `npm ci` e `npm run dev`. Per validare il progetto usa `npm run check`, `npm test` e `npm run build`.
 
-Con Node.js 22.18 o successivo puoi avviare l’anteprima locale.
+## Interfaccia
 
-```sh
-npm ci
-npm run dev
-```
+Il logo e la navbar occupano l’80% centrale del viewport. La scheda prodotto occupa l’80% sotto 700 px, il 70% da 700 px e il 60% da 1200 px. Su schermi larghi almeno 1500 px con rapporto di almeno 2,1:1 occupa il 40%. I telefoni in orizzontale con altezza fino a 500 px mantengono la scheda all’80%.
 
-Per verificare la versione prima della pubblicazione esegui `npm run check`, `npm test` e `npm run build`.
+Le cinque icone inferiori aprono Stage, Blade, Handle, Details e Inspect. Material e Color sono centrati sulle prime due coppie di icone. I comandi per la posa sono sulla verticale della quinta icona. I chevron e i cinque punti sotto l’anello selezionano il modello nella sezione aperta.
 
-## Interazioni
+Il riepilogo riporta materiale e colore di Blade, Handle e Details. Le scelte del catalogo sono salvate per modello anche dopo il ricaricamento. I prezzi sono dimostrativi, in euro interi. Il prezzo base per modello è in `app/lib/catalogue.ts` e ogni alternativa ha un supplemento `surcharge` in `app/lib/catalogue-data.json`. Le opzioni di serie hanno supplemento zero.
 
-Le cinque icone in basso aprono le sezioni. I chevron ai lati, a metà altezza, scorrono fra i coltelli nella sezione aperta. Trascina sullo stage in qualsiasi direzione per ruotare il modello. Il trackpad e la rotella ruotano sullo stesso canvas. Un tap deliberato sul modello nello Stage apre Blade. Da tastiera, le frecce orizzontali cambiano coltello e quelle verticali cambiano sezione. Con il focus sul modello le frecce lo ruotano. Con il focus su uno slider ne regolano il valore.
+## Camera e luci
 
-I due pulsanti sopra la navbar aprono o chiudono la lama e attivano o richiudono la vista esplosa. La cornice indica lo stato. In Inspect, le viste laterale, dall’alto, frontale, prospettica, clip e viti affiancano i tagli X, Y e Z. Su Edge la quinta vista inquadra l’anello posteriore. Le macro seguono il particolare anche nell’esploso. I tagli seguono la rotazione. Il reset ripristina posa, camera e sezioni.
+Trascina per ruotare il modello. La rotella o il pinch regolano lo zoom ottico fra 0,8× e 2,8× rispetto all’inquadratura attiva. Il punto inquadrato resta fermo durante lo zoom. Aprire un’altra sezione, selezionare un altro modello o scegliere una vista ripristina l’inquadratura di riferimento.
 
-Il riepilogo sotto il prezzo mostra una riga per Blade, Handle e Details. Il campione combina la finitura e il colore. I selettori Material e Color conservano le scelte per modello e componente.
+Inspect offre sei inquadrature e tre luci regolabili. Key controlla lo spot, Fill il riempimento ambiente e Rim la luce di contorno. Il valore iniziale del 100% corrisponde all’illuminazione V54. Le luci seguono la sessione e si applicano ai cinque modelli.
 
-Il centro dell’anello e la sua quota sono definiti in `app/lib/choreography.ts`. In `app/lib/lighting.ts`, `STAGE_COLORS` assegna una luce a ogni modello. Uno spot superiore illumina il primo piano. La profondità di campo del gruppo sullo sfondo usa la distanza effettiva dei pixel dal piano di fuoco.
+Le frecce orizzontali cambiano modello e le verticali cambiano sezione. Con il focus sul canvas le frecce ruotano il modello. Con il focus su una luce regolano il suo valore.

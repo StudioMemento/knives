@@ -50,7 +50,7 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
   vertexShader:vertex,fragmentShader:`varying vec2 vUv;uniform sampler2D uFine,uClose,uMiddle,uFar,uReflection;uniform float uFloor;
    void main(){
     vec4 c;
-    if(uFloor>.5){c=texture2D(uReflection,vUv);c*=.50*smoothstep(.015,.32,vUv.y);}
+    if(uFloor>.5){c=texture2D(uReflection,vUv);c*=.38;}
     else{c=texture2D(uFine,vUv)+texture2D(uClose,vUv)+texture2D(uMiddle,vUv)+texture2D(uFar,vUv);}
     gl_FragColor=vec4(c.rgb/max(c.a,.00001),min(1.,c.a));
     #include <tonemapping_fragment>
@@ -66,8 +66,8 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
  }
  function reflect(world:THREE.Scene,view:THREE.PerspectiveCamera){
   view.layers.set(REFLECTION_LAYER);renderer.setRenderTarget(reflection);renderer.clear();renderer.render(world,view);
-  blur.uniforms.uMap.value=reflection.texture;blur.uniforms.uStep.value.set(5/width,0);draw(blur,blurBuffer);
-  blur.uniforms.uMap.value=blurBuffer.texture;blur.uniforms.uStep.value.set(0,8/height);draw(blur,reflection);
+  blur.uniforms.uMap.value=reflection.texture;blur.uniforms.uStep.value.set(2.2/width,0);draw(blur,blurBuffer);
+  blur.uniforms.uMap.value=blurBuffer.texture;blur.uniforms.uStep.value.set(0,3.8/height);draw(blur,reflection);
   composite.uniforms.uFloor.value=1;draw(composite,null);
  }
  function rear(world:THREE.Scene,view:THREE.PerspectiveCamera,focusDistance:number){
@@ -95,7 +95,7 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
    size(bands[3],Math.min(scale,4/Math.max(10,h*.022)));
    const mirrorScale=Math.min(.45,720/Math.max(w,h));size(reflection,mirrorScale);size(blurBuffer,mirrorScale);checked=false;cachedKey='';
   },
-  render(world:THREE.Scene,view:THREE.PerspectiveCamera,hero:boolean,focusDistance:number,rearKey:string){
+  render(world:THREE.Scene,view:THREE.PerspectiveCamera,reflectionView:THREE.PerspectiveCamera,hero:boolean,focusDistance:number,rearKey:string){
    if(!enabled)return;const mask=view.layers.mask,alpha=renderer.getClearAlpha();
    try{
     renderer.setClearAlpha(0);
@@ -104,7 +104,7 @@ export function createSoftLayers(renderer:THREE.WebGLRenderer){
      for(const buffer of targets){renderer.setRenderTarget(buffer);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){enabled=false;return;}}
      checked=true;
     }
-    reflect(world,view);
+    reflect(world,reflectionView);
     if(hero){
      if(rearKey!==cachedKey){rear(world,view,focusDistance);cachedKey=rearKey;}
      composite.uniforms.uFloor.value=0;draw(composite,null);

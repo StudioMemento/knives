@@ -18,20 +18,6 @@ export function makeTextures(){
 }
 export function makeMaterial(role:Surface){
  const material=new THREE.MeshStandardMaterial({name:role,color:role==='handle'?'#34363b':'#b1b5b8',roughness:role==='handle'?.46:.28,metalness:role==='handle'?.15:1,envMapIntensity:1.7,side:THREE.DoubleSide});
- material.onBeforeCompile=shader=>{
-  shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>',`
-   #if NUM_CLIPPING_PLANES > 0
-    float cutDistance=1.e5;
-    for(int axis=0;axis<NUM_CLIPPING_PLANES;axis++){
-     cutDistance=min(cutDistance,clippingPlanes[axis].w-dot(vClipPosition,clippingPlanes[axis].xyz));
-    }
-    float pixels=cutDistance/max(fwidth(cutDistance),.00045);
-    float core=1.-smoothstep(.0,1.1,pixels);
-    outgoingLight+=vec3(3.4,.38,.06)*exp(-max(pixels,0.)*.68)+vec3(4.2,3.0,1.6)*core;
-   #endif
-   #include <opaque_fragment>
-  `);
- };
  return material;
 }
 export function finishMaterial(material:THREE.MeshStandardMaterial,role:Surface,finish:Finish,textures:THREE.Texture[]){

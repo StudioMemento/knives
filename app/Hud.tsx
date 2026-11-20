@@ -1,7 +1,7 @@
 'use client';
 import type {CSSProperties} from 'react';
 import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
-import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
+import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Lighting,type LightChannel,type Surface,type View} from './lib/state';
 export function Glyph({name,size=26}:{name:string;size?:number}){
  const paths:Record<string,React.ReactNode>={
   stageIcon:<><path d="m2.5 10 9.5-7.4 9.5 7.4M5.4 9v11h5v-6h3.2v6h5V9"/></>,
@@ -13,7 +13,6 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   blade:<><path d="M6.2 15.6h13a2 2 0 0 1 0 4H6.4a2.2 2.2 0 0 1-.2-4.4Z"/><circle cx="6.4" cy="17.6" r=".64" fill="currentColor" stroke="none"/><path d="m5.7 14 4-10.6c1.7 4.9.6 8.8-1.6 11M13.5 6.9a8.8 8.8 0 0 1 5.2 5.6m-3.1-.9 3.2 1.2 1-3.1"/></>,
   explode:<><path d="m3 7 9-4 9 4-9 4Z"/><path d="m3 11 9 4 9-4M3 15l9 4 9-4"/></>,
   orbit:<><path d="m7 3-4 4v6l4 4h8l5-5V6l-4-3h-4M20 3v4h-4"/><path d="m3 17 1-4 4 1"/><path d="M11 10h2v2h-2Z"/></>,
-  reset:<><path d="M5 7 9 3h7l5 5v7l-5 5H9l-5-5M4 3v5h5"/></>,
   clip:<><path d="M6.5 15.5 15.8 6.2a3 3 0 0 1 4.2 4.2L8.8 21.6a4.3 4.3 0 0 1-6.1-6.1l12-12" transform="translate(1 -1) scale(.94)"/></>,
   loop:<><rect x="3.8" y="5.8" width="16.4" height="12.4" rx="2" transform="rotate(-24 12 12)"/><path d="m4.5 13 3 4"/></>,
   screw:<><path d="m5 5 3-2 4 4-1 3L8 12l-4-4Z M10 11l8.5 8.5 2-2L12 9m1.8 6.6L16 13m.3 5.1 2.3-2.6"/></>,
@@ -23,10 +22,22 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   edge:<path d="m12 3-2 7v11h4V10Z"/>,
   perspective:<><path d="m3 16 6-8 4-1 8-3v4l-8 6-2-1-7 5Z"/><path d="m13 7 1 5"/></>,
  };
- return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]??paths.reset}</svg>;
+ return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
-export function Brand(){
- return <picture><source media="(max-width:699px), (max-height:500px) and (orientation:landscape) and (pointer:coarse)" srcSet="/memento-mobile.svg"/><img className="wordmark" src="/memento-typo.svg" alt="Memento" width="1424" height="64" draggable={false}/></picture>;
+export function Brand() {
+ return <span className="wordmark" aria-hidden="true">
+  {Array.from('memento', (letter, i) =>
+   <img key={i} src={'/memento-mobile.svg#letter-' + letter} alt="" draggable={false} width="16" height="16"/>
+  )}
+ </span>;
+}
+
+export function TrackedLetters({text}: {text:string}) {
+ return Array.from(text, (letter, i) => <span key={i} aria-hidden="true">{letter}</span>);
+}
+
+function PanelTitle({text}: {text:string}) {
+ return <h2 className="panel-title" aria-label={text}><TrackedLetters text={text}/></h2>;
 }
 
 const surfaceNames={blade:'lama',handle:'manico',metals:'dettagli'};
@@ -37,17 +48,17 @@ function Sample({item,index,row}:{item:Option;index:number;row:number}){
  return <span className={item.motif?'sample motif-'+item.motif:'sample atlas'} style={style}/>;
 }
 
-export function ConfigurationSummary({model,config}:{model:number;config:Configuration}){
+const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'DETAILS'};
+
+export function ConfigurationSummary({model, config}: {model:number; config:Configuration}) {
  return <dl className="configuration" aria-label="Configurazione attiva">
-  {SURFACES.map((surface,i)=>{
-   const options=CATALOGUE[KNIVES[model]][surface],selected=config[surface];
-   const material=options.styles[selected.style],color=options.colors[selected.color];
-   return <div key={surface} data-config={surface} title={material.name+' · '+color.name}>
-    <dt>{['Blade','Handle','Details'][i]}</dt>
-    <dd><span className="config-chip" aria-hidden="true">
-     <Sample item={color} index={selected.color} row={options.swatchRow}/>
-     <span className="chip-finish"><Sample item={material} index={selected.style} row={options.swatchRow+1}/></span>
-    </span><span className="sr-only">{material.name}, </span><span>{color.name}</span></dd>
+  {SURFACES.map(surface => {
+   const options = CATALOGUE[KNIVES[model]][surface];
+   const selected = config[surface];
+   return <div key={surface} data-config={surface}>
+    <dt>{partLabels[surface]}</dt>
+    <dd><span className="sr-only">Materiale, </span>{options.styles[selected.style].name}</dd>
+    <dd><span className="sr-only">Colore, </span>{options.colors[selected.color].name}</dd>
    </div>;
   })}
  </dl>;
@@ -56,7 +67,7 @@ export function ConfigurationSummary({model,config}:{model:number;config:Configu
 function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
  kind:Kind;surface:Surface;options:Option[];selected:number;row:number;onSelect:(index:number)=>void
 }){
- return <div className="choice-group"><h2>{kind==='style'?'MATERIAL':'COLOR'}</h2>
+ return <div className="control-group choice-group"><PanelTitle text={kind==='style'?'MATERIAL':'COLOR'}/>
   <div className="choice-grid" role="group" aria-label={(kind==='color'?'Colore ':'Materiale ')+surfaceNames[surface]}>
    {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind} title={item.name}
     aria-label={item.name} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
@@ -83,23 +94,49 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
    const pressed=value[key]>.5;
    const action=i?(pressed?'Ricomponi il modello':'Esplodi il modello'):(pressed?'Apri la lama':'Chiudi la lama');
    return <button type="button" key={key} data-control={key} aria-label={i?'Vista esplosa':'Lama chiusa'} aria-pressed={pressed} title={action}
-    onClick={()=>onValue(key,pressed?0:1)}><span className="pose-tile"><Glyph name={i?'explode':'blade'} size={23}/></span></button>;
+    onClick={()=>onValue(key,pressed?0:1)}><span className="pose-tile"><Glyph name={i?'explode':'blade'} size={18}/></span></button>;
   })}
  </div>;
 }
 
 const cameraLabels:Record<View,string>={side:'Laterale',top:'Dall’alto',edge:'Frontale',perspective:'Prospettica',clip:'Clip',screw:'Viti'};
-export function TechnicalHud({value,model,onView,onCut,onReset}:{value:Pick<DemoState,'view'|'rotation'|'cuts'>;model:number;onView:(v:View)=>void;onCut:(axis:number,value:number)=>void;onReset:()=>void}){
+const lightLabels: {channel:LightChannel; label:string; name:string}[] = [
+ {channel:'key', label:'Key', name:'Luce principale'},
+ {channel:'fill', label:'Fill', name:'Luce di riempimento'},
+ {channel:'rim', label:'Rim', name:'Controluce'},
+];
+
+type TechnicalProps = {
+ value: Pick<DemoState, 'view' | 'rotation'>;
+ lighting: Lighting;
+ model: number;
+ onView: (view:View) => void;
+ onLight: (channel:LightChannel, percent:number) => void;
+};
+
+export function TechnicalHud({value, lighting, model, onView, onLight}: TechnicalProps) {
  return <div className="technical-hud hud-panel" data-panel>
-  <div className="camera-block" role="group" aria-label="Inquadrature">
-   <div className="technical-head"><h2>INSPECT</h2><button type="button" className="reset-control" title="Ripristina posa e camera" aria-label="Ripristina posa e camera" onClick={onReset}><Glyph name="reset" size={14}/></button></div>
-   <div className="view-row">{(Object.keys(cameraLabels) as View[]).map(v=>{
-    const loop=v==='clip'&&KNIVES[model]==='EDGE',name=loop?'Anello posteriore':cameraLabels[v];
-    return <button type="button" key={v} data-view={v} title={name} aria-label={'Vista '+name.toLowerCase()} aria-pressed={value.view===v&&!hasManualRotation(value)} onClick={()=>onView(v)}><Glyph name={loop?'loop':v} size={21}/></button>;
+  <div className="control-group camera-block" role="group" aria-label="Inquadrature">
+   <PanelTitle text="CAMERA"/>
+   <div className="view-row">{(Object.keys(cameraLabels) as View[]).map(view => {
+    const loop = view==='clip' && KNIVES[model]==='EDGE';
+    const name = loop ? 'Anello posteriore' : cameraLabels[view];
+    return <button type="button" key={view} data-view={view} title={name} aria-label={'Vista '+name.toLowerCase()}
+     aria-pressed={value.view===view && !hasManualRotation(value)} onClick={() => onView(view)}>
+     <Glyph name={loop?'loop':view} size={20}/>
+    </button>;
    })}</div>
   </div>
-  <div className="cut-ranges" role="group" aria-label="Sezioni XYZ"><h3>SEZIONE</h3>
-   {['X','Y','Z'].map((axis,i)=><label className="slider-row" key={axis}><span>{axis}</span><input type="range" min="0" max="100" step="1" aria-label={'Sezione '+axis} value={Math.round(value.cuts[i]*100)} onChange={e=>onCut(i,Number(e.target.value)/100)}/></label>)}
+  <div className="control-group light-block" role="group" aria-label="Illuminazione">
+   <PanelTitle text="LIGHTING"/>
+   <div className="light-ranges">{lightLabels.map(({channel, label, name}) =>
+    <label key={channel} title={name+' · '+lighting[channel]+'%'}>
+     <span>{label}</span>
+     <input type="range" min="0" max="200" step="1" value={lighting[channel]}
+      aria-label={name} aria-valuetext={lighting[channel]+'%'} data-light={channel}
+      onChange={event => onLight(channel, event.currentTarget.valueAsNumber)}/>
+    </label>
+   )}</div>
   </div>
  </div>;
 }
