@@ -3,19 +3,19 @@ import type {LightPreset} from './light-presets';
 export const KNIVES = ['HYPER','VERTEX','EDGE','TRIS','QUAD'] as const;
 export const PREVIOUS_ORDER = ['HYPER','VERTEX','QUAD','EDGE','TRIS'] as const;
 export const IDLE_TILT_LIMIT = Math.PI / 12;
-export const CHAPTERS = ['Stage','Blade','Handle','Details','Inspect'] as const;
+export const CHAPTERS = ['Stage','Blade','Handle','Metals','Inspect'] as const;
 export const ZOOM_LIMITS = {min: 0.8, max: 2.8} as const;
 export type Surface = 'blade'|'handle'|'metals';
 export type View = 'side'|'top'|'edge'|'perspective'|'clip'|'screw';
 export type Finish = {color:number;style:number};
 export type Configuration = Record<Surface,Finish>;
 export const COLORS = [
- {name:'Argento',hex:'#bfc3c6'}, {name:'Titanio',hex:'#777e82'},
- {name:'Grafite',hex:'#35383c'}, {name:'Nero',hex:'#141619'},
- {name:'Champagne',hex:'#b89c72'}, {name:'Rame',hex:'#ae6950'},
- {name:'Bordeaux',hex:'#66313e'}, {name:'Blu notte',hex:'#273f58'},
+ {name:'Silver',hex:'#bfc3c6'}, {name:'Titanium',hex:'#777e82'},
+ {name:'Graphite',hex:'#35383c'}, {name:'Black',hex:'#141619'},
+ {name:'Champagne',hex:'#b89c72'}, {name:'Copper',hex:'#ae6950'},
+ {name:'Burgundy',hex:'#66313e'}, {name:'Midnight blue',hex:'#273f58'},
 ];
-export const STYLES = ['Satinato','Spazzolato','Stonewash','Carbonio'];
+export const STYLES = ['Satin','Brushed','Stonewash','Carbon fiber'];
 export const defaultConfiguration = ():Configuration => ({blade:{color:0,style:1},handle:{color:3,style:3},metals:{color:1,style:0}});
 export type DemoState = {
  target:number; progress:number; selected:number; orbit:number; knifeRequest:number|null; knifeDestination:number|null;

@@ -91,7 +91,7 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main ref={root} className="experience" data-version="59" data-ui-pending={ready===0&&!error}
+ return <main ref={root} className="experience" data-version="60" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
@@ -99,7 +99,7 @@ export default function Experience(){
     <h1 className="atmospheric-title" data-product-name aria-label={knife}><TrackedLetters text={knife}/></h1>
    </div>
    <div className="product-readout">
-    <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Prezzo dimostrativo '+price+' euro'}>
+    <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Demo price: '+price+' euros'}>
      <span className="currency">€</span><span data-price>{price}</span>
     </div>
     <ConfigurationSummary model={selected} config={selectedConfig}/>
@@ -108,15 +108,15 @@ export default function Experience(){
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
   <header className="brand-rail">
-   <button type="button" className="brand" data-chrome aria-label="Torna allo stage"
+   <button type="button" className="brand" data-chrome aria-label="Return to stage"
     onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button>
   </header>
 
-  <div className="knife-nav" role="group" aria-label="Selezione e posa del coltello">
-   <button type="button" className="knife-step previous" aria-label="Coltello precedente" title="Coltello precedente"
+  <div className="knife-nav" role="group" aria-label="Model selection and pose">
+   <button type="button" className="knife-step previous" aria-label="Previous model" title="Previous model"
     disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={31}/></button>
    <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
-   <button type="button" className="knife-step next" aria-label="Coltello successivo" title="Coltello successivo"
+   <button type="button" className="knife-step next" aria-label="Next model" title="Next model"
     disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={31}/></button>
   </div>
 
@@ -124,16 +124,16 @@ export default function Experience(){
    <div className="dock-tools">
     {SURFACES.map((surface,i)=>
      <section key={surface} className="hud-layer" aria-hidden={section!==i+1} inert={section!==i+1}
-      aria-label={'Materiali '+CHAPTERS[i+1]}>
+      aria-label={CHAPTERS[i+1]+' finishes'}>
       <MaterialHud surface={surface} model={selected} config={selectedConfig} onChange={material}/>
      </section>)}
-    <section className="hud-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Camera e illuminazione">
+    <section className="hud-layer" aria-hidden={section!==4} inert={section!==4} aria-label="Camera and light">
      <TechnicalHud value={s} lightPreset={s.lightPreset} model={selected} onView={preset}
       onLight={id=>{s.lightPreset=id;s.activity++;refresh();}}/>
     </section>
    </div>
-   <nav className="sequence-nav" data-chrome aria-label="Navigazione showroom">
-    {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Vai a '+name} title={name}
+   <nav className="sequence-nav" data-chrome aria-label="Showroom navigation">
+    {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name} title={name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>
      <ChapterTile icon={chapterIcons[i]}/>
     </button>)}
@@ -142,6 +142,6 @@ export default function Experience(){
   <ParticleReveal root={root} chapter={section} model={selected} ready={ready>0}/>
   <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>
   {ready<5&&!error&&<div className={'loading '+(ready?'quiet':'')} role="status"><span className="load-mark"/><span>{ready?'COLLECTION':'PREPARING'}<small>{ready} / 5</small></span></div>}
-  {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Riprova</button></div>}
+  {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Try again</button></div>}
  </main>;
 }
