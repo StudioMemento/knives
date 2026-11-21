@@ -35,7 +35,7 @@ export default function Stage({state,...callbacks}:Props){
  const canvas=useRef<HTMLCanvasElement>(null);const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
   if(!canvas.current)return;const s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
-  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL non disponibile. Apri la demo in un browser con accelerazione grafica.');return;}
+  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
@@ -57,7 +57,7 @@ export default function Stage({state,...callbacks}:Props){
   const depthOnly=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,side:THREE.DoubleSide});
   const getRole=(mesh:THREE.Mesh):Surface=>{const mat=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;const name=String(mesh.userData.materialRole||mat.name||mesh.name).toLowerCase();return name.includes('blade')?'blade':name.includes('handle')?'handle':'metals';};
   async function load(index:number){
-   const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Manifest modello mancante: '+KNIVES[index]);
+   const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Missing model manifest for '+KNIVES[index]);
    const gltf=await loader.loadAsync(meta.url);if(dead)return;
    const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
    const materials={blade:makeMaterial('blade'),handle:makeMaterial('handle'),metals:makeMaterial('metals')};
@@ -74,7 +74,7 @@ export default function Stage({state,...callbacks}:Props){
      reflectionGroup.add(image);mirrors.push({source:object,image});
     }
    });
-   const mixer=new THREE.AnimationMixer(gltf.scene),openClip=gltf.animations.find(c=>c.name===meta.motion.openCloseClip),explodeClip=gltf.animations.find(c=>c.name===meta.motion.explodeClip);if(!openClip||!explodeClip)throw Error('Animazioni non disponibili: '+meta.id);
+   const mixer=new THREE.AnimationMixer(gltf.scene),openClip=gltf.animations.find(c=>c.name===meta.motion.openCloseClip),explodeClip=gltf.animations.find(c=>c.name===meta.motion.explodeClip);if(!openClip||!explodeClip)throw Error('Missing animations for '+meta.id);
    const open=mixer.clipAction(openClip),parts=createExplosion(gltf.scene,explodeClip,meta.motion.explodePeakTime);for(const action of [open]){action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
    group.updateMatrixWorld(true);
    const toLocal=gltf.scene.matrixWorld.clone().invert();
@@ -87,14 +87,14 @@ export default function Stage({state,...callbacks}:Props){
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
-   const response=await fetch('/models/v48/manifest.json');if(!response.ok)throw Error('Impossibile leggere i modelli');metas=(await response.json()).models;
+   const response=await fetch('/models/v48/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
    await load(0);await Promise.all([load(1),load(2)]);await Promise.all([load(3),load(4)]);if(dead)return;
    const mask=camera.layers.mask;let shaders:Promise<THREE.Object3D>,depthShaders:Promise<THREE.Object3D>;
    try{camera.layers.enableAll();shaders=renderer.compileAsync(scene,camera);scene.overrideMaterial=depthOnly;depthShaders=renderer.compileAsync(scene,camera);}
    finally{scene.overrideMaterial=null;camera.layers.mask=mask;}
    // Never leave an override material on the live scene while compilation waits.
    await Promise.all([shaders,depthShaders]);if(!dead)warmed=true;
-  }catch(e){if(!dead)props.current.onError('Caricamento 3D non riuscito: '+(e instanceof Error?e.message:String(e)));}})();
+  }catch(e){if(!dead){console.error(e);props.current.onError('The 3D collection could not be loaded. Please try again.');}}})();
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const pager=host.querySelector<HTMLElement>('.knife-nav')!;
@@ -152,7 +152,7 @@ export default function Stage({state,...callbacks}:Props){
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
    chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
-  const lost=(e:Event)=>{e.preventDefault();props.current.onError('La sessione grafica è stata interrotta. Riprova per ripristinare lo showroom.');};
+  const lost=(e:Event)=>{e.preventDefault();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
   element.addEventListener('webglcontextlost',lost);
   const cursor=new THREE.Vector2(),cursorX=new MotionValue(),cursorY=new MotionValue();
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
@@ -308,7 +308,7 @@ export default function Stage({state,...callbacks}:Props){
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
     renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
     renderer.render(scene,productCamera);
-   }catch(e){props.current.onError('Errore di rendering. Riprova per ripristinare la scena.');cancelAnimationFrame(raf);console.error(e);return;}
+   }catch(e){props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.progress,s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
    if(frameWindow>1){
@@ -325,5 +325,5 @@ export default function Stage({state,...callbacks}:Props){
    textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="Modello 3D. Trascina o usa le frecce per ruotare. Usa la rotella o due dita per lo zoom."/>;
+ return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>;
 }
