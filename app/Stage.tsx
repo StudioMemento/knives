@@ -9,7 +9,7 @@ import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
 import {MotionValue,orbitAngle} from './lib/motion';
-import {createLightStage,createStudioEnvironments} from './lib/lighting';
+import {createLightStage,createStudioEnvironments,FLOOR_FADE_END} from './lib/lighting';
 import {LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {fitBoundsScale,slideTravel} from './lib/framing';
 import {alignStageCamera,focusLens} from './lib/optics';
@@ -99,8 +99,7 @@ export default function Stage({state,...callbacks}:Props){
   const host=element.parentElement!;
   const pager=host.querySelector<HTMLElement>('.knife-nav')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
-  const summary=host.querySelector<HTMLElement>('.configuration')!;
-  const info=summary.parentElement!;
+  const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
   let shotRect:ScreenRect=productArea(false),lastRingLine=-1;
   const frustum=new THREE.Frustum();
@@ -121,10 +120,11 @@ export default function Stage({state,...callbacks}:Props){
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
-   lightStage.setSummaryBounds(summary.getBoundingClientRect(),viewport,renderer.getPixelRatio());
    if(!changed && Math.abs(lastRingLine-ringLine)<.00001)return;
    lastRingLine=ringLine;
    const shift=alignStageCamera(camera,w,h,ringLine);
+   const floorTop=(1-floorBack.clone().project(camera).y)*h/2;
+   host.style.setProperty('--floor-top',floorTop+'px');
    productCamera.copy(camera,false);productCamera.updateMatrixWorld();
    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
    const [left,top,right,bottom]=productArea(portrait,ringLine);
@@ -134,7 +134,7 @@ export default function Stage({state,...callbacks}:Props){
   };
   resize();
   const observer=new ResizeObserver(resize);
-  for(const observed of [element,pager,dock,info,summary])observer.observe(observed);
+  for(const observed of [element,pager,dock])observer.observe(observed);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
   raycaster.layers.enableAll();

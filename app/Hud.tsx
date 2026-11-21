@@ -2,15 +2,10 @@
 import {useLayoutEffect,useRef,type CSSProperties,type ReactNode} from 'react';
 import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
 import {LIGHT_ORDER,LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
-import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
+import {hasManualRotation,CHAPTERS,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
 
 const chevron = 'M18.5.5 5.5 12l13 11.5-1.6-4.4L9 12l7.9-7.1Z';
 const paths:Record<string,ReactNode>={
-  stageIcon:<><path d="m1.9 11.8 10.1-10 10.1 10-3.5.7v4.1L12 22l-6.6-5.4v-4.1Z"/><path d="m9.5 19.9.1-6.3h4.8l.1 6.3"/></>,
-  bladeIcon:<><path d="M2.1 14.9 12.6 4.6l8.9-2.3-2.4 9.2-7.8 8-2.9-2.8-3.2 3.2-2.8-2.8 2.1-2.1Z"/><path d="m8.6 14.7 8-8.1 4.7-4.1"/></>,
-  handleIcon:<><path d="M2.3 14.1 13.8 2.7l4.8.8 3.1 3.1-1 4.4-4.9 4.9-3 .1-5.8 5-3.3-1.5-2-2Z"/><circle cx="16.5" cy="7.5" r="2"/><path d="m5.1 16.7 4-4"/></>,
-  detailsIcon:<><path d="m10.6 2.2 2.8 0 8.4 8.4v2.8l-8.4 8.4h-2.8l-8.4-8.4v-2.8Z"/><path d="m12 7 4.4 2.5v5L12 17l-4.4-2.5v-5Z"/></>,
-  inspectIcon:<><path d="m2 10.3 8.1-8.1 8.2 8.1-2.2 2.4 6 6-3.4 3.4-6-6-2.6 2.4Z"/><path d="M6.8 10.3h6.6m-3.3-3.2v6.5"/></>,
   left:<path d={chevron} fill="currentColor" stroke="none"/>,
   right:<path d={chevron} transform="translate(24 0) scale(-1 1)" fill="currentColor" stroke="none"/>,
   blade:<><path d="m3 17.1 1.9-2h15.7v3.2l-2 2H5.4L3 18Z"/><path d="m4.7 14.8 4.1-11 1.6 3.6-.4 3.5-2.3 4.1M13.2 5.8a9.1 9.1 0 0 1 6.1 6.3m.6-3.7-.5 3.9-3.7-.9"/><circle cx="6.2" cy="17.7" r=".8" fill="currentColor" stroke="none"/></>,
@@ -19,6 +14,20 @@ const paths:Record<string,ReactNode>={
 };
 export function Glyph({name,size=26}:{name:string;size?:number}){
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
+type Chapter=typeof CHAPTERS[number];
+const chapterMarks:Record<Chapter,ReactNode>={
+ Stage:<path d="m5.1 8.35 6.9-6.9 6.9 6.9 M6.4 7.05v8.7h3.85v-4.2h3.5v4.2h3.85v-8.7"/>,
+ Blade:<path d="m4.9 14.7 13.7-6.1-3.8 5.75c-1.6 2.1-3.5 2.9-6.8 3.2Z"/>,
+ Handle:<><path d="m5.25 15.8 8.35-8.35h2.55l1.5 1.5v2.55l-7.8 7.5Z"/><circle cx="14.8" cy="10.1" r="1" fill="currentColor" stroke="none"/></>,
+ Metals:<><path d="m12 6 5.2 3v6L12 18l-5.2-3V9Z"/><circle cx="12" cy="12" r="2.1"/></>,
+ Inspect:<><circle cx="10.75" cy="10.75" r="4.25"/><path d="m13.8 13.8 3.48 3.48"/></>,
+};
+export function ChapterIcon({chapter}:{chapter:Chapter}){
+ return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+  <path className="chapter-perimeter" d="M12 1.45 22.55 12 12 22.55 1.45 12Z"/>
+  {chapterMarks[chapter]}
+ </svg>;
 }
 export function Brand() {
  return <span className="wordmark" aria-hidden="true">
@@ -32,29 +41,37 @@ export function ProductHeading({name,price}:{name:string;price:number}) {
  const ref=useRef<HTMLDivElement>(null);
  useLayoutEffect(()=>{
   const heading=ref.current, region=heading?.parentElement;
-  const title=heading?.querySelector('h1'), ink=document.createElement('canvas').getContext('2d');
-  if(!heading||!region||!title||!ink)return;
+  const title=heading?.querySelector('h1'), summary=region?.querySelector('dl');
+  const ink=document.createElement('canvas').getContext('2d');
+  if(!heading||!region||!title||!summary||!ink)return;
   let mounted=true;
-  // A shallow viewport limits the cap height. Fit the complete, kerned lockup
-  // to the same horizontal margins without adding space between the letters.
   const fit=()=>{
    if(!mounted)return;
-   const type=getComputedStyle(title);
-   ink.font=type.fontWeight+' '+type.fontSize+' '+type.fontFamily;
+   const type=getComputedStyle(title), regionBox=region.getBoundingClientRect();
+   const headingStyle=getComputedStyle(heading), summaryStyle=getComputedStyle(summary);
+   const face=type.fontFamily, weight=type.fontWeight;
+   ink.font=weight+' 1000px '+face;
    ink.fontKerning='normal';
-   const supportsTracking='letterSpacing' in ink;
-   if(supportsTracking)ink.letterSpacing=type.letterSpacing;
-   const metrics=ink.measureText(name);
-   const manualTracking=supportsTracking?0:(name.length-1)*parseFloat(type.letterSpacing);
-   const width=metrics.actualBoundingBoxRight+metrics.actualBoundingBoxLeft+manualTracking;
-   if(width<=0)return;
-   heading.style.setProperty('--run-width',width+'px');
-   heading.style.setProperty('--run-start',metrics.actualBoundingBoxLeft+'px');
-   heading.style.setProperty('--word-scale',String(region.getBoundingClientRect().width/width));
+   // Fit the painted edges of the widest name, leaving a small gap between letters.
+   const referenceWidth=Math.max(...KNIVES.map(label=>{
+    const m=ink.measureText(label);
+    return (m.actualBoundingBoxLeft+m.actualBoundingBoxRight)/1000+(label.length-1)*.065;
+   }));
+   const gaps=parseFloat(headingStyle.rowGap)+parseFloat(summaryStyle.marginTop);
+   const availableHeight=regionBox.height-summary.getBoundingClientRect().height-gaps;
+   // The name occupies .89em and the half-sized price adds .94 × .5em.
+   const size=Math.max(1,Math.min(regionBox.width/referenceWidth,availableHeight/1.36));
+   heading.style.setProperty('--title-size',size+'px');
+   ink.font=weight+' '+getComputedStyle(title).fontSize+' '+face;
+   const m=ink.measureText(name);
+   const tracking=(regionBox.width-m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/Math.max(1,name.length-1);
+   heading.style.setProperty('--title-tracking',tracking+'px');
+   heading.style.setProperty('--run-start',m.actualBoundingBoxLeft+'px');
   };
   fit();
   const observer=new ResizeObserver(fit);
-  observer.observe(region.parentElement??region);
+  observer.observe(region);
+  observer.observe(summary);
   void document.fonts.ready.then(fit);
   return ()=>{mounted=false;observer.disconnect();};
  },[name]);

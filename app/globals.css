@@ -57,35 +57,25 @@ h1,h2,h3,p{margin:0}
 .wordmark img {display:block;width:9px;height:9px}
 
 .product-info {
- --product-inset:10%;
- --title-limit:22dvh;
- --title-size:min(calc(100cqi / var(--word-ems)),var(--title-limit));
+ --floor-clearance:clamp(7px,1.3dvh,18px);
+ --title-size:min(calc(100cqi / 6.028),22dvh);
  --summary-chip:clamp(16px,4.3cqi,18px);
  --summary-gap:clamp(8px,2cqi,11px);
  --summary-head-gap:var(--label-gap);
  --summary-row-gap:clamp(5px,.8dvh,8px);
  --summary-group-gap:clamp(19px,2.7dvh,34px);
- position:absolute;z-index:-1;pointer-events:none;container-type:inline-size;
- left:max(var(--product-inset),var(--safe-left));right:max(var(--product-inset),var(--safe-right));
+ position:absolute;z-index:-1;pointer-events:none;container:product / size;
+ inset-inline:15%;
  top:max(clamp(58px,8.5dvh,78px),calc(var(--top) + 44px));
+ bottom:calc(100% - var(--floor-top,calc(var(--ring-line) - 16.7dvh)) + var(--floor-clearance));
 }
-@media(min-width:768px) {.product-info{--product-inset:15%}}
-@media(min-width:1024px) {.product-info{--product-inset:20%}}
-@media(min-width:1920px) {.product-info{--product-inset:30%}}
-/* Ink widths in em for the five native Michroma runs, including their tracking. */
-[data-model=HYPER] .product-info {--word-ems:5.076;--first-bearing:.096em}
-[data-model=VERTEX] .product-info {--word-ems:6.028;--first-bearing:.033em}
-[data-model=EDGE] .product-info {--word-ems:3.961;--first-bearing:.094em}
-[data-model=TRIS] .product-info {--word-ems:3.371;--first-bearing:.046em}
-[data-model=QUAD] .product-info {--word-ems:4.294;--first-bearing:.062em}
 .product-heading {
  display:grid;grid-template-columns:minmax(0,1fr);row-gap:clamp(8px,1.5dvh,20px);
- width:var(--run-width,calc(var(--title-size) * var(--word-ems)));color:var(--ring-ink);
- transform-origin:left top;transform:scaleX(var(--word-scale,1));
+ width:100%;color:var(--ring-ink);
 }
 .atmospheric-title {
  font:400 var(--title-size)/.89 var(--ui);font-kerning:normal;
- letter-spacing:.065em;white-space:nowrap;margin-inline-start:var(--run-start,calc(-1 * var(--first-bearing)));
+ letter-spacing:var(--title-tracking,.065em);white-space:nowrap;margin-inline-start:var(--run-start,0px);
 }
 .price {display:flex;align-items:baseline;gap:.15em;margin-inline-start:-.021em;
  font:400 calc(var(--title-size) * .5)/.94 'Memento Figures',var(--ui);
@@ -97,7 +87,7 @@ h1,h2,h3,p{margin:0}
   -webkit-background-clip:text;background-clip:text;color:transparent}
 }
 .configuration {
- width:max-content;max-width:100%;display:grid;row-gap:var(--summary-group-gap);
+ width:100%;display:grid;row-gap:var(--summary-group-gap);
  margin:clamp(16px,2.2dvh,25px) 0 0;
  font:300 clamp(11.5px,3.55cqi,14px)/1.37 'Memento UI',var(--ui);font-synthesis:none;font-kerning:normal;
  letter-spacing:.028em;color:var(--ring-ink);
@@ -107,7 +97,12 @@ h1,h2,h3,p{margin:0}
 .configuration dt {margin-bottom:var(--summary-head-gap);font:inherit;font-size:1.015em;line-height:1.12;letter-spacing:.14em;color:var(--ring-light)}
 .part-marker {justify-self:end;margin-inline-end:-.043em;letter-spacing:0;color:var(--ring-light)}
 .configuration dd + dd {margin-top:var(--summary-row-gap)}
-.config-swatch {position:relative;display:block;width:var(--summary-chip);height:var(--summary-chip);background:currentColor}
+.configuration dd {container:entry / inline-size}
+.configuration dd > span:last-child {overflow-wrap:anywhere;align-content:center}
+@container entry (width < 16.6em) {
+ .configuration dd > span:last-child {min-height:2lh}
+}
+.config-swatch {position:relative;display:block;width:100%;aspect-ratio:1;background:currentColor}
 .config-finish,.config-finish .sample {clip-path:polygon(22% 0,100% 0,100% 78%,78% 100%,0 100%,0 22%)}
 
 .bottom-veil {position:absolute;z-index:2;inset:auto 0 0;height:clamp(130px,32dvh,380px);pointer-events:none;
@@ -120,10 +115,11 @@ h1,h2,h3,p{margin:0}
 .control-dock {z-index:9;bottom:var(--foot);display:grid;row-gap:var(--tool-gap)}
 .sequence-nav {height:var(--nav-height);display:flex;justify-content:space-between;align-items:center}
 .chapter-button,.knife-nav button {display:grid;place-items:center;pointer-events:auto}
-.chapter-button {position:relative;width:var(--nav-hit);height:var(--nav-height)}
-.chapter-button {color:color-mix(in srgb,var(--ring-light) 25%,#a7acaf)}
+.chapter-button {position:relative;width:var(--nav-hit);height:var(--nav-height);color:color-mix(in srgb,var(--ring-light) 25%,#a7acaf)}
 .chapter-button svg,.knife-nav svg {stroke-linecap:square;stroke-linejoin:miter}
-.chapter-button svg {width:32px;height:32px;stroke-width:1.25}
+.chapter-button svg {width:32px;height:32px;stroke-width:1.35}
+.chapter-perimeter {stroke-width:.95;opacity:.72}
+.chapter-button[aria-current=step] .chapter-perimeter,.chapter-button:focus-visible .chapter-perimeter {stroke-width:1.2;opacity:1}
 .chapter-button[aria-current=step] {color:var(--ring-light)}
 .chapter-button[aria-current=step] svg {stroke-width:1.7;filter:drop-shadow(0 0 2px var(--ring-glow))}
 .chapter-button:focus-visible::after {content:'';position:absolute;bottom:-3px;left:calc(50% - 6px);width:12px;height:2px;background:var(--ring-ink)}
@@ -219,9 +215,6 @@ h1,h2,h3,p{margin:0}
  .product-info {--summary-chip:15px;--summary-row-gap:5px;--summary-head-gap:8px;--summary-group-gap:16px}
  .configuration {margin-top:13px;font-size:clamp(11px,3cqi,13px)}
 }
-@media(min-width:600px) and (max-width:850px) and (orientation:portrait) {
- .product-info {--title-limit:18dvh}
-}
 @media(max-width:767px) and (min-height:651px) and (max-height:700px) {
  .experience {--foot:max(22px,calc(env(safe-area-inset-bottom) + 8px));--tool-gap:20px;--panel-gap:10px}
 }
@@ -232,14 +225,9 @@ h1,h2,h3,p{margin:0}
  .product-heading {row-gap:6px}
  .configuration {margin-top:10px;font-size:11px}
 }
-@media(min-width:768px) and (max-width:1220px) and (max-height:820px) and (orientation:landscape),
-      (min-width:740px) and (max-height:650px) and (orientation:landscape) {
- .configuration {width:100%;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:clamp(10px,2vw,24px)}
- .configuration dd {overflow-wrap:anywhere}
-}
 @media(max-height:600px) and (orientation:portrait) {
  .experience {--foot:max(8px,calc(env(safe-area-inset-bottom) + 5px));--tool-gap:10px;--panel-gap:5px}
- .product-info {top:max(48px,calc(env(safe-area-inset-top) + 38px));--title-limit:clamp(57px,11.8dvh,72px)}
+ .product-info {top:max(43px,calc(env(safe-area-inset-top) + 38px))}
  .product-heading {row-gap:5px}
  .configuration {margin-top:8px}
 }
@@ -247,11 +235,10 @@ h1,h2,h3,p{margin:0}
  .experience {--top:max(1px,env(safe-area-inset-top));--foot:max(8px,env(safe-area-inset-bottom));--nav-height:36px;
   --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:6px;--ring-gap:9px;--swatch:23px;--panel-gutter:32px}
  .brand {min-height:27px}.wordmark img{width:9px}
- .product-info {top:max(29px,calc(var(--top) + 27px));--title-limit:clamp(42px,calc((100dvh - 255px) * .68),125px);
+ .product-info {top:max(29px,calc(var(--top) + 27px));--floor-clearance:5px;
   --summary-chip:12px;--summary-gap:6px;--summary-row-gap:3px;--summary-head-gap:5px}
  .product-heading {row-gap:3px}
- .configuration {width:100%;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:9px;font-size:10px;line-height:1.22;margin-top:7px}
- .configuration dd {overflow-wrap:anywhere}
+ .configuration {font-size:10px;line-height:1.22;margin-top:7px}
  .chapter-button svg {width:26px;height:26px}
  .pose-action svg {width:25px;height:25px}
  .hud-panel {inset-inline:max(0px,calc((100% - 226px) / 2));column-gap:32px}
@@ -259,7 +246,47 @@ h1,h2,h3,p{margin:0}
 }
 @media(max-height:350px) and (orientation:landscape) {
  .experience {--nav-height:32px;--action-height:34px;--tool-gap:8px;--row-height:28px;--foot:max(5px,env(safe-area-inset-bottom))}
- .product-info {top:max(25px,calc(var(--top) + 24px));--title-limit:clamp(42px,calc((100dvh - 245px) * .66),70px)}
+ .product-info {top:max(25px,calc(var(--top) + 24px))}
+}
+/* Reflow the readout within the space above the floor, independently of the dock. */
+@container product (max-height:465px) and (max-aspect-ratio:1.8) {
+ .product-heading {row-gap:clamp(5px,2.4cqb,12px)}
+ .configuration {--summary-head-gap:clamp(5px,1.9cqb,9px);--summary-group-gap:clamp(11px,3.8cqb,18px);
+  --summary-row-gap:clamp(3px,1.5cqb,6px);margin-top:clamp(9px,3.8cqb,16px)}
+}
+@container product (min-width:330px) and (min-aspect-ratio: 1.8) {
+ .configuration {grid-template-columns:repeat(3,minmax(0,1fr));column-gap:clamp(8px,2cqi,26px)}
+}
+@container product (max-width:329px) and (max-height:255px) {
+ .configuration {--summary-chip:12px;--summary-gap:4px;row-gap:6px;margin-top:8px;font-size:11px;line-height:1.15}
+ .configuration > div {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:6px;align-items:start}
+ .configuration dt {grid-column:1/-1;margin-bottom:3px}
+ .configuration dd + dd {margin:0}
+}
+@container product (max-width:235px) and (max-height:210px) {
+ .configuration {--summary-chip:11px;--summary-gap:3px;row-gap:5px;font-size:10.5px}
+ .product-heading {row-gap:4px}
+}
+@container product (min-width:330px) and (max-height:150px) {
+ .product-heading {row-gap:3px}
+ .configuration {margin-top:4px;column-gap:8px;--summary-row-gap:3px;--summary-head-gap:4px}
+}
+@container product (min-width:330px) and (max-height:100px) {
+ .product-heading {row-gap:2px}
+ .configuration {margin-top:1px;grid-template-columns:minmax(0,1.06fr) minmax(0,.91fr) minmax(0,1.14fr);
+  --summary-chip:10px;--summary-gap:3px;--summary-row-gap:1px;--summary-head-gap:1px;column-gap:6px}
+ .configuration dd {font:400 10px/1.1 Inter,sans-serif;letter-spacing:0}
+ .configuration dd > span:last-child {min-height:1lh}
+}
+@container product (max-width:329px) and (max-height:182px) {
+ .product-heading {row-gap:4px}
+ .configuration {grid-template-columns:repeat(3,minmax(0,1fr));column-gap:5px;margin-top:5px;
+  --summary-chip:9px;--summary-gap:3px;--summary-row-gap:2px;--summary-head-gap:3px}
+ .configuration > div {display:block}
+ .configuration dt {font-size:9px;letter-spacing:.04em;margin-bottom:3px}
+ .configuration dd {font:400 10px/1.1 Inter,sans-serif;letter-spacing:0}
+ .configuration dd + dd {margin-top:2px}
+ .configuration dd > span:last-child {min-height:2lh}
 }
 @media(forced-colors:active) {
  .product-heading {background:none;color:CanvasText}

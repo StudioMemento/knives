@@ -5,10 +5,8 @@ import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,ProductHeading} from './Hud';
+import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,ProductHeading} from './Hud';
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
-
-const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
 
 export default function Experience(){
  const state=useRef(createState());
@@ -91,7 +89,7 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main className="experience" data-version="62" data-ui-pending={ready===0&&!error}
+ return <main className="experience" data-version="63" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
@@ -128,7 +126,7 @@ export default function Experience(){
    <nav className="sequence-nav" data-chrome aria-label="Showroom navigation">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name} title={name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>
-     <Glyph name={chapterIcons[i]} size={34}/>
+     <ChapterIcon chapter={name}/>
     </button>)}
    </nav>
   </footer>
