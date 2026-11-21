@@ -11,7 +11,7 @@ import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,rese
 const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
 
 export default function Experience(){
- const state=useRef(createState()),root=useRef<HTMLElement>(null);
+ const state=useRef(createState());
  const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
  const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
  if(choices.current===null)choices.current=catalogueChoices();
@@ -91,19 +91,17 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main ref={root} className="experience" data-version="60" data-ui-pending={ready===0&&!error}
+ return <main className="experience" data-version="61" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
-   <div className="name-frame">
+   <div className="product-heading">
     <h1 className="atmospheric-title" data-product-name aria-label={knife}><TrackedLetters text={knife}/></h1>
-   </div>
-   <div className="product-readout">
     <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Demo price: '+price+' euros'}>
      <span className="currency">€</span><span data-price>{price}</span>
     </div>
-    <ConfigurationSummary model={selected} config={selectedConfig}/>
    </div>
+   <ConfigurationSummary model={selected} config={selectedConfig}/>
   </div>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
@@ -114,10 +112,10 @@ export default function Experience(){
 
   <div className="knife-nav" role="group" aria-label="Model selection and pose">
    <button type="button" className="knife-step previous" aria-label="Previous model" title="Previous model"
-    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={31}/></button>
+    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={44}/></button>
    <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    <button type="button" className="knife-step next" aria-label="Next model" title="Next model"
-    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={31}/></button>
+    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={44}/></button>
   </div>
 
   <footer className="control-dock">
@@ -139,7 +137,7 @@ export default function Experience(){
     </button>)}
    </nav>
   </footer>
-  <ParticleReveal root={root} chapter={section} model={selected} ready={ready>0}/>
+  <ParticleReveal chapter={section} model={selected} ready={ready>0}/>
   <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>
   {ready<5&&!error&&<div className={'loading '+(ready?'quiet':'')} role="status"><span className="load-mark"/><span>{ready?'COLLECTION':'PREPARING'}<small>{ready} / 5</small></span></div>}
   {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Try again</button></div>}

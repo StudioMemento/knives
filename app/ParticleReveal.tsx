@@ -1,5 +1,5 @@
 'use client';
-import {useLayoutEffect,useRef,type RefObject} from 'react';
+import {useLayoutEffect,useRef} from 'react';
 
 type Point={x:number;y:number};
 type Grain=Point&{dx:number;dy:number;lag:number;size:number};
@@ -59,11 +59,12 @@ function sample(element:HTMLElement,rect:DOMRect){
 
 /** Each changed region owns its reveal. Jobs on persistent controls keep their
  * original clock when a different region changes or another model is selected. */
-export default function ParticleReveal({root,chapter,model,ready}:{root:RefObject<HTMLElement|null>;chapter:number;model:number;ready:boolean}){
+export default function ParticleReveal({chapter,model,ready}:{chapter:number;model:number;ready:boolean}){
  const canvas=useRef<HTMLCanvasElement>(null),back=useRef<HTMLCanvasElement>(null);
  const update=useRef<(chapter:number,model:number,ready:boolean)=>void>(()=>{});
  useLayoutEffect(()=>{
-  const host=root.current,frontCanvas=canvas.current,backCanvas=back.current;
+  const frontCanvas=canvas.current,backCanvas=back.current;
+  const host=frontCanvas?.parentElement;
   if(!host||!frontCanvas||!backCanvas)return;
   const front=frontCanvas.getContext('2d'),rear=backCanvas.getContext('2d');if(!front||!rear)return;
   const jobs=new Map<HTMLElement,Burst>(),reduce=matchMedia('(prefers-reduced-motion: reduce)');
@@ -83,6 +84,8 @@ export default function ParticleReveal({root,chapter,model,ready}:{root:RefObjec
   }
   function draw(now:number){
    raf=0;front!.clearRect(0,0,width,height);rear!.clearRect(0,0,width,height);
+   const tint=host!.style.getPropertyValue('--ring-light')||'#f3f2ee';
+   front!.fillStyle=tint;rear!.fillStyle=tint;
    for(const job of jobs.values()){
     const t=clamp((now-job.start)/job.duration);
     if(t>=1){stop(job.element);continue;}
@@ -96,7 +99,7 @@ export default function ParticleReveal({root,chapter,model,ready}:{root:RefObjec
      const local=clamp((t-grain.lag*.66)/.68);
      const alpha=Math.sin(local*Math.PI)*.78;if(alpha<.025)continue;
      const drift=1-ease(local);
-     ctx.fillStyle='rgba(224,225,222,'+alpha.toFixed(3)+')';
+     ctx.globalAlpha=alpha;
      ctx.fillRect(grain.x+grain.dx*drift,grain.y+grain.dy*drift,grain.size,grain.size);
     }
    }
@@ -112,7 +115,7 @@ export default function ParticleReveal({root,chapter,model,ready}:{root:RefObjec
    const newModel=first||nextModel!==lastModel,newChapter=first||nextChapter!==lastChapter;
    if(!reduce.matches){
     if(first)host!.querySelectorAll<HTMLElement>('[data-chrome]').forEach(el=>add(el));
-    if(newModel)add(host!.querySelector('[data-product-name]'),true);
+    if(newModel)add(host!.querySelector('.product-heading'),true);
     if(newChapter)for(const el of jobs.keys())if(el.closest('.hud-layer[aria-hidden=true]'))stop(el);
     if(newChapter&&nextChapter>0)add(host!.querySelector('.hud-layer[aria-hidden=false] [data-panel]'));
     if(!raf&&jobs.size)raf=requestAnimationFrame(draw);
@@ -123,7 +126,7 @@ export default function ParticleReveal({root,chapter,model,ready}:{root:RefObjec
   void document.fonts.ready.then(()=>{if(disposed)return;fontsReady=true;if(latest)sync(latest.chapter,latest.model,latest.ready);});
   window.addEventListener('resize',resize);reduce.addEventListener('change',clear);
   return ()=>{disposed=true;clear();update.current=()=>{};window.removeEventListener('resize',resize);reduce.removeEventListener('change',clear);};
- },[root]);
+ },[]);
  useLayoutEffect(()=>{update.current(chapter,model,ready);},[chapter,model,ready]);
  return <><canvas ref={back} className="particle-reveal particle-reveal-back" aria-hidden="true"/><canvas ref={canvas} className="particle-reveal" aria-hidden="true"/></>;
 }
