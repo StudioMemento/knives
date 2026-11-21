@@ -1,4 +1,5 @@
 Memento UI Light is a modified weight of Michroma for the Memento showroom.
+Memento Figures is a regular-weight subset of Michroma with a redrawn euro sign.
 
 Copyright 2011 The Michroma Project Authors (https://github.com/googlefonts/Michroma-font)
 

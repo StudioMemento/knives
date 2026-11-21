@@ -1,6 +1,6 @@
-# Memento Knives V58
+# Memento Knives V59
 
-Showroom dei cinque modelli, sviluppato sulla V57. La radice dello ZIP corrisponde alla radice del progetto Next.js per Vercel. Il preset è Next.js e la build produce il sito statico in `out/`.
+Showroom dei cinque modelli, sviluppato sulla V58. La radice dello ZIP corrisponde alla radice del progetto Next.js per Vercel. Il preset è Next.js e la build produce il sito statico in `out/`.
 
 ## Avvio
 
@@ -10,9 +10,9 @@ Con Node.js 22.18 o successivo, esegui `npm ci` e `npm run dev`. Per validare il
 
 Logo, scheda prodotto, navbar e pannelli condividono una colonna centrata. La larghezza è l’80% del viewport fino a un massimo di 344 px, ricavato da un telefono di riferimento di 430 px. Il canvas 3D occupa l’intera finestra. Nei viewport bassi si riducono le distanze verticali.
 
-Material e Color sono centrati sulle prime due coppie di icone della navbar. I comandi per la posa sono sulla verticale della quinta. Le due frecce e i cinque punti sotto l’anello selezionano il modello nella sezione aperta.
+Le cinque icone della navbar hanno un contorno con tagli in alto a sinistra e in basso a destra. Sotto il ring le chevron cambiano il modello nella sezione aperta. Al centro si trovano l’apertura o chiusura della lama e la vista esplosa. Material e Color, oppure Camera e Lighting, dividono la larghezza della navbar in due gruppi da sei opzioni.
 
-Il riepilogo di Blade, Handle e Metals è dietro al modello. Ogni miniatura mostra la finitura del catalogo, con il colore selezionato sul bordo inferiore. Le scelte di configurazione sono salvate per modello anche dopo il ricaricamento. I prezzi sono dimostrativi, in euro interi. Il prezzo base per modello è in `app/lib/catalogue.ts` e ogni alternativa ha un supplemento `surcharge` in `app/lib/catalogue-data.json`.
+Il riepilogo di Blade, Handle e Metals è dietro al modello. Ogni parte ha due righe con miniature separate, una per la finitura e una per il colore. Nome, prezzo e configurazione condividono una sfumatura bianca che prende la tinta del ring verso il basso. Le scelte sono salvate per modello anche dopo il ricaricamento. I prezzi sono dimostrativi, in euro interi. Il prezzo base per modello è in `app/lib/catalogue.ts` e ogni alternativa ha un supplemento `surcharge` in `app/lib/catalogue-data.json`.
 
 ## Camera e lighting
 

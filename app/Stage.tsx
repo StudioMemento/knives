@@ -99,6 +99,8 @@ export default function Stage({state,...callbacks}:Props){
   const host=element.parentElement!;
   const pager=host.querySelector<HTMLElement>('.knife-nav')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
+  const productInfo=host.querySelector<HTMLElement>('.product-info')!;
+  let lastRingTint=-1;
   let shotRect:ScreenRect=productArea(false),lastRingLine=-1;
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
@@ -294,6 +296,10 @@ export default function Stage({state,...callbacks}:Props){
    try{
     applyStudio(s.lightPreset);
     const tint=lightStage.update(s.selected,dt,lightAim);
+    if(tint!==lastRingTint){
+     productInfo.style.setProperty('--ring-light','#'+tint.toString(16).padStart(6,'0'));
+     lastRingTint=tint;
+    }
     // A changed studio rig also invalidates the cached background pass.
     const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.lightPreset,s.reduced?0:Math.floor(time*30)].join('/');
     scene.environmentIntensity=environmentPower;

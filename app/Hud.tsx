@@ -5,14 +5,15 @@ import {LIGHT_ORDER,LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {hasManualRotation,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
 export function Glyph({name,size=26}:{name:string;size?:number}){
  const paths:Record<string,React.ReactNode>={
-  stageIcon:<><path d="m2.5 10 9.5-7.4 9.5 7.4M5.4 9v11h5v-6h3.2v6h5V9"/></>,
-  bladeIcon:<><path d="M2.2 17.2c4.4.8 7.8.2 11.2-2.3l5.2-4.5-3.8-4.1-2 .5Z" fill="currentColor" fillOpacity=".16"/><path d="M3.2 16.8c3.8-.3 7-1.6 10.2-4.4m2.4-5.1 2-2 3.5 3.7-2 2"/></>,
-  handleIcon:<><path d="m3.2 15 9.9-10.3a3.7 3.7 0 0 1 5.1-.1l2 2a3.5 3.5 0 0 1-1 5.6l-3.7 1.5-5.1 5.6a3.7 3.7 0 0 1-5.2.1l-2-2a1.9 1.9 0 0 1 0-2.4Z"/><circle cx="7.5" cy="16.1" r="1.15"/><path d="m12.4 9.1 2.5 2m-.4-4.2 2.3 1.8"/></>,
-  detailsIcon:<><path d="m7.4 3.6 9.2 0 4.6 8.4-4.6 8.4H7.4L2.8 12Z"/><circle cx="12" cy="12" r="4"/><path d="m9.4 14.5 5.2-5"/></>,
-  inspectIcon:<><circle cx="9.7" cy="9.8" r="6.3"/><path d="m14.4 14.4 6.6 6.5M7 9.8h5.4m-2.7-2.7v5.4"/></>,
-  left:<path d="m15.5 3.5-8.5 8.5 8.5 8.5"/>,right:<path d="m8.5 3.5 8.5 8.5-8.5 8.5"/>,
-  blade:<><path d="M6.2 15.6h13a2 2 0 0 1 0 4H6.4a2.2 2.2 0 0 1-.2-4.4Z"/><circle cx="6.4" cy="17.6" r=".64" fill="currentColor" stroke="none"/><path d="m5.7 14 4-10.6c1.7 4.9.6 8.8-1.6 11M13.5 6.9a8.8 8.8 0 0 1 5.2 5.6m-3.1-.9 3.2 1.2 1-3.1"/></>,
-  explode:<><path d="m3 7 9-4 9 4-9 4Z"/><path d="m3 11 9 4 9-4M3 15l9 4 9-4"/></>,
+  stageIcon:<><path d="m2.4 11.3 8-7.8h3.2l8 7.8"/><path d="M5.2 10v10.2h5v-6.1h3.6v6.1h2.7l2.3-2.3V10"/></>,
+  bladeIcon:<><path d="M2.4 18.6 13.7 6.1h3.9l3.9 3.9-5.9 5.9-6.2 2.7Z"/><path d="m6.3 16.3 6.2-2.1 3.5-3.6m-2.2-4.3 4.3 4.3"/></>,
+  handleIcon:<><path d="m3.1 14.7 9.6-10.4h4.8l3.4 3.4v2.6l-5 4.1-2 .2-5 5.2H6.3l-3.2-3.2Z"/><circle cx="7.4" cy="15.6" r="1.25"/><path d="m12.1 9.6 2 2m.7-4.6 2 2"/></>,
+  detailsIcon:<><path d="m7.4 3.6 8.4 0 5 5v6.6l-5.2 5.2H7.2l-4.1-4.1V8Z"/><circle cx="12" cy="12" r="4.3"/><path d="m9.5 14.5 5-5"/></>,
+  inspectIcon:<><path d="M4.2 6.7 7 3.9h5.9l3.3 3.3v5.7l-3.3 3.3H7.1l-2.9-2.9Z"/><path d="m15.3 15.3 5.5 5.5M7.4 10h5.5m-2.8-2.7v5.4"/></>,
+  left:<path d="m15.7 3.2-8.8 8.8 8.8 8.8"/>,right:<path d="m8.3 3.2 8.8 8.8-8.8 8.8"/>,
+  blade:<><path d="m3 17.1 1.9-2h15.7v3.2l-2 2H5.4L3 18Z"/><path d="m4.7 14.8 4.1-11 1.6 3.6-.4 3.5-2.3 4.1M13.2 5.8a9.1 9.1 0 0 1 6.1 6.3m.6-3.7-.5 3.9-3.7-.9"/><circle cx="6.2" cy="17.7" r=".8" fill="currentColor" stroke="none"/></>,
+  bladeClosed:<><path d="m3 15.7 2-2h15.6v3.9l-2.1 2.1H5.1L3 17.6Z"/><path d="m7.8 13.7 7.3-2 4.4.6M18.5 9.9a8.8 8.8 0 0 0-6.6-5.5m2.2 3-2.5-3.1 3.7-1.4"/><circle cx="6.2" cy="16.8" r=".85" fill="currentColor" stroke="none"/></>,
+  explode:<><path d="m2.5 8 9.5-4.5L21.5 8 12 12.5Z"/><path d="m2.5 12 9.5 4.5 9.5-4.5m-19 4 9.5 4.5 9.5-4.5"/></>,
   orbit:<><path d="m7 3-4 4v6l4 4h8l5-5V6l-4-3h-4M20 3v4h-4"/><path d="m3 17 1-4 4 1"/><path d="M11 10h2v2h-2Z"/></>,
   clip:<><path d="M6.5 15.5 15.8 6.2a3 3 0 0 1 4.2 4.2L8.8 21.6a4.3 4.3 0 0 1-6.1-6.1l12-12" transform="translate(1 -1) scale(.94)"/></>,
   loop:<><rect x="3.8" y="5.8" width="16.4" height="12.4" rx="2" transform="rotate(-24 12 12)"/><path d="m4.5 13 3 4"/></>,
@@ -24,6 +25,14 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
   perspective:<><path d="m3 16 6-8 4-1 8-3v4l-8 6-2-1-7 5Z"/><path d="m13 7 1 5"/></>,
  };
  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
+export function ChapterTile({icon}: {icon:string}) {
+ return <span className="nav-tile" aria-hidden="true">
+  <svg className="nav-contour" viewBox="0 0 40 40" fill="none">
+   <path d="M10 .7H39.3V30L30 39.3H.7V10Z" vectorEffect="non-scaling-stroke"/>
+  </svg>
+  <Glyph name={icon} size={24}/>
+ </span>;
 }
 export function Brand() {
  return <span className="wordmark" aria-hidden="true">
@@ -59,15 +68,17 @@ export function ConfigurationSummary({model, config}: {model:number; config:Conf
    const material = options.styles[selected.style], color = options.colors[selected.color];
    return <div key={surface} data-config={surface}>
     <dt>{partLabels[surface]}</dt>
-    <dd>
-     <span className="config-swatch" aria-hidden="true">
-      <span className="config-finish"><Sample item={material} index={selected.style} row={options.swatchRow+1}/></span>
-      <span className="config-tone"><Sample item={color} index={selected.color} row={options.swatchRow}/></span>
+    <dd aria-label={'Materiale, '+material.name}>
+     <span className="config-swatch config-finish" aria-hidden="true">
+      <Sample item={material} index={selected.style} row={options.swatchRow+1}/>
      </span>
-     <span className="config-values">
-      <span data-material-name><span className="sr-only">Materiale, </span>{material.name}</span>
-      <span data-color-name><span className="sr-only">Colore, </span>{color.name}</span>
+     <span data-material-name>{material.name}</span>
+    </dd>
+    <dd aria-label={'Colore, '+color.name}>
+     <span className="config-swatch config-tone" aria-hidden="true">
+      <Sample item={color} index={selected.color} row={options.swatchRow}/>
      </span>
+     <span data-color-name>{color.name}</span>
     </dd>
    </div>;
   })}
@@ -104,7 +115,7 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
    const pressed=value[key]>.5;
    const action=i?(pressed?'Ricomponi il modello':'Esplodi il modello'):(pressed?'Apri la lama':'Chiudi la lama');
    return <button type="button" key={key} data-control={key} aria-label={i?'Vista esplosa':'Lama chiusa'} aria-pressed={pressed} title={action}
-    onClick={()=>onValue(key,pressed?0:1)}><span className="pose-tile"><Glyph name={i?'explode':'blade'} size={18}/></span></button>;
+    onClick={()=>onValue(key,pressed?0:1)}><Glyph name={i?'explode':pressed?'bladeClosed':'blade'} size={31}/></button>;
   })}
  </div>;
 }
@@ -127,7 +138,7 @@ export function TechnicalHud({value, lightPreset, model, onView, onLight}: Techn
     const name = loop ? 'Anello posteriore' : cameraLabels[view];
     return <button type="button" key={view} data-view={view} title={name} aria-label={'Vista '+name.toLowerCase()}
      aria-pressed={value.view===view && !hasManualRotation(value)} onClick={() => onView(view)}>
-     <Glyph name={loop?'loop':view} size={20}/>
+     <Glyph name={loop?'loop':view} size={28}/>
     </button>;
    })}</div>
   </div>

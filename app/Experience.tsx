@@ -5,7 +5,7 @@ import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,TrackedLetters} from './Hud';
+import {Brand,ChapterTile,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,TrackedLetters} from './Hud';
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
@@ -23,17 +23,14 @@ export default function Experience(){
   if(sectionAt(s.progress)===0&&sectionAt(target)!==0)chooseSlot(s,Math.round(s.orbit));
   resetView(s);s.target=target;s.activity++;refresh();
  },[refresh]);
- const choose=useCallback((slot:number)=>{
-  const s=state.current;
-  chooseSlot(s,slot);refresh();
- },[refresh]);
  const stepKnife=useCallback((direction:number)=>{
   const s=state.current;
   if(s.ready.length<2)return;
   const anchor=s.knifeDestination??Math.round(s.orbit);
   const next=anchor+direction;
-  if(s.ready.includes(mod(next)))choose(next);
- },[choose]);
+  if(!s.ready.includes(mod(next)))return;
+  chooseSlot(s,next);refresh();
+ },[refresh]);
  const onFrame=useCallback((_progress:number,selected:number,ready:number)=>{
   const section=sectionAt(state.current.target),last=previous.current;
   if(last.section!==section||last.selected!==selected||last.ready!==ready){
@@ -94,7 +91,7 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main ref={root} className="experience" data-version="58" data-ui-pending={ready===0&&!error}
+ return <main ref={root} className="experience" data-version="59" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
@@ -103,7 +100,7 @@ export default function Experience(){
    </div>
    <div className="product-readout">
     <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Prezzo dimostrativo '+price+' euro'}>
-     <span className="currency">€</span>{' '}<span data-price>{price}</span>
+     <span className="currency">€</span><span data-price>{price}</span>
     </div>
     <ConfigurationSummary model={selected} config={selectedConfig}/>
    </div>
@@ -115,18 +112,12 @@ export default function Experience(){
     onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button>
   </header>
 
-  <div className="knife-nav" role="group" aria-label="Scelta del coltello">
-   <div className="knife-picker">
+  <div className="knife-nav" role="group" aria-label="Selezione e posa del coltello">
    <button type="button" className="knife-step previous" aria-label="Coltello precedente" title="Coltello precedente"
-    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={16}/></button>
-   <div className="knife-dots">
-    {KNIVES.map((name,i)=><button type="button" key={name} data-knife={name} aria-label={'Seleziona '+name} title={name}
-     aria-pressed={i===selected} disabled={!s.ready.includes(i)}
-     onClick={()=>choose(nearestChapter(s.knifeDestination??s.orbit,i))}><span/></button>)}
-   </div>
+    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={31}/></button>
+   <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    <button type="button" className="knife-step next" aria-label="Coltello successivo" title="Coltello successivo"
-    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={16}/></button>
-   </div>
+    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={31}/></button>
   </div>
 
   <footer className="control-dock">
@@ -140,12 +131,11 @@ export default function Experience(){
      <TechnicalHud value={s} lightPreset={s.lightPreset} model={selected} onView={preset}
       onLight={id=>{s.lightPreset=id;s.activity++;refresh();}}/>
     </section>
-    <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    </div>
    <nav className="sequence-nav" data-chrome aria-label="Navigazione showroom">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Vai a '+name} title={name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>
-     <span className="nav-tile"><Glyph name={chapterIcons[i]} size={23}/></span>
+     <ChapterTile icon={chapterIcons[i]}/>
     </button>)}
    </nav>
   </footer>
