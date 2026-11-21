@@ -50,8 +50,6 @@ function PanelTitle({text}: {text:string}) {
  return <h2 className="panel-title" aria-label={text}><TrackedLetters text={text}/></h2>;
 }
 
-const surfaceNames={blade:'lama',handle:'manico',metals:'dettagli'};
-
 type Kind='color'|'style';
 function Sample({item,index,row}:{item:Option;index:number;row:number}){
  const style:CSSProperties=item.motif?{}:{backgroundPosition:index*20+'% '+(row/24*100)+'%'};
@@ -61,20 +59,20 @@ function Sample({item,index,row}:{item:Option;index:number;row:number}){
 const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'METALS'};
 
 export function ConfigurationSummary({model, config}: {model:number; config:Configuration}) {
- return <dl className="configuration" aria-label="Configurazione attiva">
+ return <dl className="configuration" aria-label="Current configuration">
   {SURFACES.map(surface => {
    const options = CATALOGUE[KNIVES[model]][surface];
    const selected = config[surface];
    const material = options.styles[selected.style], color = options.colors[selected.color];
    return <div key={surface} data-config={surface}>
-    <dt>{partLabels[surface]}</dt>
-    <dd aria-label={'Materiale, '+material.name}>
+    <dt><span className="part-marker" aria-hidden="true">//</span><span>{partLabels[surface]}</span></dt>
+    <dd aria-label={'Style: '+material.name}>
      <span className="config-swatch config-finish" aria-hidden="true">
       <Sample item={material} index={selected.style} row={options.swatchRow+1}/>
      </span>
      <span data-material-name>{material.name}</span>
     </dd>
-    <dd aria-label={'Colore, '+color.name}>
+    <dd aria-label={'Color: '+color.name}>
      <span className="config-swatch config-tone" aria-hidden="true">
       <Sample item={color} index={selected.color} row={options.swatchRow}/>
      </span>
@@ -88,10 +86,10 @@ export function ConfigurationSummary({model, config}: {model:number; config:Conf
 function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
  kind:Kind;surface:Surface;options:Option[];selected:number;row:number;onSelect:(index:number)=>void
 }){
- return <div className="control-group choice-group"><PanelTitle text={kind==='style'?'MATERIAL':'COLOR'}/>
-  <div className="choice-grid" role="group" aria-label={(kind==='color'?'Colore ':'Materiale ')+surfaceNames[surface]}>
+ return <div className="control-group choice-group"><PanelTitle text={kind==='style'?'STYLE':'COLOR'}/>
+  <div className="choice-grid" role="group" aria-label={surface+' '+kind}>
    {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind} title={item.name}
-    aria-label={item.name} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
+    aria-label={item.name} aria-description={item.description} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
     <span className="sample-outline"><Sample item={item} index={i} row={row}/></span>
    </button>)}
   </div></div>;
@@ -110,17 +108,17 @@ export function MaterialHud({surface,model,config,onChange}:{
 }
 type PoseValues=Pick<DemoState,'closed'|'exploded'>;
 export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof PoseValues,n:number)=>void}){
- return <div className="pose-hud" role="group" aria-label="Posa del modello" data-pose>
+ return <div className="pose-hud" role="group" aria-label="Model pose" data-pose>
   {(['closed','exploded'] as const).map((key,i)=>{
    const pressed=value[key]>.5;
-   const action=i?(pressed?'Ricomponi il modello':'Esplodi il modello'):(pressed?'Apri la lama':'Chiudi la lama');
-   return <button type="button" key={key} data-control={key} aria-label={i?'Vista esplosa':'Lama chiusa'} aria-pressed={pressed} title={action}
+   const action=i?(pressed?'Reassemble model':'Explode model'):(pressed?'Open blade':'Close blade');
+   return <button type="button" key={key} data-control={key} aria-label={i?'Exploded view':'Closed blade'} aria-pressed={pressed} title={action}
     onClick={()=>onValue(key,pressed?0:1)}><Glyph name={i?'explode':pressed?'bladeClosed':'blade'} size={31}/></button>;
   })}
  </div>;
 }
 
-const cameraLabels:Record<View,string>={side:'Laterale',top:'Dall’alto',edge:'Frontale',perspective:'Prospettica',clip:'Clip',screw:'Viti'};
+const cameraLabels:Record<View,string>={side:'Side',top:'Top',edge:'End-on',perspective:'Perspective',clip:'Pocket clip',screw:'Screws'};
 type TechnicalProps = {
  value: Pick<DemoState, 'view' | 'rotation'>;
  lightPreset: LightPreset;
@@ -131,22 +129,22 @@ type TechnicalProps = {
 
 export function TechnicalHud({value, lightPreset, model, onView, onLight}: TechnicalProps) {
  return <div className="technical-hud hud-panel" data-panel>
-  <div className="control-group camera-block" role="group" aria-label="Inquadrature">
+  <div className="control-group camera-block" role="group" aria-label="Camera views">
    <PanelTitle text="CAMERA"/>
    <div className="view-row">{(Object.keys(cameraLabels) as View[]).map(view => {
     const loop = view==='clip' && KNIVES[model]==='EDGE';
-    const name = loop ? 'Anello posteriore' : cameraLabels[view];
-    return <button type="button" key={view} data-view={view} title={name} aria-label={'Vista '+name.toLowerCase()}
+    const name = loop ? 'Rear loop' : cameraLabels[view];
+    return <button type="button" key={view} data-view={view} title={name} aria-label={name+' view'}
      aria-pressed={value.view===view && !hasManualRotation(value)} onClick={() => onView(view)}>
      <Glyph name={loop?'loop':view} size={28}/>
     </button>;
    })}</div>
   </div>
-  <div className="control-group light-block" role="group" aria-label="Illuminazione">
-   <PanelTitle text="LIGHTING"/>
+  <div className="control-group light-block" role="group" aria-label="Light presets">
+   <PanelTitle text="LIGHT"/>
    <div className="lighting-grid">{LIGHT_ORDER.map((id,index)=>{
     const setup=LIGHT_PRESETS[id];
-    return <button type="button" key={id} data-light-preset={id} aria-label={'Luce '+setup.label}
+    return <button type="button" key={id} data-light-preset={id} aria-label={setup.label+' light'}
      aria-description={setup.description} title={setup.label+' · '+setup.description} aria-pressed={lightPreset===id}
      onClick={()=>onLight(id)}>
      <span className="lighting-preview" aria-hidden="true" style={{backgroundPosition:(index*20)+'% 50%'}}/>
