@@ -2,7 +2,7 @@ import type {Metadata,Viewport} from 'next';
 import '@fontsource/michroma/400.css';
 import './globals.css';
 export const viewport:Viewport={width:'device-width',initialScale:1,viewportFit:'cover'};
-export const metadata:Metadata={title:'MEMENTO — Knives Continuum',description:'Cinque coltelli. Un solo movimento. Esplora lama, manico e metalli in uno showroom 3D continuo.'};
+export const metadata:Metadata={title:'MEMENTO — Knives Continuum',description:'Explore five folding knives in the Memento 3D showroom. Choose a style and color for the blade, handle and metal details.'};
 // An asset/network failure can happen before React mounts. Keep recovery outside
 // the app bundle so a failed entry chunk cannot leave an indefinite loading screen.
 const startup=`(()=>{
@@ -14,4 +14,4 @@ const startup=`(()=>{
   const notice=document.getElementById('startup-recovery');if(notice)notice.hidden=false;
  },20000);
 })();`;
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="it" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:startup}}/></head><body>{children}<div id="startup-recovery" className="startup-recovery" role="alert" hidden><p>Caricamento interrotto.</p><a href="/">Ricarica la demo</a></div></body></html>;}
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:startup}}/></head><body>{children}<div id="startup-recovery" className="startup-recovery" role="alert" hidden><p>Loading was interrupted.</p><a href="/">Reload the showroom</a></div></body></html>;}
