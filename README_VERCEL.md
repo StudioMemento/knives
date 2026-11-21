@@ -4,7 +4,7 @@ Showroom dei cinque modelli, sviluppato sulla V58. La radice dello ZIP corrispon
 
 ## Avvio
 
-Con Node.js 22.18 o successivo, esegui `npm ci` e `npm run dev`. Per validare il progetto usa `npm run check`, `npm test` e `npm run build`.
+Usa Node.js 24.x in locale e su Vercel. Per avviare lo showroom esegui `npm ci` e `npm run dev`. Per validare il progetto usa `npm run check`, `npm test` e `npm run build`.
 
 ## Interfaccia
 
