@@ -47,11 +47,17 @@ export function createLightStage(frontLayer=3){
  const group=new THREE.Group(),r=RAIL.radius,half=.069,depth=.013;
  group.position.set(0,RAIL.floorY,RAIL.centerZ);
  const floor=new THREE.MeshStandardMaterial({color:'#12110f',roughness:.98,metalness:0,envMapIntensity:.025,transparent:true});
+ const summaryBounds={value:new THREE.Vector4(-200,-200,-200,-200)},cssPixel={value:1};
  floor.onBeforeCompile=shader=>{
+  shader.uniforms.uSummaryBounds=summaryBounds;
+  shader.uniforms.uCssPixel=cssPixel;
   shader.vertexShader='varying vec2 vGround;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vGround=position.xy;');
-  shader.fragmentShader='varying vec2 vGround;\n'+shader.fragmentShader.replace('#include <opaque_fragment>',`
+  shader.fragmentShader='varying vec2 vGround; uniform vec4 uSummaryBounds; uniform float uCssPixel;\n'+shader.fragmentShader.replace('#include <opaque_fragment>',`
    float extent=length(vGround);
    diffuseColor.a*=1.-smoothstep(4.6,10.0,extent);
+   vec2 screen=gl_FragCoord.xy*uCssPixel;
+   vec2 outside=max(uSummaryBounds.xy-screen,screen-uSummaryBounds.zw);
+   diffuseColor.a*=mix(.13,1.,smoothstep(0.,36.,max(outside.x,outside.y)));
    outgoingLight*=.27;
    #include <opaque_fragment>`);
  };
@@ -103,7 +109,13 @@ export function createLightStage(frontLayer=3){
   for(const lamp of lamps)lamp.intensity=3.6*preset.ringLight;
  }
  setPreset('studio');
- return {group,setPreset,update(index:number,dt:number,hero?:THREE.Vector3){
+ // Allow text behind the floor to read through. The product and the luminous
+ // rim keep their own materials, so both retain their normal foreground depth.
+ function setSummaryBounds(bounds:DOMRectReadOnly,viewport:DOMRectReadOnly,pixelRatio:number){
+  summaryBounds.value.set(bounds.left-viewport.left,viewport.bottom-bounds.bottom,bounds.right-viewport.left,viewport.bottom-bounds.top);
+  cssPixel.value=1/pixelRatio;
+ }
+ return {group,setPreset,setSummaryBounds,update(index:number,dt:number,hero?:THREE.Vector3){
   aim.set(hero?.x??0,hero?.y??.35,hero?.z??0).sub(group.position);spot.target.position.copy(aim);
   target.set(STAGE_COLORS[KNIVES[index]]);lightColor.lerp(target,1-Math.exp(-4*dt));
   emitter.color.copy(lightColor);halo.uniforms.uLight.value.copy(lightColor);

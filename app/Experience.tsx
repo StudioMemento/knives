@@ -5,7 +5,7 @@ import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,ChapterTile,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,TrackedLetters} from './Hud';
+import {Brand,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,ProductHeading} from './Hud';
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 const chapterIcons=['stageIcon','bladeIcon','handleIcon','detailsIcon','inspectIcon'] as const;
@@ -91,16 +91,11 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main className="experience" data-version="61" data-ui-pending={ready===0&&!error}
+ return <main className="experience" data-version="62" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <div className="product-info">
-   <div className="product-heading">
-    <h1 className="atmospheric-title" data-product-name aria-label={knife}><TrackedLetters text={knife}/></h1>
-    <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Demo price: '+price+' euros'}>
-     <span className="currency">€</span><span data-price>{price}</span>
-    </div>
-   </div>
+   <ProductHeading name={knife} price={price}/>
    <ConfigurationSummary model={selected} config={selectedConfig}/>
   </div>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
@@ -133,7 +128,7 @@ export default function Experience(){
    <nav className="sequence-nav" data-chrome aria-label="Showroom navigation">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name} title={name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>
-     <ChapterTile icon={chapterIcons[i]}/>
+     <Glyph name={chapterIcons[i]} size={34}/>
     </button>)}
    </nav>
   </footer>

@@ -1,4 +1,4 @@
-# Memento Knives V61
+# Memento Knives V62
 
 This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
 
@@ -8,11 +8,11 @@ Use Node.js 24.x locally and on Vercel. Run `npm ci` and `npm run dev` to start 
 
 ## Controls
 
-The product name, price and Blade/Handle/Metals summary occupy the middle 80% of the viewport on phones, 70% from 768 px, 60% from 1024 px and 40% from 1920 px. The outer letters of the name align optically with the margins. The price sits below the name in the same upward gradient.
+The product name, price and Blade/Handle/Metals summary occupy the middle 80% of the viewport on phones, 70% from 768 px, 60% from 1024 px and 40% from 1920 px. The name spans the margins as one kerned word. The price uses exactly half its type size. A single gradient rises through both lines.
 
-The logo, five diamond navigation buttons and controls use a separate centered column at 80% of the viewport width, up to 344 px. Beneath the ring, the previous-model, blade, exploded-view and next-model buttons have equal center spacing. Each material panel has six styles and six colors in two three-column grids. The headings align with the artwork at both ends. Inspect uses the same grid for Camera and Light.
+The logo, five outlined navigation symbols and controls use a centered column at 80% of the viewport width, up to 344 px. Each navigation symbol has its own diagonal silhouette. Beneath the ring, four evenly spaced controls pick up its color. Style and Color each offer six variants. The gap below each heading matches the gap between its swatch rows. Inspect uses six framed camera symbols and six square lighting samples.
 
-The 3D ring supplies the live tint for the headings, summary, active controls and keyboard focus. The summary shows a style and a color for each part, with the double slash on the swatch edge and the names on a shared text column. Selections are saved per model. The prices shown are demo prices in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
+The 3D ring supplies the live tint for headings, swatch outlines, controls and keyboard focus. In each summary group the double slash ends at the right edge of the thumbnail. Titles and material names share a second column. Selections are saved per model. Demo prices are shown in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
 
 ## Camera and light
 

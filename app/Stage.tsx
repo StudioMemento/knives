@@ -99,6 +99,8 @@ export default function Stage({state,...callbacks}:Props){
   const host=element.parentElement!;
   const pager=host.querySelector<HTMLElement>('.knife-nav')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
+  const summary=host.querySelector<HTMLElement>('.configuration')!;
+  const info=summary.parentElement!;
   let lastRingTint=-1;
   let shotRect:ScreenRect=productArea(false),lastRingLine=-1;
   const frustum=new THREE.Frustum();
@@ -108,17 +110,20 @@ export default function Stage({state,...callbacks}:Props){
   }
   const resize=()=>{
    const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);
-   const ringLine=(pager.getBoundingClientRect().top-element.getBoundingClientRect().top)/h;
+   const viewport=element.getBoundingClientRect();
+   const ringLine=(pager.getBoundingClientRect().top-viewport.top)/h;
    const changed=w!==width||h!==height;
-   if(!changed && Math.abs(lastRingLine-ringLine)<.00001)return;
-   width=w;height=h;portrait=h>w;lastRingLine=ringLine;
    if(changed){
+    width=w;height=h;portrait=h>w;
     const pixels=portrait?1150000:2250000;
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
     renderer.setSize(w,h,false);
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
+   lightStage.setSummaryBounds(summary.getBoundingClientRect(),viewport,renderer.getPixelRatio());
+   if(!changed && Math.abs(lastRingLine-ringLine)<.00001)return;
+   lastRingLine=ringLine;
    const shift=alignStageCamera(camera,w,h,ringLine);
    productCamera.copy(camera,false);productCamera.updateMatrixWorld();
    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
@@ -129,7 +134,7 @@ export default function Stage({state,...callbacks}:Props){
   };
   resize();
   const observer=new ResizeObserver(resize);
-  for(const observed of [element,pager,dock])observer.observe(observed);
+  for(const observed of [element,pager,dock,info,summary])observer.observe(observed);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
   raycaster.layers.enableAll();

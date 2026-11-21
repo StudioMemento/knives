@@ -23,14 +23,18 @@ function sample(element:HTMLElement,rect:DOMRect){
   // Sample each visual line so wrapped copy has the same silhouette as the DOM.
   for(const match of node.textContent.matchAll(/\S+/g)){
    range.setStart(node,match.index!);range.setEnd(node,match.index!+match[0].length);
-   const box=range.getBoundingClientRect();ink.fillText(css.textTransform==='uppercase'?match[0].toUpperCase():match[0],box.left,box.top);
+   const box=range.getBoundingClientRect(),word=css.textTransform==='uppercase'?match[0].toUpperCase():match[0];
+   const width=ink.measureText(word).width;
+   if(width>0){
+    ink.save();ink.translate(box.left,box.top);ink.scale(box.width/width,1);ink.fillText(word,0,0);ink.restore();
+   }
   }
  }
  for(const child of element.querySelectorAll<HTMLElement>('button, input, img')){
   const box=child.getBoundingClientRect();
   if(child instanceof HTMLImageElement&&child.complete&&child.naturalWidth){ink.drawImage(child,box.x,box.y,box.width,box.height);continue;}
   if(child.querySelector('svg'))continue;
-  const sample=child.querySelector('.sample-outline');
+  const sample=child.querySelector('.sample-outline,.lighting-preview');
   if(sample){
    const {x,y,width:w,height:h}=sample.getBoundingClientRect();
    const cut=child.classList.contains('style')?w*.23:0;
