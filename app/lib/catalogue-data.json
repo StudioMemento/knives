@@ -8,8 +8,8 @@
       ],
       "colors": [
         {
-          "name": "Grafite",
-          "description": "Antracite uniforme su tutta la lama.",
+          "name": "Graphite",
+          "description": "Even charcoal gray across the blade.",
           "hex": [
             "#414852"
           ],
@@ -17,7 +17,7 @@
         },
         {
           "name": "Gunmetal",
-          "description": "Piano canna di fucile, bisello chiaro.",
+          "description": "A gunmetal face with a lighter bevel.",
           "hex": [
             "#414A57",
             "#9CA8B4"
@@ -25,8 +25,8 @@
           "surcharge": 0
         },
         {
-          "name": "Carbonio freddo",
-          "description": "Piano carbone, dorso grigio medio.",
+          "name": "Cool carbon",
+          "description": "A charcoal face and a mid-gray spine.",
           "hex": [
             "#333B42",
             "#555F68"
@@ -34,8 +34,8 @@
           "surcharge": 9
         },
         {
-          "name": "Blu notte",
-          "description": "Blu-nero al tallone, ardesia in punta.",
+          "name": "Midnight blue",
+          "description": "Blue-black at the heel fades to slate at the tip.",
           "hex": [
             "#263745",
             "#647789"
@@ -43,8 +43,8 @@
           "surcharge": 13
         },
         {
-          "name": "Linea ghiaccio",
-          "description": "Un filetto chiaro segue il bisello.",
+          "name": "Ice line",
+          "description": "A fine, pale line follows the bevel.",
           "hex": [
             "#323B44",
             "#B9C7D0"
@@ -52,8 +52,8 @@
           "surcharge": 16
         },
         {
-          "name": "Tre toni",
-          "description": "Dorso scuro, piano grigio, bisello argento.",
+          "name": "Three-tone",
+          "description": "A dark spine, gray face and silver bevel.",
           "hex": [
             "#30363D",
             "#6C7883",
@@ -64,33 +64,33 @@
       ],
       "styles": [
         {
-          "name": "Satinato lineare",
-          "description": "Il riflesso segue l’asse lungo.",
+          "name": "Linear satin",
+          "description": "The highlight follows the length of the blade.",
           "surcharge": 0
         },
         {
-          "name": "Lucido tipo DLC",
-          "description": "Luce stretta, continua sul piano.",
+          "name": "DLC gloss",
+          "description": "A narrow, unbroken highlight runs along the face.",
           "surcharge": 18
         },
         {
-          "name": "Micropallinato",
-          "description": "La luce si allarga in modo uniforme.",
+          "name": "Fine bead blast",
+          "description": "Light spreads evenly across the surface.",
           "surcharge": 8
         },
         {
-          "name": "Stonewash fine",
-          "description": "Le microtracce emergono in controluce.",
+          "name": "Fine stonewash",
+          "description": "Backlighting reveals a fine pattern of marks.",
           "surcharge": 12
         },
         {
-          "name": "Doppio satinato",
-          "description": "Due fasce di luce ruotano separatamente.",
+          "name": "Dual satin",
+          "description": "Two bands of light turn independently.",
           "surcharge": 22
         },
         {
-          "name": "Spazzolato fitto",
-          "description": "La banda resta leggibile anche di lato.",
+          "name": "Fine brushed",
+          "description": "The band of light stays visible even from the side.",
           "surcharge": 10
         }
       ]
@@ -103,8 +103,8 @@
       ],
       "colors": [
         {
-          "name": "Nero freddo",
-          "description": "Nero bluastro uniforme.",
+          "name": "Cool black",
+          "description": "A uniform blue-black.",
           "hex": [
             "#191F28"
           ],
@@ -112,7 +112,7 @@
         },
         {
           "name": "Gunmetal",
-          "description": "Campitura fucile, fascia ardesia.",
+          "description": "A gunmetal field with a slate band.",
           "hex": [
             "#4D5966",
             "#323C47"
@@ -120,8 +120,8 @@
           "surcharge": 8
         },
         {
-          "name": "Grafite",
-          "description": "Grafite scura con inserto tono su tono.",
+          "name": "Graphite",
+          "description": "Dark graphite with a matching insert.",
           "hex": [
             "#292E36",
             "#58616A"
@@ -129,8 +129,8 @@
           "surcharge": 0
         },
         {
-          "name": "Notte blu",
-          "description": "Blu notte sul piano, nero sui fianchi.",
+          "name": "Midnight blue",
+          "description": "Midnight blue across the face with black sides.",
           "hex": [
             "#293C54",
             "#1B212B"
@@ -138,8 +138,8 @@
           "surcharge": 10
         },
         {
-          "name": "Titanio fumo",
-          "description": "Dal titanio chiaro al fumo lungo l’asse.",
+          "name": "Smoked titanium",
+          "description": "Pale titanium fades to smoke gray along the handle.",
           "hex": [
             "#74808C",
             "#424D5A"
@@ -147,8 +147,8 @@
           "surcharge": 14
         },
         {
-          "name": "Ghiaccio",
-          "description": "Antracite, ardesia, filetto ghiaccio.",
+          "name": "Ice",
+          "description": "Charcoal and slate with a fine ice-white line.",
           "hex": [
             "#252C36",
             "#526477",
@@ -159,38 +159,38 @@
       ],
       "styles": [
         {
-          "name": "DLC opaco",
-          "description": "Rivestimento scuro, grana impalpabile.",
+          "name": "Matte DLC",
+          "description": "A dark coating with an almost imperceptible grain.",
           "motif": "matte",
           "surcharge": 6
         },
         {
-          "name": "DLC lucido",
-          "description": "Rivestimento liscio, riflesso stretto.",
+          "name": "Gloss DLC",
+          "description": "A smooth coating with a narrow highlight.",
           "motif": "polish",
           "surcharge": 14
         },
         {
-          "name": "Satinato",
-          "description": "Strie fini lungo l’asse, rilievo minimo.",
+          "name": "Satin",
+          "description": "Fine lengthwise lines with very little relief.",
           "motif": "brush",
           "surcharge": 9
         },
         {
-          "name": "Microbillé",
-          "description": "Titanio a grana minuta, isotropa.",
+          "name": "Fine bead blast",
+          "description": "A fine, even grain in the titanium.",
           "motif": "grain",
           "surcharge": 11
         },
         {
           "name": "Stonewash",
-          "description": "Segni corti sovrapposti, senza direzione.",
+          "description": "Short, overlapping marks run in every direction.",
           "motif": "stone",
           "surcharge": 16
         },
         {
-          "name": "Carbonio",
-          "description": "Twill 2×2 sotto resina, rilievo lieve.",
+          "name": "Carbon fiber",
+          "description": "A subtly textured 2×2 twill under resin.",
           "motif": "weave",
           "surcharge": 0
         }
@@ -204,16 +204,16 @@
       ],
       "colors": [
         {
-          "name": "Grafite integrale",
-          "description": "Grafite su tutta la minuteria esterna.",
+          "name": "Solid graphite",
+          "description": "All exterior hardware is graphite.",
           "hex": [
             "#41474E"
           ],
           "surcharge": 3
         },
         {
-          "name": "Pivot ghiaccio",
-          "description": "Clip scura, pivot argento, viti grafite.",
+          "name": "Ice pivot",
+          "description": "A dark clip, silver pivot and graphite screws.",
           "hex": [
             "#30363E",
             "#BAC3CB"
@@ -221,8 +221,8 @@
           "surcharge": 0
         },
         {
-          "name": "Blu canna",
-          "description": "Clip blu-nera, pivot e inserto grigi.",
+          "name": "Gun blue",
+          "description": "A blue-black clip with a gray pivot and insert.",
           "hex": [
             "#384959",
             "#778592"
@@ -230,8 +230,8 @@
           "surcharge": 8
         },
         {
-          "name": "Coda titanio",
-          "description": "Inserto di coda chiaro su dettagli scuri.",
+          "name": "Titanium tail",
+          "description": "A pale tail insert against dark hardware.",
           "hex": [
             "#444A50",
             "#9EA7A8"
@@ -239,8 +239,8 @@
           "surcharge": 5
         },
         {
-          "name": "Nero su nero",
-          "description": "Clip carbone, viti un tono più chiare.",
+          "name": "Black on black",
+          "description": "A charcoal clip with slightly lighter screws.",
           "hex": [
             "#2C3035",
             "#464C51"
@@ -248,8 +248,8 @@
           "surcharge": 10
         },
         {
-          "name": "Triplo gunmetal",
-          "description": "Clip carbone, inserto medio, pivot chiaro.",
+          "name": "Three-tone gunmetal",
+          "description": "A charcoal clip, mid-gray insert and pale pivot.",
           "hex": [
             "#363C42",
             "#68727B",
@@ -260,33 +260,33 @@
       ],
       "styles": [
         {
-          "name": "Satinato fine",
-          "description": "Un filetto di luce percorre la clip.",
+          "name": "Fine satin",
+          "description": "A thin highlight runs along the clip.",
           "surcharge": 0
         },
         {
-          "name": "Lucido selettivo",
-          "description": "Solo i contorni danno riflessi netti.",
+          "name": "Selective polish",
+          "description": "Only the contours catch sharp highlights.",
           "surcharge": 9
         },
         {
-          "name": "Micropallinato",
-          "description": "Il pivot resta leggibile da più angoli.",
+          "name": "Fine bead blast",
+          "description": "The pivot stays defined from several angles.",
           "surcharge": 5
         },
         {
-          "name": "Spazzolato circolare",
-          "description": "La luce gira attorno alla testa del pivot.",
+          "name": "Circular brushed",
+          "description": "The highlight circles the pivot head.",
           "surcharge": 12
         },
         {
-          "name": "Stonewash fine",
-          "description": "Sulla clip il riflesso si frammenta.",
+          "name": "Fine stonewash",
+          "description": "The finish breaks up reflections on the clip.",
           "surcharge": 7
         },
         {
-          "name": "Satinato incrociato",
-          "description": "La clip mostra due direzioni di luce.",
+          "name": "Cross satin",
+          "description": "The clip catches light in two directions.",
           "surcharge": 15
         }
       ]
@@ -301,8 +301,8 @@
       ],
       "colors": [
         {
-          "name": "Cobalto UV",
-          "description": "Sul piano, blu frontale e viola di taglio.",
+          "name": "UV cobalt",
+          "description": "The face looks blue head-on and violet at an angle.",
           "hex": [
             "#385DB4",
             "#8249AA"
@@ -310,8 +310,8 @@
           "surcharge": 0
         },
         {
-          "name": "Petrolio",
-          "description": "Dal verde petrolio al turchese sul piano.",
+          "name": "Petrol",
+          "description": "The face shifts from deep teal to turquoise.",
           "hex": [
             "#24616B",
             "#369CA2"
@@ -319,8 +319,8 @@
           "surcharge": 6
         },
         {
-          "name": "Ione viola",
-          "description": "Viola profondo con riflesso magenta.",
+          "name": "Violet ion",
+          "description": "Deep violet with a magenta reflection.",
           "hex": [
             "#51408D",
             "#AE598C"
@@ -328,8 +328,8 @@
           "surcharge": 9
         },
         {
-          "name": "Verde acido",
-          "description": "Piano verde cupo, fascia lime sul dorso.",
+          "name": "Acid green",
+          "description": "A dark green face with a lime band along the spine.",
           "hex": [
             "#405346",
             "#91AA51"
@@ -337,8 +337,8 @@
           "surcharge": 12
         },
         {
-          "name": "Spettro",
-          "description": "Tre note ottiche sul piano, acciaio sul bisello.",
+          "name": "Spectrum",
+          "description": "Three shifting hues cross the face above a steel bevel.",
           "hex": [
             "#4778AE",
             "#764C98",
@@ -347,8 +347,8 @@
           "surcharge": 20
         },
         {
-          "name": "Ossidiana",
-          "description": "Piano fumo, banda viola al tallone.",
+          "name": "Obsidian",
+          "description": "A smoke-gray face with a violet band at the heel.",
           "hex": [
             "#3D4149",
             "#6C59A6"
@@ -358,33 +358,33 @@
       ],
       "styles": [
         {
-          "name": "Lucido a film",
-          "description": "Il cambio di tinta segue la vista.",
+          "name": "Gloss film",
+          "description": "The hue shifts with the viewing angle.",
           "surcharge": 0
         },
         {
-          "name": "Satinato seta",
-          "description": "La banda cromatica si allunga.",
+          "name": "Silk satin",
+          "description": "The finish draws the band of color into a long highlight.",
           "surcharge": 9
         },
         {
-          "name": "Micropallinato",
-          "description": "Il riflesso si apre e perde saturazione.",
+          "name": "Fine bead blast",
+          "description": "A softer, wider highlight mutes the color.",
           "surcharge": 13
         },
         {
-          "name": "Damasco a onde",
-          "description": "La trama resta fissa mentre ruota la tinta.",
+          "name": "Wave Damascus",
+          "description": "The pattern stays fixed as the color shifts.",
           "surcharge": 35
         },
         {
-          "name": "Contrasto di piani",
-          "description": "Un piano riflette, l’altro diffonde.",
+          "name": "Split finish",
+          "description": "One face reflects light while the other diffuses it.",
           "surcharge": 22
         },
         {
-          "name": "Stonewash leggero",
-          "description": "Piccole interruzioni dentro il riflesso.",
+          "name": "Light stonewash",
+          "description": "Fine marks interrupt the highlight.",
           "surcharge": 15
         }
       ]
@@ -397,8 +397,8 @@
       ],
       "colors": [
         {
-          "name": "Veleno",
-          "description": "Fondo scuro, isole verdi e giallo zolfo.",
+          "name": "Venom",
+          "description": "Green and sulfur-yellow islands on a dark ground.",
           "hex": [
             "#26332E",
             "#537F50",
@@ -407,8 +407,8 @@
           "surcharge": 5
         },
         {
-          "name": "Iride",
-          "description": "Viola, blu e rame in bande sinuose.",
+          "name": "Iris",
+          "description": "Violet, blue and copper flow in curved bands.",
           "hex": [
             "#523588",
             "#354EB0",
@@ -417,8 +417,8 @@
           "surcharge": 0
         },
         {
-          "name": "Petrolio",
-          "description": "Dal verde petrolio al blu e al viola.",
+          "name": "Petrol",
+          "description": "Deep teal shifts through blue to violet.",
           "hex": [
             "#28585A",
             "#2A6191",
@@ -427,16 +427,16 @@
           "surcharge": 9
         },
         {
-          "name": "Ametista",
-          "description": "Viola freddo uniforme.",
+          "name": "Amethyst",
+          "description": "An even, cool violet.",
           "hex": [
             "#6A478E"
           ],
           "surcharge": 12
         },
         {
-          "name": "Vespa",
-          "description": "Grafite con una sola fascia miele.",
+          "name": "Wasp",
+          "description": "A single honey-colored band crosses the graphite.",
           "hex": [
             "#242526",
             "#D6A349"
@@ -444,8 +444,8 @@
           "surcharge": 16
         },
         {
-          "name": "Cobalto",
-          "description": "Blu saturo, accento azzurro sulle facce.",
+          "name": "Cobalt",
+          "description": "Saturated blue with pale blue accents on the faces.",
           "hex": [
             "#293F88",
             "#6389AB"
@@ -455,38 +455,38 @@
       ],
       "styles": [
         {
-          "name": "Anodizzato",
-          "description": "Titanio liscio, film ottico uniforme.",
+          "name": "Anodized",
+          "description": "Smooth titanium with an even optical film.",
           "motif": "polish",
           "surcharge": 14
         },
         {
-          "name": "Anod. opaco",
-          "description": "Film su titanio microbillé, riflesso largo.",
+          "name": "Matte anodized",
+          "description": "A film over bead-blasted titanium gives a broad highlight.",
           "motif": "matte",
           "surcharge": 9
         },
         {
           "name": "Timascus",
-          "description": "Bande di lega, normale quasi piatta.",
+          "description": "Bands of titanium alloy with almost no surface relief.",
           "motif": "wave",
           "surcharge": 0
         },
         {
-          "name": "Spazzolato",
-          "description": "Strie parallele sotto il film sottile.",
+          "name": "Brushed",
+          "description": "Parallel lines run beneath the thin film.",
           "motif": "brush",
           "surcharge": 7
         },
         {
           "name": "Stonewash",
-          "description": "Microsegni casuali, risposta più diffusa.",
+          "description": "Random fine marks soften the reflected light.",
           "motif": "stone",
           "surcharge": 11
         },
         {
-          "name": "Carbonio",
-          "description": "Strati colorati sotto resina satinata.",
+          "name": "Carbon fiber",
+          "description": "Colored layers sit beneath satin resin.",
           "motif": "weave",
           "surcharge": 18
         }
@@ -500,8 +500,8 @@
       ],
       "colors": [
         {
-          "name": "Cobalto",
-          "description": "Clip blu, pivot e perno azzurri.",
+          "name": "Cobalt",
+          "description": "A blue clip with a pale blue pivot and pin.",
           "hex": [
             "#35558F",
             "#568ECC"
@@ -509,8 +509,8 @@
           "surcharge": 4
         },
         {
-          "name": "Iride viola",
-          "description": "Clip blu-viola, perno blu, viti neutre.",
+          "name": "Violet iris",
+          "description": "A blue-violet clip, blue pin and neutral screws.",
           "hex": [
             "#4A6BB5",
             "#784FA1",
@@ -520,7 +520,7 @@
         },
         {
           "name": "Wasabi",
-          "description": "Clip grafite, perno e pivot lime.",
+          "description": "A graphite clip with a lime pin and pivot.",
           "hex": [
             "#444C4E",
             "#A4BB56"
@@ -528,8 +528,8 @@
           "surcharge": 8
         },
         {
-          "name": "Orchidea",
-          "description": "Viola e magenta sulla clip, viti neutre.",
+          "name": "Orchid",
+          "description": "Violet and magenta on the clip with neutral screws.",
           "hex": [
             "#593E75",
             "#AF5D92"
@@ -537,8 +537,8 @@
           "surcharge": 10
         },
         {
-          "name": "Olio su titanio",
-          "description": "Bande petrolio, viola e bronzo sulla clip.",
+          "name": "Oil-slick titanium",
+          "description": "Teal, violet and bronze bands cross the clip.",
           "hex": [
             "#477E8A",
             "#655BA6",
@@ -547,8 +547,8 @@
           "surcharge": 17
         },
         {
-          "name": "Un lampo",
-          "description": "Il solo perno si accende di turchese.",
+          "name": "Flash",
+          "description": "A single turquoise pin catches the eye.",
           "hex": [
             "#44494E",
             "#40A8AA"
@@ -558,33 +558,33 @@
       ],
       "styles": [
         {
-          "name": "Titanio a onde",
-          "description": "Le onde restano ferme sulla superficie.",
+          "name": "Wave titanium",
+          "description": "The wave pattern stays fixed on the surface.",
           "surcharge": 0
         },
         {
-          "name": "Film lucido",
-          "description": "La dominante cambia con l’angolo.",
+          "name": "Gloss film",
+          "description": "The dominant hue changes with the viewing angle.",
           "surcharge": 16
         },
         {
-          "name": "Seta anodizzata",
-          "description": "Un riflesso allungato stempera la tinta.",
+          "name": "Anodized silk",
+          "description": "An elongated highlight softens the color.",
           "surcharge": 9
         },
         {
-          "name": "Cristallino",
-          "description": "La luce appare in chiazze angolari.",
+          "name": "Crystalline",
+          "description": "Light appears in angular patches.",
           "surcharge": 22
         },
         {
-          "name": "Radiale sul pivot",
-          "description": "Il riflesso rimane centrato sul pivot.",
+          "name": "Radial pivot",
+          "description": "The highlight stays centered on the pivot.",
           "surcharge": 12
         },
         {
-          "name": "Micropallinato",
-          "description": "Accento più morbido sul perno.",
+          "name": "Fine bead blast",
+          "description": "The pin catches a softer highlight.",
           "surcharge": 7
         }
       ]
@@ -599,16 +599,16 @@
       ],
       "colors": [
         {
-          "name": "Argento lino",
-          "description": "Una sola nota d’argento caldo.",
+          "name": "Linen silver",
+          "description": "A single shade of warm silver.",
           "hex": [
             "#B9B7AE"
           ],
           "surcharge": 6
         },
         {
-          "name": "Acciaio champagne",
-          "description": "Piano neutro, dorso champagne.",
+          "name": "Champagne steel",
+          "description": "A neutral face with a champagne spine.",
           "hex": [
             "#AAA9A0",
             "#CAB899"
@@ -616,8 +616,8 @@
           "surcharge": 10
         },
         {
-          "name": "Onda di rame",
-          "description": "Vene rame e rosa sul fianco d’acciaio.",
+          "name": "Copper wave",
+          "description": "Copper and rose veins run across the steel face.",
           "hex": [
             "#AAA7A6",
             "#B67A58",
@@ -626,8 +626,8 @@
           "surcharge": 0
         },
         {
-          "name": "Caffè satin",
-          "description": "Piano bruno-grigio, bisello argento.",
+          "name": "Satin coffee",
+          "description": "A gray-brown face with a silver bevel.",
           "hex": [
             "#817972",
             "#B7B3A9"
@@ -635,8 +635,8 @@
           "surcharge": 14
         },
         {
-          "name": "Ottone pallido",
-          "description": "Filetto color ottone vicino al dorso.",
+          "name": "Pale brass",
+          "description": "A fine brass-colored line runs near the spine.",
           "hex": [
             "#A69F8F",
             "#C6B285"
@@ -644,8 +644,8 @@
           "surcharge": 16
         },
         {
-          "name": "Avorio fumé",
-          "description": "Dall’argento avorio al fumo sul piano.",
+          "name": "Smoked ivory",
+          "description": "Ivory silver fades to smoke gray across the face.",
           "hex": [
             "#CCCCC2",
             "#9D9892",
@@ -656,33 +656,33 @@
       ],
       "styles": [
         {
-          "name": "Satinato seta",
-          "description": "Il riflesso resta morbido e continuo.",
+          "name": "Silk satin",
+          "description": "A soft, continuous highlight runs across the face.",
           "surcharge": 12
         },
         {
-          "name": "Onda laminata",
-          "description": "Le vene alternano fasce lucide e satinate.",
+          "name": "Laminated wave",
+          "description": "Polished and satin bands alternate along the veins.",
           "surcharge": 0
         },
         {
-          "name": "Lucido a specchio",
-          "description": "Il bordo del softbox si legge con precisione.",
+          "name": "Mirror polish",
+          "description": "The edges of the softbox reflect sharply.",
           "surcharge": 20
         },
         {
-          "name": "Doppio satinato",
-          "description": "Il bisello si distingue per la luce.",
+          "name": "Dual satin",
+          "description": "The light picks out the bevel.",
           "surcharge": 15
         },
         {
-          "name": "Stonewash seta",
-          "description": "Riflesso spezzato a contrasto basso.",
+          "name": "Silk stonewash",
+          "description": "Fine marks break up the reflection with little contrast.",
           "surcharge": 9
         },
         {
-          "name": "Microperlé",
-          "description": "Un velo perlaceo addolcisce il piano.",
+          "name": "Pearl blast",
+          "description": "A pearlescent haze softens the face.",
           "surcharge": 17
         }
       ]
@@ -695,8 +695,8 @@
       ],
       "colors": [
         {
-          "name": "Betulla",
-          "description": "Beige chiaro con marezzatura avorio.",
+          "name": "Birch",
+          "description": "Pale beige with ivory figuring.",
           "hex": [
             "#D8C49F",
             "#E4D7B4"
@@ -704,8 +704,8 @@
           "surcharge": 4
         },
         {
-          "name": "Olivo",
-          "description": "Miele con vene brune lunghe e biforcate.",
+          "name": "Olive wood",
+          "description": "Honey-colored wood with long, branching brown veins.",
           "hex": [
             "#C8A069",
             "#8B663F"
@@ -713,8 +713,8 @@
           "surcharge": 0
         },
         {
-          "name": "Noce",
-          "description": "Bruno medio, fibra diritta più scura.",
+          "name": "Walnut",
+          "description": "Medium brown with darker, straight grain.",
           "hex": [
             "#856449",
             "#564234"
@@ -723,7 +723,7 @@
         },
         {
           "name": "Santos",
-          "description": "Bruno rossiccio, vena sottile scura.",
+          "description": "Reddish brown with fine, dark grain.",
           "hex": [
             "#875540",
             "#4E332C"
@@ -732,7 +732,7 @@
         },
         {
           "name": "Macassar",
-          "description": "Bruno e tabacco su fondo quasi nero.",
+          "description": "Brown and tobacco streaks on a near-black ground.",
           "hex": [
             "#473B33",
             "#8B6647",
@@ -741,8 +741,8 @@
           "surcharge": 17
         },
         {
-          "name": "Quercia scura",
-          "description": "Bruno torba uniforme, poro visibile.",
+          "name": "Dark oak",
+          "description": "An even peat brown with visible pores.",
           "hex": [
             "#37312D"
           ],
@@ -751,38 +751,38 @@
       ],
       "styles": [
         {
-          "name": "Satinato",
-          "description": "Poro sottile, riflesso continuo e morbido.",
+          "name": "Satin",
+          "description": "Fine pores with a soft, continuous highlight.",
           "motif": "brush",
           "surcharge": 0
         },
         {
-          "name": "Oliato",
-          "description": "Pori aperti allungati, contrasto locale.",
+          "name": "Oiled",
+          "description": "Elongated open pores give the grain more contrast.",
           "motif": "wood",
           "surcharge": 7
         },
         {
-          "name": "Cerato",
-          "description": "Poro attenuato, riflesso setoso.",
+          "name": "Waxed",
+          "description": "Muted pores with a silky reflection.",
           "motif": "matte",
           "surcharge": 10
         },
         {
-          "name": "Poro aperto",
-          "description": "Solchi discontinui, lungo la fibra.",
+          "name": "Open pore",
+          "description": "Broken grooves follow the grain.",
           "motif": "pore",
           "surcharge": 14
         },
         {
-          "name": "Stabilizzato",
-          "description": "Pori colmati, superficie compatta.",
+          "name": "Stabilized",
+          "description": "Filled pores give the wood a close, even surface.",
           "motif": "wave",
           "surcharge": 21
         },
         {
-          "name": "Lucidato",
-          "description": "Poro appena percepibile sotto luce radente.",
+          "name": "Polished",
+          "description": "Pores are barely visible under raking light.",
           "motif": "polish",
           "surcharge": 17
         }
@@ -797,15 +797,15 @@
       "colors": [
         {
           "name": "Champagne",
-          "description": "Tutta la minuteria in un tono caldo.",
+          "description": "A single warm tone across the hardware.",
           "hex": [
             "#C2B18F"
           ],
           "surcharge": 5
         },
         {
-          "name": "Rame e lino",
-          "description": "Pivot rame, liner champagne, clip neutra.",
+          "name": "Copper and linen",
+          "description": "A copper pivot, champagne liners and a neutral clip.",
           "hex": [
             "#BA805F",
             "#BDA77C",
@@ -814,8 +814,8 @@
           "surcharge": 0
         },
         {
-          "name": "Argento antico",
-          "description": "Clip e pivot argento, supporti grigio caldo.",
+          "name": "Antique silver",
+          "description": "A silver clip and pivot with warm-gray supports.",
           "hex": [
             "#858580",
             "#B7B5A8"
@@ -823,8 +823,8 @@
           "surcharge": 8
         },
         {
-          "name": "Ottone miele",
-          "description": "Distanziali miele, viti bruno scuro.",
+          "name": "Honey brass",
+          "description": "Honey-colored spacers with dark brown screws.",
           "hex": [
             "#BCA26E",
             "#716552"
@@ -833,7 +833,7 @@
         },
         {
           "name": "Mokume",
-          "description": "Vene rame e ottone sul supporto del pivot.",
+          "description": "Copper and brass veins cross the pivot mount.",
           "hex": [
             "#AE7458",
             "#B9A477",
@@ -842,8 +842,8 @@
           "surcharge": 18
         },
         {
-          "name": "Bronzo fumé",
-          "description": "Clip bronzo, perni e distanziali più chiari.",
+          "name": "Smoked bronze",
+          "description": "A bronze clip with lighter pins and spacers.",
           "hex": [
             "#77685B",
             "#A69881"
@@ -853,33 +853,33 @@
       ],
       "styles": [
         {
-          "name": "Satinato seta",
-          "description": "Il riflesso si allunga sul metallo caldo.",
+          "name": "Silk satin",
+          "description": "The highlight stretches across the warm metal.",
           "surcharge": 0
         },
         {
-          "name": "Lucido gioiello",
-          "description": "Le teste dei perni riflettono punti netti.",
+          "name": "Jewelry polish",
+          "description": "Pin heads reflect sharp points of light.",
           "surcharge": 12
         },
         {
-          "name": "Mokume a vene",
-          "description": "Le vene si leggono inclinando il pezzo.",
+          "name": "Veined mokume",
+          "description": "The veins stand out as the model tilts.",
           "surcharge": 27
         },
         {
-          "name": "Radiale fine",
-          "description": "La corona di luce rimane centrata.",
+          "name": "Fine radial",
+          "description": "The ring of light stays centered.",
           "surcharge": 8
         },
         {
-          "name": "Microperlé",
-          "description": "I distanziali hanno un riflesso diffuso.",
+          "name": "Pearl blast",
+          "description": "The spacers give a soft, diffuse reflection.",
           "surcharge": 15
         },
         {
-          "name": "Bordo lucidato",
-          "description": "Un accento lucido segue il perimetro.",
+          "name": "Polished edge",
+          "description": "A polished highlight follows the perimeter.",
           "surcharge": 18
         }
       ]
@@ -894,16 +894,16 @@
       ],
       "colors": [
         {
-          "name": "Inox",
-          "description": "Grigio acciaio su tutta la superficie.",
+          "name": "Stainless",
+          "description": "Steel gray across the entire surface.",
           "hex": [
             "#ABB0B0"
           ],
           "surcharge": 4
         },
         {
-          "name": "Due piani",
-          "description": "Fianco medio, bisello più chiaro.",
+          "name": "Two-tone steel",
+          "description": "A mid-gray face with a lighter bevel.",
           "hex": [
             "#7F8688",
             "#C4C8C7"
@@ -911,8 +911,8 @@
           "surcharge": 0
         },
         {
-          "name": "Piombo",
-          "description": "Piano scuro, dorso grigio ferro.",
+          "name": "Lead",
+          "description": "A dark face with an iron-gray spine.",
           "hex": [
             "#52585B",
             "#898E8E"
@@ -920,8 +920,8 @@
           "surcharge": 7
         },
         {
-          "name": "Acciaio bianco",
-          "description": "Piano chiaro, filetto scuro sul dorso.",
+          "name": "White steel",
+          "description": "A pale face with a dark line along the spine.",
           "hex": [
             "#CDCFCC",
             "#919696"
@@ -929,8 +929,8 @@
           "surcharge": 10
         },
         {
-          "name": "Grafite lavata",
-          "description": "Screziature rade su fondo grafite.",
+          "name": "Washed graphite",
+          "description": "Sparse flecks on a graphite ground.",
           "hex": [
             "#53585A",
             "#858A89"
@@ -938,8 +938,8 @@
           "surcharge": 12
         },
         {
-          "name": "Tre grigi",
-          "description": "Dorso, piano e bisello su tre valori.",
+          "name": "Three grays",
+          "description": "The spine, face and bevel each have a different shade of gray.",
           "hex": [
             "#747A7D",
             "#A3A7A7",
@@ -950,33 +950,33 @@
       ],
       "styles": [
         {
-          "name": "Satinato macchina",
-          "description": "La fascia di luce rimane diritta.",
+          "name": "Machine satin",
+          "description": "The band of light stays straight.",
           "surcharge": 0
         },
         {
           "name": "Stonewash",
-          "description": "Le tracce si leggono in più direzioni.",
+          "description": "The marks are visible from several angles.",
           "surcharge": 8
         },
         {
-          "name": "Stonewash scuro",
-          "description": "Sul fondo scuro emergono segni chiari.",
+          "name": "Dark stonewash",
+          "description": "Pale marks stand out against the dark ground.",
           "surcharge": 14
         },
         {
-          "name": "Micropallinato",
-          "description": "Il riflesso copre un’area ampia.",
+          "name": "Fine bead blast",
+          "description": "The reflection spreads over a broad area.",
           "surcharge": 10
         },
         {
-          "name": "Doppia satinatura",
-          "description": "Il bisello stacca sotto luce radente.",
+          "name": "Dual satin",
+          "description": "Raking light brings out the bevel.",
           "surcharge": 18
         },
         {
-          "name": "Spazzolato grosso",
-          "description": "Le strie si distinguono anche a metà zoom.",
+          "name": "Coarse brushed",
+          "description": "The brush lines are visible even at medium zoom.",
           "surcharge": 12
         }
       ]
@@ -989,32 +989,32 @@
       ],
       "colors": [
         {
-          "name": "Inox",
-          "description": "Grigio acciaio chiaro, uniforme.",
+          "name": "Stainless",
+          "description": "A uniform, light steel gray.",
           "hex": [
             "#B5B5B5"
           ],
           "surcharge": 3
         },
         {
-          "name": "Titanio",
-          "description": "Grigio medio uniforme.",
+          "name": "Titanium",
+          "description": "An even mid-gray.",
           "hex": [
             "#888888"
           ],
           "surcharge": 0
         },
         {
-          "name": "Canna di fucile",
-          "description": "Grigio scuro uniforme.",
+          "name": "Gunmetal",
+          "description": "An even dark gray.",
           "hex": [
             "#545454"
           ],
           "surcharge": 6
         },
         {
-          "name": "Bicolore",
-          "description": "Piano chiaro e fianchi grafite.",
+          "name": "Two-tone",
+          "description": "A light face with graphite sides.",
           "hex": [
             "#ACACAC",
             "#616161"
@@ -1022,8 +1022,8 @@
           "surcharge": 10
         },
         {
-          "name": "Basalto",
-          "description": "Dal basalto al grigio medio lungo l’asse.",
+          "name": "Basalt",
+          "description": "Basalt gray fades to mid-gray along the handle.",
           "hex": [
             "#444444",
             "#797979"
@@ -1032,7 +1032,7 @@
         },
         {
           "name": "Trimetal",
-          "description": "Piano medio, bordi chiari, anelli scuri.",
+          "description": "A mid-gray face, pale edges and dark rings.",
           "hex": [
             "#686868",
             "#AAAAAA",
@@ -1044,37 +1044,37 @@
       "styles": [
         {
           "name": "Glass blast",
-          "description": "Puntinato fine e compatto, riflesso largo.",
+          "description": "Fine, closely spaced speckles give a broad reflection.",
           "motif": "grain",
           "surcharge": 8
         },
         {
           "name": "Sandblast",
-          "description": "Grana più aperta, bordo del riflesso sfumato.",
+          "description": "A more open grain softens the edge of the highlight.",
           "motif": "pore",
           "surcharge": 11
         },
         {
-          "name": "Spazzolato",
-          "description": "Strie parallele, direzione continua.",
+          "name": "Brushed",
+          "description": "Parallel lines run in one direction.",
           "motif": "brush",
           "surcharge": 6
         },
         {
           "name": "Stonewash",
-          "description": "Micrograffi incrociati, distribuiti a chiazze.",
+          "description": "Fine, crossing scratches cluster in patches.",
           "motif": "stone",
           "surcharge": 14
         },
         {
-          "name": "Fresato",
-          "description": "Reticolo inciso su piano, creste regolari.",
+          "name": "Milled",
+          "description": "A milled grid on the face forms evenly spaced ridges.",
           "motif": "weave",
           "surcharge": 0
         },
         {
-          "name": "Lucido",
-          "description": "Piano liscio, contorni del softbox netti.",
+          "name": "Polished",
+          "description": "A smooth face reflects the outline of the softbox sharply.",
           "motif": "polish",
           "surcharge": 19
         }
@@ -1088,16 +1088,16 @@
       ],
       "colors": [
         {
-          "name": "Acciaio pieno",
-          "description": "Lo stesso grigio su ogni dettaglio.",
+          "name": "Solid steel",
+          "description": "The same steel gray across the hardware.",
           "hex": [
             "#ADB1AF"
           ],
           "surcharge": 3
         },
         {
-          "name": "Due acciai",
-          "description": "Liner medio, pivot e anello chiari.",
+          "name": "Dual steel",
+          "description": "Mid-gray liners with a light pivot and loop.",
           "hex": [
             "#7B8284",
             "#B9BDBC"
@@ -1105,8 +1105,8 @@
           "surcharge": 0
         },
         {
-          "name": "Anello chiaro",
-          "description": "Solo l’anello di coda è quasi bianco.",
+          "name": "Pale loop",
+          "description": "The rear loop alone is almost white.",
           "hex": [
             "#50575C",
             "#CDD0CB"
@@ -1114,8 +1114,8 @@
           "surcharge": 8
         },
         {
-          "name": "Viti carbone",
-          "description": "Viti scure su liner e pivot medi.",
+          "name": "Charcoal screws",
+          "description": "Dark screws sit against mid-gray liners and pivot.",
           "hex": [
             "#474D51",
             "#A6ACAC"
@@ -1123,8 +1123,8 @@
           "surcharge": 6
         },
         {
-          "name": "Ferro fuso",
-          "description": "Anello e pivot grigio ferro, liner più chiari.",
+          "name": "Cast iron",
+          "description": "An iron-gray loop and pivot with lighter liners.",
           "hex": [
             "#62686C",
             "#929797"
@@ -1132,8 +1132,8 @@
           "surcharge": 10
         },
         {
-          "name": "Tre grigi",
-          "description": "Viti scure, liner medio, pivot argento.",
+          "name": "Three grays",
+          "description": "Dark screws, mid-gray liners and a silver pivot.",
           "hex": [
             "#575D61",
             "#909798",
@@ -1144,33 +1144,33 @@
       ],
       "styles": [
         {
-          "name": "Radiale tornito",
-          "description": "Il riflesso gira attorno all’asse del pivot.",
+          "name": "Radial turned",
+          "description": "The highlight circles the pivot axis.",
           "surcharge": 0
         },
         {
-          "name": "Satinato lineare",
-          "description": "Un filo di luce percorre il fianco.",
+          "name": "Linear satin",
+          "description": "A thin highlight runs along the side.",
           "surcharge": 5
         },
         {
-          "name": "Micropallinato",
-          "description": "Pivot e anello danno riflessi larghi.",
+          "name": "Fine bead blast",
+          "description": "The pivot and loop give broad reflections.",
           "surcharge": 7
         },
         {
-          "name": "Stonewash medio",
-          "description": "Il riflesso si spezza sulle facce piane.",
+          "name": "Medium stonewash",
+          "description": "The finish breaks up the reflection on flat faces.",
           "surcharge": 9
         },
         {
-          "name": "Incrociato fine",
-          "description": "Si distinguono due direzioni sul liner.",
+          "name": "Fine crosshatch",
+          "description": "Two grain directions are visible on the liner.",
           "surcharge": 13
         },
         {
-          "name": "Lucido sul bordo",
-          "description": "Il bordo dell’anello prende luce per primo.",
+          "name": "Polished edge",
+          "description": "The rim of the loop catches the light first.",
           "surcharge": 15
         }
       ]
@@ -1185,16 +1185,16 @@
       ],
       "colors": [
         {
-          "name": "Perla",
-          "description": "Argento chiaro sull’intera lama.",
+          "name": "Pearl",
+          "description": "Pale silver across the blade.",
           "hex": [
             "#C3C4BE"
           ],
           "surcharge": 4
         },
         {
-          "name": "Goccia d’argento",
-          "description": "Isole argento su campo grigio.",
+          "name": "Silver drop",
+          "description": "Silver islands on a gray ground.",
           "hex": [
             "#A2A6A7",
             "#CCD0CD"
@@ -1202,8 +1202,8 @@
           "surcharge": 0
         },
         {
-          "name": "Fumo",
-          "description": "Dal tallone fumé alla punta perla.",
+          "name": "Smoke",
+          "description": "A smoky heel fades to pearl at the tip.",
           "hex": [
             "#70767C",
             "#B4B6B6"
@@ -1211,8 +1211,8 @@
           "surcharge": 8
         },
         {
-          "name": "Petrolio sottile",
-          "description": "Filetto petrolio vicino al dorso.",
+          "name": "Teal line",
+          "description": "A fine teal stripe runs near the spine.",
           "hex": [
             "#829397",
             "#546E71"
@@ -1221,7 +1221,7 @@
         },
         {
           "name": "Champagne",
-          "description": "Dorso caldo su fianco grigio chiaro.",
+          "description": "A warm spine above a light gray face.",
           "hex": [
             "#A5A4A0",
             "#BFB39B"
@@ -1229,8 +1229,8 @@
           "surcharge": 17
         },
         {
-          "name": "Damasco notte",
-          "description": "Tre grigi negli anelli del damasco.",
+          "name": "Midnight Damascus",
+          "description": "Three grays trace the rings of the Damascus pattern.",
           "hex": [
             "#5C626B",
             "#878E94",
@@ -1242,32 +1242,32 @@
       "styles": [
         {
           "name": "Raindrop",
-          "description": "Le corone appaiono in luce radente.",
+          "description": "Raking light reveals the rings.",
           "surcharge": 0
         },
         {
           "name": "Ladder",
-          "description": "I passaggi tra le bande ritmano il riflesso.",
+          "description": "Each change of band breaks the reflection.",
           "surcharge": 22
         },
         {
-          "name": "Satinato perlato",
-          "description": "Banda lunga e soffusa sul piano.",
+          "name": "Pearl satin",
+          "description": "A long, soft band of light crosses the face.",
           "surcharge": 10
         },
         {
-          "name": "Lucido selettivo",
-          "description": "Un riflesso lucido si apre a isole.",
+          "name": "Selective polish",
+          "description": "Polished islands catch the light.",
           "surcharge": 16
         },
         {
-          "name": "Nebbia fine",
-          "description": "La luce perde il contorno netto.",
+          "name": "Fine mist",
+          "description": "The edges of the highlight soften.",
           "surcharge": 8
         },
         {
-          "name": "Satinato doppio",
-          "description": "Fianco e bisello reagiscono in sequenza.",
+          "name": "Dual satin",
+          "description": "The face and bevel catch the light in turn.",
           "surcharge": 12
         }
       ]
@@ -1280,8 +1280,8 @@
       ],
       "colors": [
         {
-          "name": "Ambra",
-          "description": "Radica bruna, resina color miele.",
+          "name": "Amber",
+          "description": "Brown burl with honey-colored resin.",
           "hex": [
             "#805B40",
             "#C58B4B"
@@ -1289,8 +1289,8 @@
           "surcharge": 5
         },
         {
-          "name": "Laguna",
-          "description": "Noce caldo con tasche di resina petrolio.",
+          "name": "Lagoon",
+          "description": "Warm walnut with pockets of teal resin.",
           "hex": [
             "#976A4B",
             "#377977"
@@ -1298,8 +1298,8 @@
           "surcharge": 0
         },
         {
-          "name": "Opale",
-          "description": "Legno chiaro, salvia e piccole nubi avorio.",
+          "name": "Opal",
+          "description": "Pale wood and sage with small ivory clouds.",
           "hex": [
             "#A38166",
             "#B9C4B0",
@@ -1308,8 +1308,8 @@
           "surcharge": 16
         },
         {
-          "name": "Bordeaux",
-          "description": "Legno cioccolato e resina vinaccia.",
+          "name": "Burgundy",
+          "description": "Chocolate-brown wood with wine-red resin.",
           "hex": [
             "#674735",
             "#88414D"
@@ -1317,8 +1317,8 @@
           "surcharge": 8
         },
         {
-          "name": "Fumé",
-          "description": "Legno cenere e resina grigio fumo.",
+          "name": "Smoke",
+          "description": "Ash-colored wood with smoke-gray resin.",
           "hex": [
             "#66534A",
             "#777E80"
@@ -1326,8 +1326,8 @@
           "surcharge": 11
         },
         {
-          "name": "Zaffiro",
-          "description": "Radica, blu profondo e velature chiare.",
+          "name": "Sapphire",
+          "description": "Burl wood with deep blue resin and pale washes of color.",
           "hex": [
             "#79573E",
             "#345A82",
@@ -1338,38 +1338,38 @@
       ],
       "styles": [
         {
-          "name": "Satinato",
-          "description": "Poro fine, resina satinata appena diffusa.",
+          "name": "Satin",
+          "description": "Fine wood pores and satin resin gently diffuse the light.",
           "motif": "wood",
           "surcharge": 0
         },
         {
-          "name": "Lucido",
-          "description": "Pozze lisce, riflesso netto, poca diffusione.",
+          "name": "Polished",
+          "description": "Smooth pools of resin give sharp reflections with little diffusion.",
           "motif": "polish",
           "surcharge": 7
         },
         {
-          "name": "Opalino",
-          "description": "Resina lattiginosa, SSS più evidente.",
+          "name": "Opalescent",
+          "description": "Milky resin scatters more light beneath the surface.",
           "motif": "wave",
           "surcharge": 16
         },
         {
-          "name": "Resina seta",
-          "description": "Micrograna isotropa sulla sola resina.",
+          "name": "Silk resin",
+          "description": "A fine, even grain covers the resin alone.",
           "motif": "matte",
           "surcharge": 12
         },
         {
-          "name": "Venato",
-          "description": "Nubi interne morbide, superficie liscia.",
+          "name": "Veined",
+          "description": "Soft clouds sit beneath a smooth surface.",
           "motif": "vein",
           "surcharge": 20
         },
         {
-          "name": "Poro vivo",
-          "description": "Resina lucida, legno poroso R 0,46–0,56.",
+          "name": "Open grain",
+          "description": "Glossy resin contrasts with porous wood at 0.46–0.56 roughness.",
           "motif": "pore",
           "surcharge": 9
         }
@@ -1383,8 +1383,8 @@
       ],
       "colors": [
         {
-          "name": "Laguna",
-          "description": "Fronte clip laguna, bordo argento, viti fumo.",
+          "name": "Lagoon",
+          "description": "A lagoon-green clip face, silver edge and smoky screws.",
           "hex": [
             "#318281",
             "#B7BFBE",
@@ -1393,8 +1393,8 @@
           "surcharge": 0
         },
         {
-          "name": "Ambra miele",
-          "description": "Ambra e miele sulla clip, metallo neutro.",
+          "name": "Honey amber",
+          "description": "Amber and honey tones on the clip with neutral hardware.",
           "hex": [
             "#A86E3F",
             "#D5A763",
@@ -1403,8 +1403,8 @@
           "surcharge": 5
         },
         {
-          "name": "Fumé",
-          "description": "Fronte traslucido fumo, bordo grigio seta.",
+          "name": "Smoke",
+          "description": "A translucent smoke-gray face with a silky gray edge.",
           "hex": [
             "#585B60",
             "#9BA3A4"
@@ -1412,8 +1412,8 @@
           "surcharge": 8
         },
         {
-          "name": "Oceano",
-          "description": "Blu profondo e teal sfumano sul fronte.",
+          "name": "Ocean",
+          "description": "Deep blue fades to teal across the face.",
           "hex": [
             "#335766",
             "#54929B"
@@ -1421,8 +1421,8 @@
           "surcharge": 10
         },
         {
-          "name": "Opale",
-          "description": "Crema e salvia sul fronte, bordo argento.",
+          "name": "Opal",
+          "description": "Cream and sage across the face with a silver edge.",
           "hex": [
             "#B3BAB0",
             "#D3D1BD",
@@ -1431,8 +1431,8 @@
           "surcharge": 12
         },
         {
-          "name": "Granato",
-          "description": "Fronte color granato, pivot champagne.",
+          "name": "Garnet",
+          "description": "A garnet-colored face with a champagne pivot.",
           "hex": [
             "#783E50",
             "#B3A392"
@@ -1442,33 +1442,33 @@
       ],
       "styles": [
         {
-          "name": "Resina lucida",
-          "description": "L’inserto mostra una luce morbida sotto il riflesso.",
+          "name": "Gloss resin",
+          "description": "The insert glows softly beneath the reflection.",
           "surcharge": 0
         },
         {
-          "name": "Resina seta",
-          "description": "La tinta resta visibile nei mezzi toni.",
+          "name": "Silk resin",
+          "description": "The color stays visible in the midtones.",
           "surcharge": 6
         },
         {
-          "name": "Nuvola interna",
-          "description": "Le zone lattiginose si leggono contro luce.",
+          "name": "Clouded resin",
+          "description": "Milky patches show up in backlight.",
           "surcharge": 12
         },
         {
-          "name": "Trama metallica",
-          "description": "I fili riflettono dentro la resina.",
+          "name": "Metal weave",
+          "description": "Metal strands reflect light from inside the resin.",
           "surcharge": 9
         },
         {
-          "name": "Bordo a specchio",
-          "description": "Una linea chiara incornicia l’inserto.",
+          "name": "Mirror edge",
+          "description": "A bright line frames the insert.",
           "surcharge": 16
         },
         {
-          "name": "Goccia satinata",
-          "description": "Le isole seguono la curva della clip.",
+          "name": "Satin drop",
+          "description": "The islands follow the curve of the clip.",
           "surcharge": 19
         }
       ]

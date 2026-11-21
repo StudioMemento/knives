@@ -9,7 +9,6 @@ button{border:0;background:none;padding:0;color:inherit;cursor:pointer;-webkit-t
 button:disabled{opacity:.3;cursor:wait}
 button:focus-visible,input:focus-visible{outline:1px solid #fff;outline-offset:3px}
 button svg{display:block}
-button:hover,button[aria-pressed=true]{filter:drop-shadow(0 0 4px #ffffff70)}
 h1,h2,h3,p{margin:0}
 .experience {
  position:fixed; inset:0; isolation:isolate; overflow:hidden; touch-action:none;
@@ -20,6 +19,7 @@ h1,h2,h3,p{margin:0}
  --top:max(8px,env(safe-area-inset-top));
  --foot:max(34px,calc(env(safe-area-inset-bottom) + 10px));
  --nav-hit:44px;
+ --nav-tile:40px;
  --nav-height:46px;
  --tool-gap:24px;
  --row-height:44px;
@@ -45,16 +45,19 @@ h1,h2,h3,p{margin:0}
 }
 .brand-rail {top:var(--top);z-index:8}
 .brand {width:100%;min-height:44px;display:grid;align-items:center;pointer-events:auto}
+.brand:focus-visible {outline:none}
+.brand:focus-visible .wordmark {filter:drop-shadow(0 0 2px white)}
+.brand:focus-visible::after {content:'';position:absolute;inset:auto 0 4px;border-bottom:1px solid currentColor}
 .wordmark {display:flex;align-items:center;justify-content:space-between;width:100%;filter:drop-shadow(0 0 3px #ffffff38)}
 .wordmark img {display:block;width:9px;height:9px}
 
 .product-info {top:max(clamp(60px,8.5dvh,78px),calc(var(--top) + 44px));z-index:-1;
- container-type:inline-size;color:white;--summary-chip:17px}
+ container-type:inline-size;color:white;--summary-chip:17px;--summary-gap:8px}
 .name-frame {position:relative}
 .atmospheric-title,.panel-title {display:flex;align-items:baseline;justify-content:space-between;white-space:nowrap}
 .atmospheric-title {font:400 min(16cqw,19.5dvh)/1 var(--ui)}
 .atmospheric-title span {flex:none}
-.product-readout {width:max-content;max-width:100%;margin-top:7px}
+.product-readout {width:max-content;max-width:100%;margin-top:clamp(15px,2.4dvh,24px)}
 .price {display:flex;align-items:baseline;gap:.25em;font:400 clamp(24px,8.7cqw,30px)/1 'Memento Figures',var(--ui);
  font-variant-numeric:tabular-nums;letter-spacing:-.045em}
 .configuration {display:grid;row-gap:clamp(18px,2.4dvh,23px);margin:16px 0 0;
@@ -66,8 +69,10 @@ h1,h2,h3,p{margin:0}
   color-mix(in srgb,white 43%,var(--ring-light,white)) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent}
 }
-.configuration dt {margin:0 0 5px;font:inherit;font-size:10.5px;line-height:1.15;letter-spacing:.24em}
-.configuration dd {display:grid;grid-template-columns:var(--summary-chip) auto;column-gap:8px;align-items:center;margin:0}
+.configuration dt,.configuration dd {display:grid;grid-template-columns:var(--summary-chip) minmax(0,1fr);
+ column-gap:var(--summary-gap);align-items:center;margin:0}
+.configuration dt {margin-bottom:5px;font:inherit;font-size:10.5px;line-height:1.15;letter-spacing:.24em}
+.part-marker {letter-spacing:.03em}
 .configuration dd + dd {margin-top:3px}
 .config-swatch {position:relative;display:block;width:var(--summary-chip);height:var(--summary-chip);background:#888b8b}
 .config-finish,.config-finish .sample {clip-path:polygon(22% 0,100% 0,100% 78%,78% 100%,0 100%,0 22%)}
@@ -83,7 +88,7 @@ h1,h2,h3,p{margin:0}
 .sequence-nav {height:var(--nav-height);display:flex;justify-content:space-between;align-items:center}
 .chapter-button,.pose-hud button,.knife-step {display:grid;place-items:center;pointer-events:auto;filter:none}
 .chapter-button {width:var(--nav-hit);height:var(--nav-height)}
-.nav-tile {position:relative;isolation:isolate;display:grid;place-items:center;width:40px;aspect-ratio:1;
+.nav-tile {position:relative;isolation:isolate;display:grid;place-items:center;width:var(--nav-tile);aspect-ratio:1;
  --contour:#717673;--face:linear-gradient(145deg,#282a2aed,#111313ef 78%);color:#cdd0cd}
 .nav-tile::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--face);
  clip-path:polygon(25% 0,100% 0,100% 75%,75% 100%,0 100%,0 25%)}
@@ -91,7 +96,9 @@ h1,h2,h3,p{margin:0}
 .nav-tile > svg:last-child,.knife-nav svg {stroke-linecap:square;stroke-linejoin:miter}
 .chapter-button[aria-current=step] .nav-tile {--contour:var(--selection);
  --face:linear-gradient(145deg,#36342fee,#1c1c19f7 70%,#353025f5);color:#fff7e6}
-@media(hover:hover) {
+.chapter-button:focus-visible .nav-contour {stroke:white;stroke-width:2.5}
+.chapter-button:focus-visible .nav-tile {color:white;filter:drop-shadow(0 0 2px #ffffff90)}
+@media(hover:hover) and (pointer:fine) {
  .chapter-button:not([aria-current]):hover .nav-tile {--contour:#cecec4;color:white}
 }
 
@@ -100,15 +107,22 @@ h1,h2,h3,p{margin:0}
 .hud-layer[aria-hidden=true] {visibility:hidden}
 .hud-layer button,.hud-layer input,.hud-layer label {pointer-events:auto}
 .hud-layer[inert] * {pointer-events:none!important}
-/* Six 44 px hit areas share the rail. Only the invisible outer edges extend on a 320 px screen. */
-.hud-panel {position:absolute;inset:0 min(0px,calc((100% - 264px) / 2));display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(0px,calc(100% - 264px),24px);align-items:end}
-.control-group {min-width:0}
-.panel-title {height:var(--label-height);margin-inline:calc((var(--nav-hit) - var(--swatch)) / 2);
+/* The two panels run from the outer tile edges to either side of the middle tile. */
+.hud-panel {position:absolute;inset:0 calc((var(--nav-hit) - var(--nav-tile)) / 2);display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--nav-tile);align-items:end}
+.control-group {min-width:0;container-type:inline-size}
+.panel-title {height:var(--label-height);
  font:400 var(--label-size)/1.24 var(--ui);letter-spacing:0;color:#e8e8e3;text-shadow:0 1px 4px #000}
-.choice-grid,.view-row,.lighting-grid {display:grid;grid-template-columns:repeat(3,minmax(0,var(--nav-hit)));justify-content:space-between;
- grid-auto-rows:var(--row-height);margin-top:var(--label-gap)}
+.choice-grid,.view-row,.lighting-grid {
+ /* Let the hit areas extend past the artwork on narrow phones. */
+ --hit-bleed:clamp(0px,calc((3 * var(--nav-hit) - 100cqi) / 2),calc(var(--nav-tile) / 2));
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:var(--row-height);
+ margin:var(--label-gap) calc(-1 * var(--hit-bleed)) 0}
 .choice,.view-row button,.lighting-grid button {position:relative;display:grid;place-items:center;width:100%;height:100%;filter:none}
+:is(.choice-grid,.view-row,.lighting-grid) > button:nth-child(3n+1) {justify-items:start;padding-inline-start:var(--hit-bleed)}
+:is(.choice-grid,.view-row,.lighting-grid) > button:nth-child(3n) {justify-items:end;padding-inline-end:var(--hit-bleed)}
+.control-dock button,.knife-nav button {-webkit-user-select:none;user-select:none}
+.control-dock button:focus-visible,.knife-nav button:focus-visible {outline:none}
 .sample-outline {display:block;position:relative;width:var(--swatch);aspect-ratio:1;background:#ffffff56}
 .sample {position:absolute;inset:1px;display:block;background-color:#55585b}
 .sample.atlas {background-image:url('/ui/catalogue-swatches.webp');background-size:600% 2500%;background-repeat:no-repeat}
@@ -116,7 +130,13 @@ h1,h2,h3,p{margin:0}
 .choice[aria-pressed=true] .sample-outline {background:#fff0cd}
 .choice[aria-pressed=true] .sample {inset:2px}
 .choice[aria-pressed=true] {filter:drop-shadow(0 0 2px #e8d8b942)}
-.choice:hover .sample-outline {background:#dedccf}
+@media(hover:hover) and (pointer:fine) {
+ .choice:not([aria-pressed=true]):hover .sample-outline {background:#dedccf}
+ .view-row button:not([aria-pressed=true]):hover svg {color:white}
+ .lighting-grid button:not([aria-pressed=true]):hover .lighting-preview {outline:1px solid #aaa89e}
+}
+.choice:focus-visible .sample-outline {background:white;filter:drop-shadow(0 0 2px white)}
+.choice:focus-visible .sample {inset:3px}
 /* The handle guide describes the finishes in words. These are flat UI symbols. */
 .motif-matte{background:linear-gradient(155deg,#858785,#56595a)}
 .motif-polish{background:linear-gradient(142deg,#55595a 15%,#ced0c9 48%,#646769 58%,#33373b)}
@@ -130,18 +150,21 @@ h1,h2,h3,p{margin:0}
 .motif-vein{background:repeating-linear-gradient(151deg,#787c7e 0 5px,#b1b2a9 6px,#61676a 8px 10px)}
 
 
-.view-row button {border-radius:5px;color:#d0d1cf}
-.view-row svg {width:calc(var(--swatch) - 1px);height:calc(var(--swatch) - 1px)}
-.view-row button[aria-pressed=true] {color:#fff2d4}
-.view-row button[aria-pressed=true]::before {content:'';position:absolute;width:calc(var(--swatch) + 7px);height:calc(var(--swatch) + 4px);border:1px solid #d7c6a980;border-radius:5px}
+.view-row button {color:#d0d1cf}
+.view-row svg {width:var(--swatch);height:var(--swatch)}
+.view-row button[aria-pressed=true] svg {color:#ffe7b5;stroke-width:1.9;filter:drop-shadow(0 0 2px #d0a96770)}
+.view-row button:focus-visible svg,.knife-nav button:focus-visible svg {color:white;stroke-width:2.5;filter:drop-shadow(0 0 3px #fffa)}
 .light-block {position:relative}
-.lighting-grid button {border-radius:5px}
-.lighting-grid button::before {content:'';position:absolute;width:calc(var(--swatch) + 8px);height:calc(var(--swatch) + 7px);
- border:1px solid transparent;border-radius:6px;transition:border-color .15s,background .15s}
-.lighting-grid button[aria-pressed=true]::before {border-color:#c9b896aa;background:#d5c19d0a}
-.lighting-grid button:hover::before {border-color:#aaa89e9c}
-.lighting-preview {position:relative;display:block;width:calc(var(--swatch) + 2px);aspect-ratio:1;
+.lighting-preview {position:relative;display:block;width:var(--swatch);aspect-ratio:1;border-radius:50%;
  background-image:url('/ui/lighting-presets.webp');background-repeat:no-repeat;background-size:600% 100%}
+.lighting-grid button[aria-pressed=true] .lighting-preview {outline:1px solid var(--selection);outline-offset:1px}
+.lighting-grid button:focus-visible .lighting-preview {outline:2px solid white;outline-offset:2px}
+@media(forced-colors:active) {
+ .chapter-button:focus-visible .nav-contour {stroke:Highlight}
+ .choice:focus-visible .sample-outline {outline:3px solid Highlight;outline-offset:-3px}
+ .view-row button:focus-visible svg,.knife-nav button:focus-visible svg {stroke:Highlight}
+ .lighting-grid button:focus-visible .lighting-preview {outline-color:Highlight}
+}
 .current-light {position:absolute;top:calc(100% - 1px);left:0;right:0;text-align:center;
  font:300 8px/1.15 'Memento UI',var(--ui);letter-spacing:.11em;color:#c6c1b6;pointer-events:none}
 .knife-nav {position:absolute;top:var(--ring-line);left:var(--safe-left);right:var(--safe-right);
@@ -152,7 +175,7 @@ h1,h2,h3,p{margin:0}
 .knife-nav svg {width:31px;height:31px;stroke-width:1.55}
 .knife-step svg {stroke-width:1.7;transition:transform .16s}
 .pose-hud button[aria-pressed=true] {color:#ffe8b7;filter:drop-shadow(0 0 3px #d0a9675e)}
-@media(hover:hover) {
+@media(hover:hover) and (pointer:fine) {
  .knife-nav button:hover {color:#fff7e6}
  .knife-step.previous:hover svg {transform:translateX(-2px)}
  .knife-step.next:hover svg {transform:translateX(2px)}
@@ -175,29 +198,28 @@ h1,h2,h3,p{margin:0}
  .experience {--nav-height:44px;--action-height:44px;--panel-gap:12px;--tool-gap:16px;--label-gap:3px;
   --foot:max(16px,calc(env(safe-area-inset-bottom) + 6px))}
  .product-info {--summary-chip:14px}
+ .product-readout {margin-top:12px}
  .configuration {row-gap:14px;margin-top:10px;font-size:9.5px}
  .configuration dt {margin-bottom:3px}.configuration dd + dd {margin-top:2px}
 }
 @media(max-height:500px) and (orientation:landscape) {
  .experience {--top:max(1px,env(safe-area-inset-top));--foot:max(8px,env(safe-area-inset-bottom));--nav-height:36px;
-  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:6px;--ring-gap:3px;--swatch:23px}
+  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:6px;--ring-gap:3px;--swatch:23px;--nav-tile:32px}
  .brand {min-height:27px}.wordmark img{width:9px}
- .product-info {top:max(29px,calc(var(--top) + 27px));--summary-chip:11px}
- .atmospheric-title {font-size:min(14cqw,14dvh)}.product-readout{margin-top:4px}
+ .product-info {top:max(29px,calc(var(--top) + 27px));--summary-chip:11px;--summary-gap:5px}
+ .atmospheric-title {font-size:min(14cqw,14dvh)}.product-readout{margin-top:9px}
  .price {font-size:clamp(17px,4.6dvh,23px)}
  .configuration {font-size:8.5px;line-height:1.18;row-gap:8px;margin-top:6px}
  .configuration dt {font-size:9px;margin:0 0 2px}
- .configuration dd {column-gap:5px}.configuration dd + dd {margin-top:1px}
+ .configuration dd + dd {margin-top:1px}
  .current-light {font-size:7px}
  .knife-nav svg {width:27px;height:27px}
- .bottom-veil {height:110px}.nav-tile{width:32px}.nav-tile > svg:last-child{width:21px;height:21px}
+ .bottom-veil {height:110px}.nav-tile > svg:last-child{width:21px;height:21px}
 }
 @media(max-height:420px) and (orientation:landscape) {
  .product-readout {width:100%}
- .configuration {row-gap:8px}
- .configuration > div {display:grid;align-items:center;grid-template-columns:58px minmax(0,1.08fr) minmax(0,1fr);column-gap:5px}
- .configuration dt,.configuration dd + dd {margin:0}
- .configuration dd {grid-template-columns:var(--summary-chip) minmax(0,1fr);column-gap:4px;overflow-wrap:anywhere}
+ .configuration {grid-template-columns:repeat(3,minmax(0,1fr));column-gap:9px;--summary-gap:4px}
+ .configuration dd {overflow-wrap:anywhere}
 }
 @media(max-height:350px) and (orientation:landscape) {
  .atmospheric-title {font-size:min(14cqw,10.6dvh)}

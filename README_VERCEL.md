@@ -1,23 +1,21 @@
-# Memento Knives V59
+# Memento Knives V60
 
-Showroom dei cinque modelli, sviluppato sulla V58. La radice dello ZIP corrisponde alla radice del progetto Next.js per Vercel. Il preset è Next.js e la build produce il sito statico in `out/`.
+This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
 
-## Avvio
+## Run locally
 
-Usa Node.js 24.x in locale e su Vercel. Per avviare lo showroom esegui `npm ci` e `npm run dev`. Per validare il progetto usa `npm run check`, `npm test` e `npm run build`.
+Use Node.js 24.x locally and on Vercel. Run `npm ci` and `npm run dev` to start the showroom. Use `npm run build`, `npm run check` and `npm test` to validate it.
 
-## Interfaccia
+## Controls
 
-Logo, scheda prodotto, navbar e pannelli condividono una colonna centrata. La larghezza è l’80% del viewport fino a un massimo di 344 px, ricavato da un telefono di riferimento di 430 px. Il canvas 3D occupa l’intera finestra. Nei viewport bassi si riducono le distanze verticali.
+The logo, product summary and navigation share a centered column at 80% of the viewport width, up to 344 px. The 3D scene fills the viewport. The chevrons beneath the ring switch models within the current section. The two middle controls toggle the blade and the exploded view.
 
-Le cinque icone della navbar hanno un contorno con tagli in alto a sinistra e in basso a destra. Sotto il ring le chevron cambiano il modello nella sezione aperta. Al centro si trovano l’apertura o chiusura della lama e la vista esplosa. Material e Color, oppure Camera e Lighting, dividono la larghezza della navbar in due gruppi da sei opzioni.
+Blade, Handle and Metals each have six styles and six colors. The first panel runs from the leading edge of the first navigation tile to the leading edge of the middle tile. The second runs from the trailing edge of the middle tile to the trailing edge of the last tile. Inspect uses the same layout for Camera and Light. Keyboard focus follows the shape of the control.
 
-Il riepilogo di Blade, Handle e Metals è dietro al modello. Ogni parte ha due righe con miniature separate, una per la finitura e una per il colore. Nome, prezzo e configurazione condividono una sfumatura bianca che prende la tinta del ring verso il basso. Le scelte sono salvate per modello anche dopo il ricaricamento. I prezzi sono dimostrativi, in euro interi. Il prezzo base per modello è in `app/lib/catalogue.ts` e ogni alternativa ha un supplemento `surcharge` in `app/lib/catalogue-data.json`.
+Behind the model, the summary shows a style and a color swatch for each part. The part names align with the option names, with a double slash in the swatch column. White lettering picks up the ring color toward the bottom. Selections are saved per model. The prices shown are demo prices in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
 
-## Camera e lighting
+## Camera and light
 
-Trascina per ruotare il modello. La rotella o il pinch regolano lo zoom ottico fra 0,8× e 2,8×. Aprire un’altra sezione, selezionare un altro modello o scegliere una vista ripristina l’inquadratura di riferimento.
+Drag to rotate. Scroll or pinch to zoom from 0.8× to 2.8×. Changing sections, models or camera views restores the reference framing. Inspect offers six camera views and six light presets. Studio, Softbox, Raking, Backlight, Amber and Two-tone each set the light positions, colors, intensities and studio reflections. The selected light applies to all five models during the session. Presets are defined in `app/lib/light-presets.ts`.
 
-In Inspect, Camera offre sei inquadrature. Le sei miniature di Lighting selezionano Studio, Softbox, Radente, Controluce, Ambra e Bicolore. Ogni setup ha posizioni, temperature e intensità delle sorgenti proprie e pannelli di studio che si riflettono sulle superfici. La luce scelta segue la sessione e si applica ai cinque modelli. I parametri sono in `app/lib/light-presets.ts`.
-
-Le frecce orizzontali cambiano modello e le verticali cambiano sezione. Con il focus sul canvas le frecce ruotano il modello. I preset si selezionano anche con Tab e Invio.
+Use the left and right arrow keys to switch models and the up and down arrow keys to change sections. When the 3D canvas has focus, the arrow keys rotate the model. Use Tab and Enter to select controls.
