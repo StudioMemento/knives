@@ -20,7 +20,7 @@ type LightSetup = {
 // Key positions are stage-local. The studio cards are HDR emitters photographed from the product.
 export const LIGHT_PRESETS = {
  studio: {
-  label:'Studio', description:'Luce neutra, riflessi bilanciati sui due lati.',
+  label:'Studio', description:'Neutral light with balanced reflections on both sides.',
   key:{position:[-1.25,6.25,5.7],color:'#fff6ea',power:145,angle:.66,softness:.64},
   fill:{sky:'#e0e5ed',ground:'#191921',intensity:.23},
   rim:{direction:[-2,1,-3],color:'#d5e2ee',intensity:.82},
@@ -32,7 +32,7 @@ export const LIGHT_PRESETS = {
   ]},ringLight:1,
  },
  softbox: {
-  label:'Softbox', description:'Una grande sorgente frontale avvolge le superfici.',
+  label:'Softbox', description:'A broad front light wraps around the surfaces.',
   key:{position:[1.5,5,7.8],color:'#f9fbff',power:62,angle:1.04,softness:1},
   fill:{sky:'#e8edf4',ground:'#8d929c',intensity:.85},
   rim:{direction:[3,2,-1],color:'#eff3ff',intensity:1.2},
@@ -42,7 +42,7 @@ export const LIGHT_PRESETS = {
   ]},ringLight:.55,
  },
  radente: {
-  label:'Radente', description:'Una lama di luce laterale rivela la grana della finitura.',
+  label:'Raking', description:'Low side light brings out the grain of the finish.',
   key:{position:[-5.8,2.6,4.4],color:'#fff4df',power:230,angle:.51,softness:.24},
   fill:{sky:'#bac4cf',ground:'#111218',intensity:.13},
   rim:{direction:[3.3,1,-2.4],color:'#e4eeff',intensity:1.7},
@@ -53,7 +53,7 @@ export const LIGHT_PRESETS = {
   ]},ringLight:.40,
  },
  controluce: {
-  label:'Controluce', description:'Il bordo si accende contro una faccia più scura.',
+  label:'Backlight', description:'Backlighting outlines the edges and leaves the face in shadow.',
   key:{position:[.5,3.6,-2.8],color:'#dce8f8',power:265,angle:.69,softness:.50},
   fill:{sky:'#8493a3',ground:'#10121a',intensity:.18},
   rim:{direction:[-1,2,-3],color:'#f3f5ff',intensity:6.5},
@@ -64,7 +64,7 @@ export const LIGHT_PRESETS = {
   ]},ringLight:.36,
  },
  ambra: {
-  label:'Ambra', description:'Una sorgente bassa e calda e un riempimento neutro.',
+  label:'Amber', description:'A low, warm light with neutral fill.',
   key:{position:[4.1,3.4,5.8],color:'#ffac70',power:178,angle:.78,softness:.75},
   fill:{sky:'#edcfb3',ground:'#30211f',intensity:.37},
   rim:{direction:[-3,2,-2],color:'#d5e8ff',intensity:2.4},
@@ -75,7 +75,7 @@ export const LIGHT_PRESETS = {
   ]},ringLight:.53,
  },
  bicolore: {
-  label:'Bicolore', description:'Due tagli contrapposti, ciano e violetto.',
+  label:'Two-tone', description:'Cyan and violet light the model from opposite sides.',
   key:{position:[-4.1,3.7,5.9],color:'#8adeff',power:170,angle:.72,softness:.42},
   fill:{sky:'#b6c8ef',ground:'#241827',intensity:.30},
   rim:{direction:[3,1,-1.2],color:'#e69bff',intensity:3.9},
