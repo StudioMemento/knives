@@ -11,7 +11,7 @@
     "test": "node scripts/check-experience.mjs && node tools/assets/check-runtime-sampling.mjs && node scripts/check-presentation.mjs && node scripts/check-cinematic.mjs && node scripts/check-stage.mjs"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": "24.x"
   },
   "dependencies": {
     "@fontsource/michroma": "^5.2.7",
