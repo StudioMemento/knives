@@ -118,7 +118,7 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
  </div>;
 }
 
-const cameraLabels:Record<View,string>={side:'Side',top:'Top',edge:'End-on',perspective:'Perspective',clip:'Pocket clip',screw:'Screws'};
+const cameraLabels:Record<View,string>={side:'Side',top:'Top',edge:'End-on',perspective:'Perspective',clip:'Pocket clip',screw:'Screw detail'};
 type TechnicalProps = {
  value: Pick<DemoState, 'view' | 'rotation'>;
  lightPreset: LightPreset;
@@ -144,7 +144,7 @@ export function TechnicalHud({value, lightPreset, model, onView, onLight}: Techn
    <PanelTitle text="LIGHT"/>
    <div className="lighting-grid">{LIGHT_ORDER.map((id,index)=>{
     const setup=LIGHT_PRESETS[id];
-    return <button type="button" key={id} data-light-preset={id} aria-label={setup.label+' light'}
+    return <button type="button" key={id} data-light-preset={id} aria-label={setup.label+' preset'}
      aria-description={setup.description} title={setup.label+' · '+setup.description} aria-pressed={lightPreset===id}
      onClick={()=>onLight(id)}>
      <span className="lighting-preview" aria-hidden="true" style={{backgroundPosition:(index*20)+'% 50%'}}/>
