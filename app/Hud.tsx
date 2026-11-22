@@ -7,19 +7,22 @@ import {hasManualRotation,CHAPTERS,KNIVES,type DemoState,type Configuration,type
 import {STAGE_GLYPHS,type StageGlyph} from './lib/stage-glyphs';
 
 export function Glyph({name,size=26}:{name:StageGlyph;size?:number}){
- const {fill,stroke}=STAGE_GLYPHS[name];
- return <svg data-stage-glyph={name} width={size} height={size} viewBox="0 0 24 24" fill="none" strokeWidth="1.55" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
-  {stroke&&<path d={stroke} stroke="currentColor"/>}{fill&&<path d={fill} fill="currentColor"/>}
+ const {units,weight,marks}=STAGE_GLYPHS[name];
+ return <svg data-stage-glyph={name} width={size} height={size} viewBox={`0 0 ${units} ${units}`}
+  fill="none" strokeWidth={weight} strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+  {marks.map((mark,i)=><path key={i} d={mark.d} fill={mark.solid?'currentColor':'none'}
+   stroke={mark.solid?'none':'currentColor'} className={mark.plateOffset===undefined?undefined:'plate'}
+   transform={mark.plateOffset===undefined?undefined:`translate(0 ${mark.plateOffset})`}/>)}
  </svg>;
 }
 type Chapter=typeof CHAPTERS[number];
-const chapterTile='M6.5 0H32v25.5L25.5 32H0V6.5Z';
+const chapterTile='M0 8 8 0h21l3 3v21l-8 8H3l-3-3Z';
 const chapterCuts:Record<Chapter,string>={
- Stage:'M5.6 14.4 16 5.5l10.4 8.9h-3.2v11h-5.4v-7h-3.6v7H8.8v-11Z',
- Blade:'M21 5.9h5.3l-1.7 7.3-8.6 8.5-10.4 4.8 4.1-11.4 9-8.2 1.1 1.2Z M9.6 22.2l12.6-12.5-2.3 4-7.3 7Z',
- Handle:'M5.9 20.5l6.3-7.3 2.2-.5 5.2-6.1h3.1l3.6 3.2v3.4L15 25.8l-3.8.5-5.3-3.9Z M23.4 10.9a1.8 1.8 0 1 1-3.6 0 1.8 1.8 0 1 1 3.6 0Z',
- Metals:'M10.6 6.8h10.8l5.3 9.2-5.3 9.2H10.6L5.3 16Z M20.5 16a4.5 4.5 0 1 1-9 0 4.5 4.5 0 1 1 9 0Z',
- Inspect:'M13.4 5.7a7.7 7.7 0 0 1 6.2 12.3l7.2 7.1-2 2-7.2-7.2a7.7 7.7 0 1 1-4.2-14.2Z M18.3 13.4a4.9 4.9 0 1 1-9.8 0 4.9 4.9 0 1 1 9.8 0Z',
+ Stage:'M4.2 14.7 16 5.1l11.8 9.6-2.2 2.6-9.6-7.8-9.6 7.8Z M8.4 17.9l3.3-2.7v7h2.6v-4.7h3.4v4.7h2.6v-7l3.3 2.7v7.5H8.4Z',
+ Blade:'M2.7 21.3 9.4 12l9.6-2.1 4-2.5 4.8 1.1.5 4.5-3.5 3.4h-3.2l-1.9-1.6-1.2 3.7-7.4 3.1Z M5.9 20l5.5-4.9 6.1-2.1-5.6 4Z M26.1 11.9a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 1 1 3.2 0Z',
+ Handle:'M4.2 20.1 7 16.9 17.7 7.4l4.7-1.1 4.1 2.2 1.1 3.3-1.5 3.6-3.3 2.4-2.8-.2-4.1 3.6-1.6 2.9-5.1 2.2-4.1-1.6Z M24.4 11.7a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 1 1 4.2 0Z M7.7 20.3l7.8-6.9 1.3 1.6-7.8 6.9Z',
+ Metals:'M16 4.7a11.3 11.3 0 1 1 0 22.6 11.3 11.3 0 1 1 0-22.6Z M14.3 9.2h3.4l.9 3.1 3.1-.9 1.6 2.9-2.3 2.1 2.2 2.2-1.6 2.8-3.1-.9-.9 3h-3.2l-.9-3-3.1.9-1.6-2.8 2.2-2.2-2.3-2.1 1.6-2.9 3.1.9Z',
+ Inspect:'M5 6.3h8v2.8H7.8v4.6H5Z M19 6.3h8v7.4h-2.8V9.1H19Z M5 18.3h2.8v4.6H13v2.8H5Z M24.2 18.3H27v7.4h-8v-2.8h5.2Z M16 10.2a5.8 5.8 0 1 1 0 11.6 5.8 5.8 0 1 1 0-11.6Z M16 13a3 3 0 1 0 0 6 3 3 0 1 0 0-6Z',
 };
 export function ChapterIcon({chapter}:{chapter:Chapter}){
  return <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
@@ -157,15 +160,6 @@ export function MaterialHud({surface,model,config,onChange}:{
  </div>;
 }
 type PoseValues=Pick<DemoState,'closed'|'exploded'>;
-function ExplodeGlyph({expanded}:{expanded:boolean}) {
- return <svg className="explode-glyph" data-stage-glyph={expanded?'compose':'explode'} width="30" height="30"
-  viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="miter" aria-hidden="true">
-  <path className="plate lower" d="m3 17 10 5 10-5"/>
-  <path className="plate middle" d="m3 14 10 5 10-5"/>
-  <path className="plate upper" d="m3 11 10-5 10 5-10 5Z"/>
-  <path className="stack-arrows" d={expanded?'M28 5v7m-2.6-2.6L28 12l2.6-2.6M28 27v-7m-2.6 2.6L28 20l2.6 2.6':'M28 13V6m-2.6 2.6L28 6l2.6 2.6M28 19v7m-2.6-2.6L28 26l2.6-2.6'}/>
- </svg>;
-}
 export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof PoseValues,n:number)=>void}){
  const closed=value.closed>.5,expanded=value.exploded>.5;
  return <>
@@ -173,7 +167,7 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
    onClick={()=>onValue('closed',closed?0:1)}><Glyph name={closed?'bladeClosed':'blade'} size={31}/></button>
   <button type="button" className="pose-action" data-control="exploded" aria-label="Exploded view" aria-pressed={expanded}
    aria-description={expanded?'Reassemble the model':'Separate the parts'}
-   onClick={()=>onValue('exploded',expanded?0:1)}><ExplodeGlyph expanded={expanded}/></button>
+   onClick={()=>onValue('exploded',expanded?0:1)}><Glyph name={expanded?'compose':'explode'} size={30}/></button>
  </>;
 }
 

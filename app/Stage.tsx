@@ -35,10 +35,10 @@ const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
 
 export default function Stage({state,...callbacks}:Props){
- const canvas=useRef<HTMLCanvasElement>(null),floorStrip=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
+ const canvas=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
  const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
-  if(!canvas.current||!floorStrip.current||!surface.current)return;
+  if(!canvas.current||!surface.current)return;
   const input=surface.current,s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
   try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
@@ -103,7 +103,7 @@ export default function Stage({state,...callbacks}:Props){
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
-  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!,floorStrip.current,input,renderer);
+  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!,input,renderer);
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
@@ -336,7 +336,7 @@ export default function Stage({state,...callbacks}:Props){
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
-    if(active)stageControls.beforeProduct();
+    if(active)stageControls.beforeProduct(tint);
     renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
     renderer.render(scene,productCamera);
    }catch(e){stageControls.raise();props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
@@ -358,7 +358,6 @@ export default function Stage({state,...callbacks}:Props){
   };
  },[state]);
  return <>
-  <canvas className="stage-floor-strip" ref={floorStrip} hidden aria-hidden="true"/>
   <canvas className="stage" ref={canvas} aria-hidden="true"/>
   <div className="stage-input" ref={surface} tabIndex={0} role="group" aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>
  </>;

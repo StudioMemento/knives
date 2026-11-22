@@ -3,6 +3,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import Stage from './Stage';
 import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/catalogue';
 import ParticleReveal from './ParticleReveal';
+import RingCursor from './RingCursor';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
 import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ProductReadout} from './Hud';
@@ -122,7 +123,7 @@ export default function Experience(){
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
  const uiReady=ready===KNIVES.length&&artReady;
 
- return <main ref={host} className="experience" data-version="68" data-ui-pending={!uiReady}
+ return <main ref={host} className="experience" data-version="69" data-ui-pending={!uiReady}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <ProductReadout model={selected} price={price} config={selectedConfig} artReady={artReady}/>
@@ -163,6 +164,7 @@ export default function Experience(){
    </nav>
   </footer>
   <ParticleReveal model={selected} ready={uiReady}/>
+  <RingCursor/>
   <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>
   {!uiReady&&!error&&<div className="loading" role="status"><span className="load-mark"/>PREPARING</div>}
   {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Try again</button></div>}
