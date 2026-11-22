@@ -1,4 +1,4 @@
-# Memento Knives V65
+# Memento Knives V66
 
 This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
 
@@ -10,7 +10,9 @@ Use Node.js 24.x locally and on Vercel. Run `npm ci` and `npm run dev` to start 
 
 The product name, price and Blade/Handle/Metals summary share 15% side margins at every viewport width. Vertex is the widest name in the showroom typeface and sets the common type size. Letter spacing brings both ends of each name to the margins. The right-aligned price uses half the name size and shares its top edge with the left-hand material summary. Blade, Handle and Metals stack vertically at every viewport width. A single gradient rises through the price and the name. The model passes in front of this text and its reveal effect.
 
-The logo and navigation use a centered column at 80% of the viewport width, up to 344 px. The finish/color and camera/light panels extend symmetrically around a wider central gap. Five standalone symbols select the stage, blade, handle, hardware and inspection views. The model chevrons, fold control and exploded view sit in front of the stage, above the near edge of the ring. Below the ring, the material selector is headed Blade, Handle or Metals according to the active chapter. It offers six finishes and six colors. Inspect has six camera symbols and six lighting symbols with keyboard focus, accessible names and hover labels.
+The logo and navigation use a centered column at 80% of the viewport width, up to 344 px. Each navigation symbol is cut out of a square with two chamfered corners. The compact finish/color and camera/light groups align with the outside edges of the first and last tiles. Each group holds two rows of three options.
+
+The model chevrons, fold and exploded-view controls sit above the near edge of the ring. The stage draws their resting artwork between the floor and the active model. Hovering, pressing or focusing a button with the keyboard brings that button in front of the model. The same vector paths supply both layers. The controls retain their full hit targets even when the model covers the artwork.
 
 The 3D ring supplies the live tint for headings, swatch outlines, controls and keyboard focus. In each summary group the double slash ends at the right edge of the thumbnail. Titles and material names share a second column. Selections are saved per model. Demo prices are shown in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
 

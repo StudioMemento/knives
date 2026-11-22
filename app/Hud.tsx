@@ -3,29 +3,26 @@ import {useLayoutEffect,useRef,type CSSProperties,type ReactNode} from 'react';
 import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
 import {LIGHT_ORDER,LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {hasManualRotation,CHAPTERS,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
+import {STAGE_GLYPHS,type StageGlyph} from './lib/stage-glyphs';
 
-const chevron = 'M18.5.5 5.5 12l13 11.5-1.6-4.4L9 12l7.9-7.1Z';
-const paths:Record<string,ReactNode>={
-  left:<path d={chevron} fill="currentColor" stroke="none"/>,
-  right:<path d={chevron} transform="translate(24 0) scale(-1 1)" fill="currentColor" stroke="none"/>,
-  blade:<><path d="m3 17.1 1.9-2h15.7v3.2l-2 2H5.4L3 18Z"/><path d="m4.7 14.8 4.1-11 1.6 3.6-.4 3.5-2.3 4.1M13.2 5.8a9.1 9.1 0 0 1 6.1 6.3m.6-3.7-.5 3.9-3.7-.9"/><circle cx="6.2" cy="17.7" r=".8" fill="currentColor" stroke="none"/></>,
-  bladeClosed:<><path d="m3 15.7 2-2h15.6v3.9l-2.1 2.1H5.1L3 17.6Z"/><path d="m7.8 13.7 7.3-2 4.4.6M18.5 9.9a8.8 8.8 0 0 0-6.6-5.5m2.2 3-2.5-3.1 3.7-1.4"/><circle cx="6.2" cy="16.8" r=".85" fill="currentColor" stroke="none"/></>,
-  explode:<><path d="m2.5 8 9.5-4.5L21.5 8 12 12.5Z"/><path d="m2.5 12 9.5 4.5 9.5-4.5m-19 4 9.5 4.5 9.5-4.5"/></>,
-};
-export function Glyph({name,size=26}:{name:string;size?:number}){
- return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+export function Glyph({name,size=26}:{name:StageGlyph;size?:number}){
+ const {fill,stroke}=STAGE_GLYPHS[name];
+ return <svg data-stage-glyph={name} width={size} height={size} viewBox="0 0 24 24" fill="none" strokeWidth="1.55" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+  {stroke&&<path d={stroke} stroke="currentColor"/>}{fill&&<path d={fill} fill="currentColor"/>}
+ </svg>;
 }
 type Chapter=typeof CHAPTERS[number];
-const chapterMarks:Record<Chapter,ReactNode>={
- Stage:<path d="m2.4 11.6 9.6-8.8 9.6 8.8M5.2 10.2V21h5v-6.2h3.6V21h5V10.2"/>,
- Blade:<><path d="m20.6 3.1-1.3 7.4-7.5 7.4-8.9 3.2 4.3-9.2 9.4-8.2Z"/><path d="m5.1 18.6 11.7-11"/></>,
- Handle:<><path d="m3 16.3 6.2-7.1 2.4-.5 4.3-5.3h2.7l2.5 2.4v3l-10.6 12H7.1L3 17.5Z"/><circle cx="17.1" cy="7.5" r="1" fill="currentColor" stroke="none"/></>,
- Metals:<><path d="m7.2 3.7 9.6 0 4.8 8.3-4.8 8.3H7.2L2.4 12Z"/><path d="M12 8.3 15.4 10v4L12 15.7 8.6 14v-4Z"/></>,
- Inspect:<><circle cx="10" cy="10" r="6.8"/><path d="m15 15 6.6 6.6"/></>,
+const chapterTile='M6.5 0H32v25.5L25.5 32H0V6.5Z';
+const chapterCuts:Record<Chapter,string>={
+ Stage:'M5.6 14.4 16 5.5l10.4 8.9h-3.2v11h-5.4v-7h-3.6v7H8.8v-11Z',
+ Blade:'M21 5.9h5.3l-1.7 7.3-8.6 8.5-10.4 4.8 4.1-11.4 9-8.2 1.1 1.2Z M9.6 22.2l12.6-12.5-2.3 4-7.3 7Z',
+ Handle:'M5.9 20.5l6.3-7.3 2.2-.5 5.2-6.1h3.1l3.6 3.2v3.4L15 25.8l-3.8.5-5.3-3.9Z M23.4 10.9a1.8 1.8 0 1 1-3.6 0 1.8 1.8 0 1 1 3.6 0Z',
+ Metals:'M10.6 6.8h10.8l5.3 9.2-5.3 9.2H10.6L5.3 16Z M20.5 16a4.5 4.5 0 1 1-9 0 4.5 4.5 0 1 1 9 0Z',
+ Inspect:'M13.4 5.7a7.7 7.7 0 0 1 6.2 12.3l7.2 7.1-2 2-7.2-7.2a7.7 7.7 0 1 1-4.2-14.2Z M18.3 13.4a4.9 4.9 0 1 1-9.8 0 4.9 4.9 0 1 1 9.8 0Z',
 };
 export function ChapterIcon({chapter}:{chapter:Chapter}){
- return <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-  {chapterMarks[chapter]}
+ return <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+  <path d={chapterTile+' '+chapterCuts[chapter]} fill="currentColor" fillRule="evenodd"/>
  </svg>;
 }
 export function Brand() {

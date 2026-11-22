@@ -45,7 +45,12 @@ function sample(element:HTMLElement,rect:DOMRect){
   else ink.fillRect(box.x+box.width*.13,box.y+box.height/2,box.width*.74,1.5);
  }
  for(const path of element.querySelectorAll<SVGGeometryElement>('svg path,svg circle')){
-  const matrix=path.getScreenCTM();if(!matrix)continue;const length=path.getTotalLength();
+  const matrix=path.getScreenCTM();if(!matrix)continue;
+  if(path instanceof SVGPathElement&&path.getAttribute('fill-rule')==='evenodd'){
+   ink.save();ink.transform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.e,matrix.f);
+   ink.fill(new Path2D(path.getAttribute('d')!),'evenodd');ink.restore();continue;
+  }
+  const length=path.getTotalLength();
   for(let d=0;d<length;d+=.7){const p=path.getPointAtLength(d).matrixTransform(matrix);ink.fillRect(p.x,p.y,1.35,1.35);}
  }
  const pixels=ink.getImageData(0,0,buf.width,buf.height).data,points:Point[]=[];

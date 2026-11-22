@@ -14,6 +14,7 @@ import {LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {fitBoundsScale,slideTravel} from './lib/framing';
 import {alignStageCamera,focusLens,centerLens} from './lib/optics';
 import {createSilhouetteMeter} from './lib/optical-center';
+import {createStageControls} from './lib/stage-controls';
 import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
@@ -100,6 +101,7 @@ export default function Stage({state,...callbacks}:Props){
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
+  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!);
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
@@ -112,6 +114,7 @@ export default function Stage({state,...callbacks}:Props){
   const resize=()=>{
    const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);
    const viewport=element.getBoundingClientRect();
+   stageControls?.resize(viewport);
    const ringLine=(rimAnchor.getBoundingClientRect().top-viewport.top)/h;
    const changed=w!==width||h!==height;
    if(changed){
@@ -161,7 +164,7 @@ export default function Stage({state,...callbacks}:Props){
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
    chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
-  const lost=(e:Event)=>{e.preventDefault();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
+  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls?.restore();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
   element.addEventListener('webglcontextlost',lost);
   const cursor=new THREE.Vector2(),cursorX=new MotionValue(),cursorY=new MotionValue();
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
@@ -331,9 +334,10 @@ export default function Stage({state,...callbacks}:Props){
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
+    if(active&&host.dataset.uiPending!=='true')stageControls?.render(renderer,tint);
     renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
     renderer.render(scene,productCamera);
-   }catch(e){props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
+   }catch(e){stageControls?.restore();props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.progress,s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
    if(frameWindow>1){
@@ -344,7 +348,7 @@ export default function Stage({state,...callbacks}:Props){
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
-   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
+   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls?.dispose();document.removeEventListener('visibilitychange',visibility);
    element.removeEventListener('pointermove',cursorMove);element.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
    textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();

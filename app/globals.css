@@ -22,7 +22,8 @@ h1,h2,h3,p{margin:0}
  --readout-top:max(clamp(58px,8.5dvh,78px),calc(var(--top) + 44px));
  --readout-gap:clamp(20px,3.2dvh,38px);
  --nav-hit:44px;
- --panel-gutter:clamp(54px,18vw,72px);
+ --nav-mark:clamp(28px,7.8vw,32px);
+ --bank-max:116px;
  --nav-height:46px;
  --tool-gap:24px;
  --row-height:clamp(44px,10.75vw,46px);
@@ -118,11 +119,11 @@ h1,h2,h3,p{margin:0}
 .control-dock {z-index:9;bottom:var(--foot);display:grid;row-gap:var(--tool-gap)}
 .sequence-nav {height:var(--nav-height);display:flex;justify-content:space-between;align-items:center}
 .chapter-button,.knife-nav button {display:grid;place-items:center;pointer-events:auto}
-.chapter-button {position:relative;width:var(--nav-hit);height:var(--nav-height);color:color-mix(in srgb,var(--ring-light) 25%,#a7acaf)}
-.chapter-button svg,.knife-nav svg {stroke-linecap:square;stroke-linejoin:miter}
-.chapter-button svg {width:35px;height:35px;stroke-width:1.38}
+.chapter-button {position:relative;width:var(--nav-hit);height:var(--nav-height);color:color-mix(in srgb,var(--ring-light) 18%,#81868b)}
+.knife-nav svg {stroke-linecap:square;stroke-linejoin:miter}
+.chapter-button svg {width:var(--nav-mark);height:var(--nav-mark)}
 .chapter-button[aria-current=step] {color:var(--ring-light)}
-.chapter-button[aria-current=step] svg {stroke-width:1.7;filter:drop-shadow(0 0 2px var(--ring-glow))}
+.chapter-button[aria-current=step] svg {filter:drop-shadow(0 0 2px var(--ring-glow))}
 .chapter-button:focus-visible::after {content:'';position:absolute;bottom:-3px;left:calc(50% - 6px);width:12px;height:2px;background:var(--ring-ink)}
 @media(hover:hover) and (pointer:fine) {
  .chapter-button:not([aria-current]):hover {color:var(--ring-ink)}
@@ -133,18 +134,19 @@ h1,h2,h3,p{margin:0}
 .hud-layer[aria-hidden=true] {visibility:hidden}
 .hud-layer button,.hud-layer input,.hud-layer label {pointer-events:auto}
 .hud-layer[inert] * {pointer-events:none!important}
-/* Move the two banks apart without narrowing the individual swatch targets. */
-.hud-panel {position:absolute;inset:0 calc((var(--nav-hit) - var(--panel-gutter)) / 2);display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--panel-gutter);align-items:end}
+/* Both banks terminate at the visible outside edges of the navigation tiles.
+ * Smaller tracks leave the free space in the middle of the rail. */
+.hud-panel {position:absolute;inset:0 calc((var(--nav-hit) - var(--nav-mark)) / 2);display:grid;
+ grid-template-columns:repeat(2,min(36.5%,var(--bank-max)));justify-content:space-between;align-items:end}
 .control-group {min-width:0;container-type:inline-size}
 .panel-title {display:flex;align-items:baseline;justify-content:space-between;white-space:nowrap;height:var(--label-height);
- font:400 var(--label-size)/1.24 var(--ui);letter-spacing:0;color:var(--ring-pale);text-shadow:0 1px 4px #000}
+ font:400 min(var(--label-size),14cqi)/1.24 var(--ui);letter-spacing:0;color:var(--ring-pale);text-shadow:0 1px 4px #000}
 .choice-grid,.view-row,.lighting-grid {
- /* Half a cell of overscan aligns visible artwork with both ends of its heading. */
- --pitch:calc((100cqi - var(--swatch)) / 2);
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:var(--row-height);
- margin:calc(var(--label-gap) - var(--row-inset)) calc((var(--swatch) - var(--pitch)) / 2) 0}
+ margin:calc(var(--label-gap) - var(--row-inset)) 0 0}
 .choice,.view-row button,.lighting-grid button {position:relative;display:grid;place-items:center;width:100%;height:100%;filter:none}
+.control-group button:nth-child(3n+1) {justify-items:start;--art-center:calc(var(--swatch) / 2)}
+.control-group button:nth-child(3n) {justify-items:end;--art-center:calc(100% - var(--swatch) / 2)}
 .control-dock button,.knife-nav button {-webkit-user-select:none;user-select:none}
 .control-dock button:focus-visible,.knife-nav button:focus-visible {outline:none}
 .sample-outline {display:block;position:relative;width:var(--swatch);aspect-ratio:1;background:color-mix(in srgb,var(--ring-pale) 62%,#242628)}
@@ -179,13 +181,16 @@ h1,h2,h3,p{margin:0}
 .view-row button[aria-pressed=true] .frame-corners {opacity:1}
 .technical-hud button[aria-pressed=true] svg {color:var(--ring-light);stroke-width:2;filter:drop-shadow(0 0 2px var(--ring-glow))}
 .technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:var(--ring-pale);stroke-width:2.5;filter:drop-shadow(0 0 3px var(--ring-light))}
-.technical-hud button:focus-visible::after {content:'';position:absolute;bottom:1px;width:10px;height:2px;background:var(--ring-light)}
-/* This zero-height rail locates the front rim in both CSS and the 3D camera. */
+.technical-hud button:focus-visible::after {content:'';position:absolute;bottom:1px;left:var(--art-center,50%);
+ width:10px;height:2px;transform:translateX(-50%);background:var(--ring-light)}
+/* The transparent hit targets stay reachable when the model covers their ink. */
 .stage-foreground {position:absolute;top:var(--ring-line);left:var(--safe-left);right:var(--safe-right);
  width:var(--ui-width);height:0;margin-inline:auto;z-index:7;pointer-events:none}
 .knife-nav {position:absolute;inset:auto 0 var(--ring-gap);
  display:grid;grid-template-columns:repeat(4,var(--nav-hit));justify-content:space-between;align-items:center}
 .knife-nav svg {filter:drop-shadow(0 1px 1.5px #050506c7)}
+.knife-nav[data-depth] button:not([data-raised]) svg {opacity:0}
+.knife-nav button[data-raised] svg {filter:drop-shadow(0 1px 1px #050506) drop-shadow(0 0 3px var(--ring-glow))}
 .knife-nav button {position:relative;width:var(--nav-hit);height:var(--action-height);background:transparent;color:var(--ring-ink)}
 .knife-nav .knife-step {color:var(--ring-light)}
 .pose-action svg {width:30px;height:30px;stroke-width:1.55}
@@ -225,13 +230,11 @@ h1,h2,h3,p{margin:0}
 }
 @media(max-height:500px) and (orientation:landscape) {
  .experience {--top:max(1px,env(safe-area-inset-top));--foot:max(8px,env(safe-area-inset-bottom));--nav-height:36px;
-  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch:23px;--panel-gutter:58px}
+  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch:23px;--nav-mark:27px;--bank-max:103px}
  .brand {min-height:27px}.wordmark img{width:9px}
  .experience {--readout-top:max(29px,calc(var(--top) + 27px));--readout-gap:clamp(10px,2.8dvh,14px)}
  .product-info {--floor-clearance:5px}
- .chapter-button svg {width:29px;height:29px}
  .pose-action svg {width:25px;height:25px}
- .hud-panel {inset-inline:max(1px,calc((100% - 268px) / 2))}
  .bottom-veil {height:110px}
 }
 @media(max-height:350px) and (orientation:landscape) {
@@ -273,7 +276,8 @@ h1,h2,h3,p{margin:0}
  .atmospheric-title,.price {background:none;color:CanvasText}
  .chapter-button[aria-current=step],.chapter-button:focus-visible {color:Highlight}
  .chapter-button:focus-visible::after,.knife-nav button:focus-visible::after,.stage:focus-visible ~ .stage-foreground::after {background:Highlight;forced-color-adjust:none}
- .chapter-button[aria-current=step] svg {stroke-width:2.4}
+ .chapter-button {color:ButtonText}
+ .chapter-button[aria-current=step]::after {content:'';position:absolute;bottom:-3px;left:calc(50% - 6px);width:12px;height:2px;background:Highlight;forced-color-adjust:none}
  .choice[aria-pressed=true] .sample-outline,.choice:focus-visible .sample-outline {background:Highlight;forced-color-adjust:none}
  .technical-hud button[aria-pressed=true],.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:Highlight}
  .technical-hud button[aria-pressed=true] svg {stroke-width:2.6;color:Highlight}
