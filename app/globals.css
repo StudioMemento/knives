@@ -7,7 +7,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030303;col
 button,input{font:inherit}
 button{border:0;background:none;padding:0;color:inherit}
 button:disabled{opacity:.3}
-button:focus-visible,input:focus-visible{outline:1px solid #fff;outline-offset:3px}
+.experience button {appearance:none;-webkit-appearance:none}
+.experience button:focus,.stage-input:focus {outline:0;box-shadow:none}
 button svg{display:block}
 h1,h2,h3,p{margin:0}
 .experience {
@@ -45,18 +46,25 @@ h1,h2,h3,p{margin:0}
  --ring-glow:color-mix(in srgb,var(--ring-light) 38%,transparent);
  --ring-line:min(67.5dvh,calc(100% - var(--foot) - var(--nav-height) - var(--tool-gap) - var(--panel-height) - var(--panel-gap)));
 }
-.environment,.stage,.stage-input,.particle-reveal {position:absolute;inset:0;width:100%;height:100%}
+.environment,.stage,.stage-backdrop,.stage-input,.particle-reveal {position:absolute;inset:0;width:100%;height:100%}
 .environment {z-index:-2;pointer-events:none;background:radial-gradient(ellipse 58% 47% at 50% 59%,#171717,transparent 91%),#040405}
+.stage-backdrop {z-index:1;pointer-events:none}
+.stage-backdrop[hidden] {display:none}
 .stage {z-index:3;display:block;pointer-events:none}
 .stage-input {z-index:1;touch-action:none;outline:none}
 .stage-input:focus-visible ~ .stage-foreground .knife-nav button:enabled {color:var(--ring-pale)}
 .experience img,.experience svg {-webkit-user-drag:none}
 .ring-cursor {display:none;pointer-events:none}
 @media(any-hover:hover) and (any-pointer:fine) and (forced-colors:none) {
+ /* Preserve the native-resolution SVG layer when it crosses the product in z-order. */
+ .knife-nav {will-change:transform}
  .experience[data-custom-pointer],.experience[data-custom-pointer] :is(button,a,.stage-input) {cursor:none}
  .experience[data-custom-pointer] .ring-cursor {display:block;position:fixed;left:0;top:0;z-index:30;
-  width:14px;height:16px;background:var(--ring-light);clip-path:polygon(0 0,100% 63%,51% 66%,27% 100%);
-  will-change:transform}
+  width:14px;height:16px;will-change:transform}
+ .ring-cursor::after {content:"";position:absolute;inset:0;background:#fff;clip-path:polygon(0 0,100% 63%,51% 66%,27% 100%)}
+ .cursor-trail {position:absolute;left:4px;top:5px;width:20px;height:5px;opacity:0;transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--ring-light),var(--ring-glow) 58%,transparent);
+  border-radius:50%;filter:blur(1.6px);will-change:transform,opacity}
 }
 .brand-rail,.control-dock {
  position:absolute;left:var(--safe-left);right:var(--safe-right);width:var(--ui-width);
@@ -131,7 +139,6 @@ h1,h2,h3,p{margin:0}
 .chapter-button svg {width:var(--nav-mark);height:var(--nav-mark)}
 .chapter-button[aria-current=step] {color:var(--ring-light)}
 .chapter-button[aria-current=step] svg {filter:drop-shadow(0 0 2px var(--ring-glow))}
-.chapter-button:focus-visible svg,.technical-hud button:focus-visible svg {outline:1px solid var(--ring-pale);outline-offset:3px}
 @media(hover:hover) and (pointer:fine) {
  .chapter-button:not([aria-current]):hover {color:var(--ring-ink)}
 }
@@ -154,7 +161,12 @@ h1,h2,h3,p{margin:0}
 .choice,.view-row button,.lighting-grid button {position:relative;display:grid;place-items:center;width:100%;height:100%;filter:none}
 .control-group button:nth-child(3n+1) {justify-items:start}
 .control-group button:nth-child(3n) {justify-items:end}
-.control-dock button:focus-visible,.knife-nav button:focus-visible {outline:none}
+/* Keyboard focus has its own small mark beneath the symbol. */
+.control-dock button:focus-visible::after,.knife-nav button:focus-visible::after {
+ content:"";position:absolute;left:50%;bottom:0;width:10px;height:3px;transform:translateX(-50%);
+ background:var(--ring-light);clip-path:polygon(2px 0,100% 0,calc(100% - 2px) 100%,0 100%);pointer-events:none}
+.control-group button:nth-child(3n+1):focus-visible::after {left:calc(var(--swatch) / 2)}
+.control-group button:nth-child(3n):focus-visible::after {left:calc(100% - var(--swatch) / 2)}
 .sample-outline {display:block;position:relative;width:var(--swatch);aspect-ratio:1;background:color-mix(in srgb,var(--ring-pale) 62%,#242628)}
 .sample {position:absolute;inset:1px;display:block;background-color:#55585b}
 .sample.atlas {background-image:url('/ui/catalogue-swatches.webp');background-size:600% 2500%;background-repeat:no-repeat}
@@ -166,8 +178,6 @@ h1,h2,h3,p{margin:0}
  .choice:not([aria-pressed=true]):hover .sample-outline {background:var(--ring-ink)}
  .technical-hud button:not([aria-pressed=true]):hover svg {color:var(--ring-ink)}
 }
-.choice:focus-visible .sample-outline {background:var(--ring-pale);filter:drop-shadow(0 0 2px var(--ring-light))}
-.choice:focus-visible .sample {inset:3px}
 /* The handle guide describes the finishes in words. These are flat UI symbols. */
 .motif-matte{background:linear-gradient(155deg,#858785,#56595a)}
 .motif-polish{background:linear-gradient(142deg,#55595a 15%,#ced0c9 48%,#646769 58%,#33373b)}
@@ -184,11 +194,12 @@ h1,h2,h3,p{margin:0}
 .technical-hud button {color:var(--ring-pale)}
 .technical-hud svg {width:var(--swatch);height:var(--swatch)}
 .technical-hud button[aria-pressed=true] svg {color:var(--ring-light)}
-.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:var(--ring-pale)}
+.technical-hud button:not([aria-pressed=true]):focus-visible svg {color:var(--ring-ink)}
 /* The transparent hit targets stay reachable when the model covers their ink. */
 .stage-foreground {position:absolute;top:var(--ring-line);left:var(--safe-left);right:var(--safe-right);
  width:var(--ui-width);height:0;margin-inline:auto;z-index:7;pointer-events:none}
-.stage-foreground[data-behind-model] .knife-nav svg {opacity:0}
+.stage-foreground[data-behind-model] {z-index:2}
+.stage-input:focus-visible ~ .stage-foreground,.stage-foreground[data-behind-model]:has(:focus-visible) {z-index:7}
 .knife-nav {position:absolute;inset:auto 0 var(--ring-gap);
  display:grid;grid-template-columns:repeat(4,var(--nav-hit));justify-content:space-between;align-items:center}
 .knife-nav button {position:relative;width:var(--nav-hit);height:var(--action-height);background:transparent;color:var(--ring-ink)}
@@ -197,11 +208,6 @@ h1,h2,h3,p{margin:0}
 .pose-action .plate {transition:transform .28s cubic-bezier(.22,.75,.2,1)}
 .knife-step svg {width:min(44px,var(--action-height));height:auto;transition:transform .16s}
 .knife-nav .pose-action[aria-pressed=true] {color:var(--ring-light)}
-.knife-nav button:focus-visible::after {content:"";position:absolute;inset:3px 1px;pointer-events:none;
- background:linear-gradient(currentColor,currentColor) left top/7px 1px,
- linear-gradient(currentColor,currentColor) left top/1px 7px,
- linear-gradient(currentColor,currentColor) right bottom/7px 1px,
- linear-gradient(currentColor,currentColor) right bottom/1px 7px;background-repeat:no-repeat}
 @media(hover:hover) and (pointer:fine) {
  .knife-nav button:enabled:hover {color:var(--ring-pale)}
  .knife-step.previous:enabled:hover svg {transform:translateX(-2px)}
@@ -213,11 +219,12 @@ h1,h2,h3,p{margin:0}
 .load-mark{width:18px;height:18px;border:1px solid var(--ring-ink);border-top-color:transparent;animation:load 1.6s linear infinite}
 @keyframes load{to{transform:rotate(360deg)}}
 .error-message,.startup-recovery{background:#0b0c0eef;padding:20px 24px;font-size:13px;line-height:1.6;width:min(86vw,410px)}
+.error-message button:focus-visible,.startup-recovery a:focus-visible {text-decoration:underline double}
 .error-message button,.startup-recovery a{display:inline-block;margin-top:8px;color:inherit;text-decoration:underline}
 .startup-recovery[hidden]{display:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-.experience[data-ui-pending=true] :is(.stage,.stage-input,.bottom-veil,.brand-rail,.control-dock,.knife-nav,.product-heading,.product-info) {visibility:hidden}
+.experience[data-ui-pending=true] :is(.stage,.stage-backdrop,.stage-input,.bottom-veil,.brand-rail,.control-dock,.knife-nav,.product-heading,.product-info) {visibility:hidden}
 @media(max-width:767px) and (min-height:651px) and (max-height:700px) {
  .experience {--foot:max(22px,calc(env(safe-area-inset-bottom) + 8px));--tool-gap:20px;--panel-gap:16px}
 }
@@ -288,12 +295,11 @@ h1,h2,h3,p{margin:0}
 }
 @media(forced-colors:active) {
  .atmospheric-title,.price {background:none;color:CanvasText}
- .knife-nav button:focus-visible {outline:1px solid Highlight;outline-offset:-2px}
+ .control-dock button:focus-visible::after,.knife-nav button:focus-visible::after {background:Highlight;forced-color-adjust:none}
  .chapter-button[aria-current=step],.chapter-button:focus-visible {color:Highlight}
  .chapter-button {color:ButtonText}
  .chapter-button svg,.technical-hud svg,.knife-nav svg {forced-color-adjust:none}
- .chapter-button:focus-visible svg,.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {outline-color:Highlight}
- .choice[aria-pressed=true] .sample-outline,.choice:focus-visible .sample-outline {background:Highlight;forced-color-adjust:none}
+ .choice[aria-pressed=true] .sample-outline {background:Highlight;forced-color-adjust:none}
  .technical-hud button[aria-pressed=true],.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:Highlight}
  .technical-hud button[aria-pressed=true] svg {color:Highlight}
 }

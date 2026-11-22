@@ -15,6 +15,7 @@ import {fitBoundsScale,slideTravel} from './lib/framing';
 import {alignStageCamera,focusLens,centerLens} from './lib/optics';
 import {createSilhouetteMeter} from './lib/optical-center';
 import {createStageControls} from './lib/stage-controls';
+import {createStageLayers} from './lib/stage-layers';
 import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
@@ -35,12 +36,14 @@ const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
 
 export default function Stage({state,...callbacks}:Props){
- const canvas=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
+ const canvas=useRef<HTMLCanvasElement>(null),backdrop=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
  const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
-  if(!canvas.current||!surface.current)return;
-  const input=surface.current,s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
-  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
+  if(!canvas.current||!backdrop.current||!surface.current)return;
+  const input=surface.current,s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';
+  let dead=false,raf=0,layers:ReturnType<typeof createStageLayers>;
+  try{layers=createStageLayers(element,backdrop.current);}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
+  const {renderer}=layers;
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
@@ -103,7 +106,7 @@ export default function Stage({state,...callbacks}:Props){
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
-  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!,input,renderer);
+  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!);
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
@@ -123,10 +126,11 @@ export default function Stage({state,...callbacks}:Props){
     const pixels=portrait?1150000:2250000;
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
     renderer.setSize(w,h,false);
+    layers.resize();
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
-   stageControls.resize(viewport);
+   stageControls.resize();
    if(changed||Math.abs(lastRingLine-ringLine)>=.00001){
     lastRingLine=ringLine;
     cameraShift=alignStageCamera(camera,w,h,ringLine);
@@ -166,8 +170,8 @@ export default function Stage({state,...callbacks}:Props){
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
    chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
-  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls.raise();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
-  element.addEventListener('webglcontextlost',lost);
+  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls.setLayered(false);props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
+  layers.source.addEventListener('webglcontextlost',lost);
   const cursor=new THREE.Vector2(),cursorX=new MotionValue(),cursorY=new MotionValue();
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
@@ -336,10 +340,11 @@ export default function Stage({state,...callbacks}:Props){
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
-    if(active)stageControls.beforeProduct(tint);
-    renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
-    renderer.render(scene,productCamera);
-   }catch(e){stageControls.raise();props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
+    layers.beforeProduct();
+    stageControls.setLayered(layers.split);
+    renderProducts(true);if(!layers.split)renderer.clearDepth();productCamera.layers.set(FRONT);
+    renderer.render(scene,productCamera);layers.present();
+   }catch(e){stageControls.setLayered(false);props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
    if(frameWindow>1){
@@ -352,12 +357,13 @@ export default function Stage({state,...callbacks}:Props){
   raf=requestAnimationFrame(animate);
   return ()=>{
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls.dispose();document.removeEventListener('visibilitychange',visibility);
-   input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
+   input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);layers.source.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
    textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
  return <>
+  <canvas ref={backdrop} className="stage-backdrop" hidden aria-hidden="true"/>
   <canvas className="stage" ref={canvas} aria-hidden="true"/>
   <div className="stage-input" ref={surface} tabIndex={0} role="group" aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>
  </>;

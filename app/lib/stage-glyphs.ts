@@ -23,7 +23,7 @@ function stack(expanded: boolean): Drawing {
  ]};
 }
 
-// Both the in-scene marks and the interactive SVGs use these outlines.
+// Native SVG outlines for the four stage controls.
 export const STAGE_GLYPHS: Record<StageGlyph, Drawing> = {
  left:{units:24,weight:1.55,marks:[{solid:true,d:'M18.5.5 5.5 12l13 11.5-1.6-4.4L9 12l7.9-7.1Z'}]},
  right:{units:24,weight:1.55,marks:[{solid:true,d:'M5.5.5 18.5 12l-13 11.5 1.6-4.4L15 12 7.1 4.9Z'}]},

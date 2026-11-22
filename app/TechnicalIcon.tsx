@@ -8,37 +8,40 @@ function Solid({d}:{d:string}) {
  return <path d={d} fill="currentColor" fillRule="evenodd" stroke="none"/>;
 }
 
-// Opposite framing corners distinguish the two component close-ups.
-const macroFrame = <path d="M2.5 10V4.5l2-2H10m12 27h5.5l2-2V22"/>;
+// The tip, the stepped joint and the chamfered handle identify the same
+// object in the side elevation and the three-quarter drawing.
+function KnifeProfile() {
+ return <>
+  <Solid d="M1.1 19.4c3.5-3.8 7.7-7.9 12.2-9.4h3.1l-2.9 7.5-5 2Z"/>
+  <Solid d="M17.9 11.5h8.4l3.8 1.9 1 2.8-2.8 3.7-3.3.8-6.6-1.5-3.4.4Z M21.5 15.2a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 1 1 2.8 0Z"/>
+ </>;
+}
+const detailHandle='M2.5 20.4 7.9 12l14.4-6.4 5.9 1.9 1.5 4.6-3.6 6.3-15.5 7.1-5.7-.5Z';
 
 const symbols: Record<SymbolName,ReactNode> = {
- side: <>
-  <path d="M2.5 11V7.5H9m20.5 13.4v3.6H23"/>
-  <Solid d="M2 18.5l8.6-6h5.6l-2 5.4-4.3 1.7H2Z M18 12.6h8.5l3.5 2.6-.8 3.4-2.8 1.2-5.4-1.1-4.8.2Z M21.6 15.4a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 1 1 2.2 0Z"/>
+ side:<g transform="translate(0 -2.4) scale(1 1.15)"><KnifeProfile/></g>,
+ top:<g transform="rotate(-69 16 16)">
+  <Solid d="m1 16 7.6-2.9 7.6-1-2.6 3.1-9.4.9 9.1.8 2.9 2.9-7.8-1Z"/>
+  <Solid d="m17.5 11.8 9.3-.7 3.8 2.3.5 4.6-3.8 2.8-10.2-.8-1.7-1.5 2.2-2.5-2.2-2.3Z M18.8 15v2h8.3l1-1-1-1Z"/>
+ </g>,
+ edge:<>
+  <Solid d="M11.5 3.6h9.1l4.1 4.9-.6 14.8-3.6 4.8h-9.2l-3.6-4.8-.6-14.8Z M12.7 7.3l-2 2.3.3 12.3 1.9 2.5h6.2l1.9-2.5.3-12.3-2-2.3Z"/>
+  <Solid d="M15.2 7.1H17l1.4 6.1-2.3 10.1-2.2-10.1Z"/>
  </>,
- top: <>
-  <path d="M7.7 7.3Q16-.8 24.3 7.3 16 15.4 7.7 7.3Z"/>
-  <circle cx="16" cy="7.3" r="2" fill="currentColor" stroke="none"/>
-  <Solid d="m2 21.3 13.3-7.7 14.6 4.7-13.2 7.9Z"/>
-  <path d="m4 25.3 12.9 4.1 11.5-6.8"/>
+ perspective:<g transform="rotate(-24 16 16)">
+  <Solid d="m1.3 18.2 6.8-8.7 5.6-3.2 2.1 2-4.3 1.6-4 2.7Z M16.8 9.6l3.8-3 7.4.3 3.2 2.5-3.6 1-2.2-.8Z"/>
+  <KnifeProfile/>
+ </g>,
+ clip:<>
+  <path d={detailHandle} strokeWidth="1.65"/>
+  <Solid d="m6.8 21.3 1.1-3.7 13.6-6.4.4-2.1 2.1-1.2 2.1.8.5 2.2-2.1 2-2.1-.1L10 19.5l-.4 2Z"/>
  </>,
- edge: <>
-  <path d="M4.2 10.1a12.3 12.3 0 0 0 0 11.8m23.6-11.8a12.3 12.3 0 0 1 0 11.8M2.5 16H9m14 0h6.5"/>
-  <Solid d="M14.3 3.1h3.4L19.6 13 16 29.8 12.4 13Z"/>
+ loop:<>
+  <Solid d={detailHandle+' M26 11.9a3.1 3.1 0 1 1-6.2 0 3.1 3.1 0 1 1 6.2 0Z M6 21.2l8.4-4.6 1 1.8-8.3 4.1Z'}/>
  </>,
- perspective: <>
-  <Solid d="m3.7 10.4 9.3-5.3 9.3 5.3-9.3 5.3Z"/>
-  <path d="M5.2 13.2v6.9l7.8 4.5 7.8-4.5v-6.9M13 18v6"/>
-  <path d="M4.2 24.9c3.1 4.3 11.7 3.4 18 .1 4.6-2.4 6.9-6.3 6.2-10.2m-3.2 3.3 3.1-3.9 2.3 4.3"/>
- </>,
- clip: <>{macroFrame}
-  <Solid d="M5.2 25.3 7.1 20l10.6-13 .7-3.1 3-1.3 3.9 1.3 1.6 3.3-1.7 3.6-2.8 1.1-9.3 12-4.8 2.6Z M23.8 6.8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 1 1 3 0Z M10 22.2l9.4-12.4 1.5 1.3L12 22.3Z"/>
- </>,
- loop: <>{macroFrame}
-  <Solid d="m5 21 5.1-5.3a8.8 8.8 0 1 1 6.2 6.1l-4.8 5.1-4.5-.7Z M23.9 12.9a4.9 4.9 0 1 0-9.8 0 4.9 4.9 0 1 0 9.8 0Z"/>
- </>,
- screw: <>{macroFrame}
-  <Solid d="M16 5a11 11 0 1 1 0 22 11 11 0 1 1 0-22Z M12.7 9.1l-2.8 2.8 3.7 3.8-4.1 4.1 2.8 2.8 4.1-4.1 3.7 3.8 2.8-2.8-3.7-3.8 3.5-3.5-2.8-2.8-3.5 3.5Z"/>
+ screw:<>
+  <path d="m2 25.6 3 .3 18.5-7.2 5.3-6.3-.9-5.3-4.1-2.9-7.3 1.6L3 15" strokeWidth="1.7"/>
+  <Solid d="m10.5 10.2 3.7-3.1 5.8-.3 3.5 3.5.2 4.9-3.8 3.3-5.2.5-4-3.1Z M13.7 14.8l1.7 1.9 5.2-5.3-1.7-1.8Z"/>
  </>,
  spotlight: <>
   <Solid d="m3.3 9.2 6.9-6.9 6.1 4.1 3.1-.8 1.9 1.9-10.4 10.4-1.9-1.9.9-3Z"/>
