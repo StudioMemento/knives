@@ -17,15 +17,14 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
 }
 type Chapter=typeof CHAPTERS[number];
 const chapterMarks:Record<Chapter,ReactNode>={
- Stage:<path d="m5.1 8.35 6.9-6.9 6.9 6.9 M6.4 7.05v8.7h3.85v-4.2h3.5v4.2h3.85v-8.7"/>,
- Blade:<path d="m4.9 14.7 13.7-6.1-3.8 5.75c-1.6 2.1-3.5 2.9-6.8 3.2Z"/>,
- Handle:<><path d="m5.25 15.8 8.35-8.35h2.55l1.5 1.5v2.55l-7.8 7.5Z"/><circle cx="14.8" cy="10.1" r="1" fill="currentColor" stroke="none"/></>,
- Metals:<><path d="m12 6 5.2 3v6L12 18l-5.2-3V9Z"/><circle cx="12" cy="12" r="2.1"/></>,
- Inspect:<><circle cx="10.75" cy="10.75" r="4.25"/><path d="m13.8 13.8 3.48 3.48"/></>,
+ Stage:<path d="m2 11 10-8.3L22 11m-2.8-2.3v11.6h-5V14H9.8v6.3h-5V8.7"/>,
+ Blade:<><path d="m2.3 17.4 5.8-6.1 13.7-6.8c-1.8 5.7-5.3 10-12.4 13.4l-3.8-.3-1.3 1.3Z"/><path d="m8.2 14.4 8.1-5.7"/></>,
+ Handle:<><path d="m3.3 14.8 10-10.4a3 3 0 0 1 4.1-.2l2.8 2.7a2.8 2.8 0 0 1 .1 4l-5.1 5.3-2.3.2-3.5 3.9a2.2 2.2 0 0 1-3.1.1l-2.8-2.6a2.1 2.1 0 0 1-.2-3Z"/><circle cx="16.5" cy="8" r="1.45"/><path d="m6.8 15.9 3.5-3.6"/></>,
+ Metals:<><path d="M7.1 3.7h9.8l4.9 8.3-4.9 8.3H7.1L2.2 12Z"/><circle cx="12" cy="12" r="4"/></>,
+ Inspect:<><circle cx="10.1" cy="10.1" r="6.8"/><path d="m15.2 15.2 6.1 6.1M7.1 10.1h6m-3-3v6"/></>,
 };
 export function ChapterIcon({chapter}:{chapter:Chapter}){
- return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-  <path className="chapter-perimeter" d="M12 1.45 22.55 12 12 22.55 1.45 12Z"/>
+ return <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
   {chapterMarks[chapter]}
  </svg>;
 }
@@ -37,50 +36,64 @@ export function Brand() {
  </span>;
 }
 
-export function ProductHeading({name,price}:{name:string;price:number}) {
- const ref=useRef<HTMLDivElement>(null);
+export function ProductReadout({model,price,config}:{model:number;price:number;config:Configuration}) {
+ const name=KNIVES[model];
+ const titleRef=useRef<HTMLHeadingElement>(null), regionRef=useRef<HTMLDivElement>(null);
  useLayoutEffect(()=>{
-  const heading=ref.current, region=heading?.parentElement;
-  const title=heading?.querySelector('h1'), summary=region?.querySelector('dl');
+  const title=titleRef.current,region=regionRef.current,host=region?.parentElement;
+  const summary=region?.querySelector('dl'),priceLine=region?.querySelector<HTMLElement>('.price');
+  const firstLabel=summary?.querySelector<HTMLElement>('dt span:last-child');
   const ink=document.createElement('canvas').getContext('2d');
-  if(!heading||!region||!title||!summary||!ink)return;
+  if(!title||!region||!host||!summary||!priceLine||!firstLabel||!ink)return;
   let mounted=true;
   const fit=()=>{
    if(!mounted)return;
-   const type=getComputedStyle(title), regionBox=region.getBoundingClientRect();
-   const headingStyle=getComputedStyle(heading), summaryStyle=getComputedStyle(summary);
-   const face=type.fontFamily, weight=type.fontWeight;
-   ink.font=weight+' 1000px '+face;
-   ink.fontKerning='normal';
-   // Fit the painted edges of the widest name, leaving a small gap between letters.
+   const box=region.getBoundingClientRect(),list=summary.getBoundingClientRect();
+   const type=getComputedStyle(title), figures=getComputedStyle(priceLine);
+   ink.font=type.fontWeight+' 1000px '+type.fontFamily;ink.fontKerning='normal';
    const referenceWidth=Math.max(...KNIVES.map(label=>{
     const m=ink.measureText(label);
     return (m.actualBoundingBoxLeft+m.actualBoundingBoxRight)/1000+(label.length-1)*.065;
    }));
-   const gaps=parseFloat(headingStyle.rowGap)+parseFloat(summaryStyle.marginTop);
-   const availableHeight=regionBox.height-summary.getBoundingClientRect().height-gaps;
-   // The name occupies .89em and the half-sized price adds .94 × .5em.
-   const size=Math.max(1,Math.min(regionBox.width/referenceWidth,availableHeight/1.36));
-   heading.style.setProperty('--title-size',size+'px');
-   ink.font=weight+' '+getComputedStyle(title).fontSize+' '+face;
+   // Reserve one constant column for every three-digit price.
+   ink.font=figures.fontWeight+' 1000px '+figures.fontFamily;
+   const digit=Math.max(...Array.from('0123456789',n=>ink.measureText(n).width));
+   const priceEms=(ink.measureText('€').width+3*digit)/1000+.15;
+   const band=box.height-parseFloat(getComputedStyle(region).rowGap);
+   const size=Math.max(1,Math.min(box.width/referenceWidth,band/1.36,
+    (band-list.height)/.89,2*(box.width-list.width-6)/priceEms));
+   host.style.setProperty('--title-size',size+'px');
+   host.style.setProperty('--price-reserve',(.5*size*priceEms)+'px');
+   ink.font=type.fontWeight+' '+size+'px '+type.fontFamily;
    const m=ink.measureText(name);
-   const tracking=(regionBox.width-m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/Math.max(1,name.length-1);
-   heading.style.setProperty('--title-tracking',tracking+'px');
-   heading.style.setProperty('--run-start',m.actualBoundingBoxLeft+'px');
+   const tracking=(box.width-m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/(name.length-1);
+   title.style.setProperty('--title-tracking',tracking+'px');
+   title.style.setProperty('--run-start',m.actualBoundingBoxLeft+'px');
+   // The figures and the small capitals have different ascenders. Align the ink
+   // of the euro and the first label while keeping their layout boxes on one row.
+   const capInset=(element:HTMLElement,text:string)=>{
+    const style=getComputedStyle(element);ink.font=style.fontWeight+' '+style.fontSize+' '+style.fontFamily;
+    const metric=ink.measureText(text);
+    return (parseFloat(style.lineHeight)+metric.fontBoundingBoxAscent-metric.fontBoundingBoxDescent)/2-metric.actualBoundingBoxAscent;
+   };
+   const inkOffset=firstLabel.getBoundingClientRect().top-summary.getBoundingClientRect().top+
+    capInset(firstLabel,'BLADE')-capInset(priceLine,'€');
+   priceLine.style.setProperty('--figures-offset',(Number.isFinite(inkOffset)?inkOffset:0)+'px');
   };
   fit();
-  const observer=new ResizeObserver(fit);
-  observer.observe(region);
-  observer.observe(summary);
+  const observer=new ResizeObserver(fit);observer.observe(region);observer.observe(summary);
   void document.fonts.ready.then(fit);
   return ()=>{mounted=false;observer.disconnect();};
  },[name]);
- return <div ref={ref} className="product-heading">
-  <h1 className="atmospheric-title" data-product-name>{name}</h1>
-  <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Demo price: '+price+' euros'}>
-   <span className="currency">€</span><span data-price>{price}</span>
+ return <>
+  <div className="product-heading"><h1 ref={titleRef} className="atmospheric-title" data-product-name>{name}</h1></div>
+  <div ref={regionRef} className="product-info">
+   <div className="price" aria-live="polite" aria-atomic="true" aria-label={'Demo price: '+price+' euros'}>
+    <span className="currency">€</span><span data-price>{price}</span>
+   </div>
+   <ConfigurationSummary model={model} config={config}/>
   </div>
- </div>;
+ </>;
 }
 
 function PanelTitle({text}: {text:string}) {
@@ -97,7 +110,7 @@ function Sample({item,index,row}:{item:Option;index:number;row:number}){
 
 const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'METALS'};
 
-export function ConfigurationSummary({model, config}: {model:number; config:Configuration}) {
+function ConfigurationSummary({model, config}: {model:number; config:Configuration}) {
  return <dl className="configuration" aria-label="Current configuration">
   {SURFACES.map(surface => {
    const options = CATALOGUE[KNIVES[model]][surface];
@@ -125,7 +138,7 @@ export function ConfigurationSummary({model, config}: {model:number; config:Conf
 function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
  kind:Kind;surface:Surface;options:Option[];selected:number;row:number;onSelect:(index:number)=>void
 }){
- return <div className="control-group choice-group"><PanelTitle text={kind==='style'?'STYLE':'COLOR'}/>
+ return <div className="control-group choice-group"><PanelTitle text={kind==='style'?partLabels[surface]:'COLOR'}/>
   <div className="choice-grid" role="group" aria-label={surface+' '+kind}>
    {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind} title={item.name}
     aria-label={item.name} aria-description={item.description} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
@@ -158,22 +171,28 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
 }
 
 const cameraLabels:Record<View,string>={side:'Side',top:'Top',edge:'End-on',perspective:'Perspective',clip:'Pocket clip',screw:'Screw detail'};
-// Filled planes distinguish the three orthographic views. The perspective view
-// shows all three edges. Macro views keep the contour of the actual detail.
 const cameraSymbols:Record<View|'loop',ReactNode>={
- side:<><path d="M6 13h16v9H6Z" fill="currentColor" fillOpacity=".30"/><path d="m6 13 4-4h16v9l-4 4m0-9 4-4"/></>,
- top:<><path d="m5 14 6-7h16l-6 7Z" fill="currentColor" fillOpacity=".52"/><path d="M5 14v4l16 1 6-7V7m-6 7v5"/></>,
- edge:<><path d="m10 9 10 5v11l-10-5Z" fill="currentColor" fillOpacity=".40"/><path d="m10 9 6-3 10 5v11l-6 3m0-11 6-3"/></>,
- perspective:<><path d="m6 11 10-5 10 5v11l-10 5-10-5Zm0 0 10 5 10-5M16 16v11"/></>,
- clip:<><path d="m8 22 12-14c2-2 5 0 4 2l-11 14c-2 2-5 2-7-1l-1-2"/><path d="m10 20 9-11"/><circle cx="21.4" cy="9.5" r=".9" fill="currentColor" stroke="none"/></>,
- loop:<><path d="m7 14 11-7 6 2 2 7-11 9-6-1-3-5Z"/><path d="m10 15 9-5 2 1 1 4-9 7-3-1-1-3Z"/></>,
- screw:<><circle cx="16" cy="16" r="9.2"/><path d="m12.2 12.2 3.8 1.3 3.8-1.3-1.3 3.8 1.3 3.8-3.8-1.3-3.8 1.3 1.3-3.8Z" fill="currentColor" fillOpacity=".20"/></>,
+ side:<><path d="M4.6 19.2h7.6l3.3-2.7 12.2-5.8c-2.2 4.7-6.2 8.6-12.8 9.3l-2.1-.8H4.6Zm0 0-1.1-2.4 7.9-2.4 3.2 2.2"/><circle cx="10.9" cy="16.9" r=".9" fill="currentColor" stroke="none"/></>,
+ top:<><path d="M16 4.6v7m-3.1-3.2 3.1 3.2 3.1-3.2M4.3 20.7l6.9-5.5h15.4l-6.9 5.5Zm0 0v2.1h15.5l6.8-5.5"/></>,
+ edge:<><path d="M16 5.1c1.6 4.6 2.4 10.1 2.4 17.5L16 26l-2.4-3.4c0-7.4.8-12.9 2.4-17.5Z"/><path d="M3.3 16h6.6l-2.2-2.2m2.2 2.2-2.2 2.2m20.8-2.2H22l2.2-2.2M22 16l2.2 2.2"/></>,
+ perspective:<><path d="m16 4.8 10.3 5.8v10.3L16 27l-10.3-6.1V10.6Z"/><path d="M5.7 10.6 16 16.4l10.3-5.8M16 16.4V27"/></>,
+ clip:<><path d="m7.4 19.8 12-13.2a3.7 3.7 0 0 1 5.5 4.9L13.5 24.7a5.1 5.1 0 0 1-7.7-6.6l10.7-12"/><path d="m10.4 18.4 9.1-10.2"/></>,
+ loop:<><path d="m4.5 15.1 13.9-9.2 6.7 1.8 2.3 8.2-14 10.1-6.9-2.1Z"/><path d="m8.6 16.1 10.5-6.8 3.1 1.1 1.1 4.2-10.8 7.7-3-1.4Z"/></>,
+ screw:<><circle cx="16" cy="16" r="9.4"/><path d="m14.1 9.9 3.1-.2.5 3.7 3.8-.3.3 3.2-3.8.4.4 3.8-3.2.3-.4-3.9-3.8.4-.3-3.2 3.8-.4Z"/></>,
 };
-function CameraIcon({view}:{view:View|'loop'}) {
- return <svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor"
-  strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-  {cameraSymbols[view]}
-  <path className="frame-corners" d="M24.5 2.5h5v5m-27 17v5h5" strokeLinecap="square" strokeLinejoin="miter"/>
+const lightSymbols:Record<LightPreset,ReactNode>={
+ spotlight:<><path d="m7 4 9.5 4.3-2.9 6.4-9.4-4.3Zm8.2 7.3 3.8.1-2.4 5.1-2.3-2.7M7.1 5.3 4.8 4.2"/><path d="m20.3 14.1 7 3.1m-9.4.4 6 6.9m-8.5-5.2 2.1 7"/></>,
+ penumbra:<><path d="M8.2 6.5h15.6l-2.6 4.7H10.7Z"/><path d="M11 14.2a9.3 9.3 0 0 0 10 0M8 18.6a15.7 15.7 0 0 0 16 0"/><path d="M4.8 23.2a21.8 21.8 0 0 0 22.4 0" strokeDasharray="1.5 3"/></>,
+ pointlight:<><circle cx="16" cy="16" r="3.9"/><path d="M16 3.5v5m0 15v5M3.5 16h5m15 0h5M7 7l3.5 3.5m11 11L25 25M7 25l3.5-3.5m11-11L25 7"/></>,
+ dome:<><path d="M3.2 21.4a12.8 12.8 0 0 1 25.6 0ZM2.5 25.1h27"/><path d="M9.3 18c.7-3.5 2.5-6.2 5.2-8"/></>,
+ rimlight:<><path d="M19.7 5.3a10.8 10.8 0 1 0 .1 21c-4.6-1.5-7.4-5.3-7.4-10.4s2.7-9 7.3-10.6Z"/><path d="m22.7 8.3 2-2m.4 9.5h3m-5.8 7.5 2 2"/></>,
+ studio:<><path d="m4.4 5.2 9.4.7 2.1 7.1-5.4 4.6-7.8-4.8Z"/><path d="m9.5 16.9-1 6.4m-4.1 3.6 4.1-3.6 3.5 3.6m8.1-17.1 7.1-2.2 1.9 6-7.1 2.3Zm4.8 6.4v7.4m-3.3 3.2 3.3-3.2 3.1 3.2"/></>,
+};
+function TechnicalIcon({symbol,framed=false}:{symbol:ReactNode;framed?:boolean}) {
+ return <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor"
+  strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  {symbol}
+  {framed&&<path className="frame-corners" d="M25 2.5h4.5V7m-27 18v4.5H7" strokeLinecap="square" strokeLinejoin="miter"/>}
  </svg>;
 }
 type TechnicalProps = {
@@ -193,18 +212,18 @@ export function TechnicalHud({value, lightPreset, model, onView, onLight}: Techn
     const name = loop ? 'Rear loop' : cameraLabels[view];
     return <button type="button" key={view} data-view={view} title={name} aria-label={name+' view'}
      aria-pressed={value.view===view && !hasManualRotation(value)} onClick={() => onView(view)}>
-     <CameraIcon view={loop?'loop':view}/>
+     <TechnicalIcon symbol={cameraSymbols[loop?'loop':view]} framed/>
     </button>;
    })}</div>
   </div>
   <div className="control-group light-block" role="group" aria-label="Light presets">
    <PanelTitle text="LIGHT"/>
-   <div className="lighting-grid">{LIGHT_ORDER.map((id,index)=>{
+   <div className="lighting-grid">{LIGHT_ORDER.map(id=>{
     const setup=LIGHT_PRESETS[id];
     return <button type="button" key={id} data-light-preset={id} aria-label={setup.label+' preset'}
-     aria-description={setup.description} aria-pressed={lightPreset===id}
+     title={setup.label} aria-description={setup.description} aria-pressed={lightPreset===id}
      onClick={()=>onLight(id)}>
-     <span className="lighting-preview" aria-hidden="true" style={{backgroundPosition:(index*20)+'% 50%'}}/>
+     <TechnicalIcon symbol={lightSymbols[id]}/>
     </button>;
    })}</div>
   </div>

@@ -16,6 +16,26 @@ export function productArea(portrait:boolean,panelTop=portrait?.81:.89):ScreenRe
  return [.10,.045,.90,Math.max(.40,Math.min(portrait?.728:.74,panelTop-.018))];
 }
 
+/** Choose a clear stage rectangle, favouring central framing when areas are close.
+ * All bounds are viewport fractions. The gutters are supplied by the layout. */
+export function clearProductArea(base:ScreenRect,summaryRight:number,summaryBottom:number,priceLeft:number,priceBottom:number):ScreenRect {
+ const [left,top,right,bottom]=base;
+ const beside=Math.max(left,summaryRight),afterPrice=Math.max(top,priceBottom);
+ const candidates:ScreenRect[]=[
+  [left,Math.max(afterPrice,summaryBottom),right,bottom],
+  [beside,afterPrice,right,bottom],
+  [beside,top,Math.min(right,priceLeft),bottom],
+ ];
+ let largest=0,chosen=base;
+ for(const candidate of candidates){
+  const width=candidate[2]-candidate[0],height=candidate[3]-candidate[1];
+  const offset=Math.abs((candidate[0]+candidate[2])/2-.5);
+  const score=width*height*(1-1.6*offset);
+  if(width>0&&height>0&&score>largest){largest=score;chosen=candidate;}
+ }
+ return chosen;
+}
+
 const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;
 type Prepared={positions:Float32Array; focus:Vector3; pitch:number; yaw:number};
 const cached=new WeakMap<ModelMeta,Map<number,Prepared>>();

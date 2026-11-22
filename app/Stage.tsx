@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion,compactExplosion,type ExplodedPart} from './lib/explosion';
-import {stageFrame,chapterFrame,livingPose,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
+import {stageFrame,chapterFrame,livingPose,presentation,productArea,clearProductArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
 import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
@@ -97,11 +97,12 @@ export default function Stage({state,...callbacks}:Props){
   }catch(e){if(!dead){console.error(e);props.current.onError('The 3D collection could not be loaded. Please try again.');}}})();
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
-  const pager=host.querySelector<HTMLElement>('.knife-nav')!;
+  const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
+  const summary=host.querySelector<HTMLElement>('.configuration')!,price=host.querySelector<HTMLElement>('.price')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
-  let shotRect:ScreenRect=productArea(false),lastRingLine=-1;
+  let shotRect:ScreenRect=productArea(false),lastRingLine=-1,cameraShift=0;
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
    const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,shotRect);
@@ -110,7 +111,7 @@ export default function Stage({state,...callbacks}:Props){
   const resize=()=>{
    const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);
    const viewport=element.getBoundingClientRect();
-   const ringLine=(pager.getBoundingClientRect().top-viewport.top)/h;
+   const ringLine=(rimAnchor.getBoundingClientRect().top-viewport.top)/h;
    const changed=w!==width||h!==height;
    if(changed){
     width=w;height=h;portrait=h>w;
@@ -120,21 +121,28 @@ export default function Stage({state,...callbacks}:Props){
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
-   if(!changed && Math.abs(lastRingLine-ringLine)<.00001)return;
-   lastRingLine=ringLine;
-   const shift=alignStageCamera(camera,w,h,ringLine);
-   const floorTop=(1-floorBack.clone().project(camera).y)*h/2;
-   host.style.setProperty('--floor-top',floorTop+'px');
-   productCamera.copy(camera,false);productCamera.updateMatrixWorld();
-   frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
-   const [left,top,right,bottom]=productArea(portrait,ringLine);
+   if(changed||Math.abs(lastRingLine-ringLine)>=.00001){
+    lastRingLine=ringLine;
+    cameraShift=alignStageCamera(camera,w,h,ringLine);
+    const floorTop=(1-floorBack.clone().project(camera).y)*h/2;
+    host.style.setProperty('--floor-top',floorTop+'px');
+    productCamera.copy(camera,false);productCamera.updateMatrixWorld();
+    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+   }
+   const list=summary.getBoundingClientRect(),amount=price.getBoundingClientRect();
+   const gap=THREE.MathUtils.clamp(w*.012,8,24);
+   const [left,top,right,bottom]=clearProductArea(productArea(portrait,ringLine),
+    (list.right-viewport.left+gap)/w,(list.bottom-viewport.top+gap)/h,
+    (amount.left-viewport.left-gap)/w,(amount.bottom-viewport.top+gap)/h);
    // The fitted-shot solver uses an unshifted lens. Account for the stage composition once here.
-   shotRect=[left,top+shift,right,bottom+shift];
+   const next:ScreenRect=[left,top+cameraShift,right,bottom+cameraShift];
+   if(!changed&&next.every((v,i)=>Math.abs(v-shotRect[i])<.00001))return;
+   shotRect=next;
    for(const rig of rigs)if(rig)frameShots(rig);
   };
   resize();
   const observer=new ResizeObserver(resize);
-  for(const observed of [element,pager,dock])observer.observe(observed);
+  for(const observed of [element,rimAnchor,dock,summary,price])observer.observe(observed);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
   raycaster.layers.enableAll();

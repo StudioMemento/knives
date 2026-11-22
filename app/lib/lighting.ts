@@ -19,7 +19,21 @@ export function createStudioEnvironments(renderer:THREE.WebGLRenderer) {
   studio.background = new THREE.Color(setup.background);
   const plane = new THREE.PlaneGeometry();
   const materials:THREE.MeshBasicMaterial[] = [];
+  let dome:THREE.SphereGeometry|undefined;
   try {
+   if(setup.dome){
+    dome=new THREE.SphereGeometry(20,32,20);
+    const positions=dome.getAttribute('position'), colors=new Float32Array(positions.count*3);
+    const sky=new THREE.Color(setup.dome.sky), ground=new THREE.Color(setup.dome.ground);
+    const horizon=new THREE.Color(setup.dome.horizon), color=new THREE.Color();
+    for(let i=0;i<positions.count;i++){
+     const elevation=positions.getY(i)/20;
+     color.copy(horizon).lerp(elevation>0?sky:ground,Math.abs(elevation)).toArray(colors,i*3);
+    }
+    dome.setAttribute('color',new THREE.BufferAttribute(colors,3));
+    const surface=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide});
+    materials.push(surface);studio.add(new THREE.Mesh(dome,surface));
+   }
    for(const box of setup.cards) {
     const material = new THREE.MeshBasicMaterial({
      color:new THREE.Color(box.color).multiplyScalar(box.output), side:THREE.DoubleSide,
@@ -37,6 +51,7 @@ export function createStudioEnvironments(renderer:THREE.WebGLRenderer) {
    return target.texture;
   } finally {
    plane.dispose();
+   dome?.dispose();
    materials.forEach(material=>material.dispose());
   }
  }
@@ -87,9 +102,11 @@ export function createLightStage(frontLayer=3){
  // The key tracks the product pivot. Rim direction is relative to its target.
  const spot=new THREE.SpotLight();
  spot.distance=16;spot.decay=2;spot.layers.enableAll();
+ const point=new THREE.PointLight(0xffffff,0,20,2);
+ point.name='Point key';point.layers.enableAll();
  const fill=new THREE.HemisphereLight();fill.position.set(0,1,0).sub(group.position);fill.layers.enableAll();
  const rim=new THREE.DirectionalLight();rim.layers.set(frontLayer);
- group.add(spot,spot.target,fill,rim,rim.target);
+ group.add(spot,spot.target,point,fill,rim,rim.target);
  const aim=new THREE.Vector3();
  const lightColor=new THREE.Color(STAGE_COLORS.HYPER),target=new THREE.Color();
 
@@ -98,6 +115,11 @@ export function createLightStage(frontLayer=3){
   spot.position.fromArray(preset.key.position);
   spot.color.set(preset.key.color);spot.intensity=preset.key.power;
   spot.angle=preset.key.angle;spot.penumbra=preset.key.softness;
+  point.intensity=0;
+  if('point' in preset){
+   point.position.fromArray(preset.point.position);
+   point.color.set(preset.point.color);point.intensity=preset.point.intensity;
+  }
   fill.color.set(preset.fill.sky);fill.groundColor.set(preset.fill.ground);fill.intensity=preset.fill.intensity;
   rim.position.fromArray(preset.rim.direction);
   rim.color.set(preset.rim.color);rim.intensity=preset.rim.intensity;
@@ -112,6 +134,6 @@ export function createLightStage(frontLayer=3){
  },dispose(){
   group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});
   [floor,lip,emitter,halo].forEach(m=>m.dispose());
-  lamps.forEach(l=>l.dispose());spot.dispose();rim.dispose();fill.dispose();
+  lamps.forEach(l=>l.dispose());point.dispose();spot.dispose();rim.dispose();fill.dispose();
  }};
 }

@@ -34,7 +34,7 @@ function sample(element:HTMLElement,rect:DOMRect){
   const box=child.getBoundingClientRect();
   if(child instanceof HTMLImageElement&&child.complete&&child.naturalWidth){ink.drawImage(child,box.x,box.y,box.width,box.height);continue;}
   if(child.querySelector('svg'))continue;
-  const sample=child.querySelector('.sample-outline,.lighting-preview');
+  const sample=child.querySelector('.sample-outline');
   if(sample){
    const {x,y,width:w,height:h}=sample.getBoundingClientRect();
    const cut=child.classList.contains('style')?w*.23:0;
@@ -44,7 +44,7 @@ function sample(element:HTMLElement,rect:DOMRect){
   }
   else ink.fillRect(box.x+box.width*.13,box.y+box.height/2,box.width*.74,1.5);
  }
- for(const path of element.querySelectorAll<SVGGeometryElement>('svg path')){
+ for(const path of element.querySelectorAll<SVGGeometryElement>('svg path,svg circle')){
   const matrix=path.getScreenCTM();if(!matrix)continue;const length=path.getTotalLength();
   for(let d=0;d<length;d+=.7){const p=path.getPointAtLength(d).matrixTransform(matrix);ink.fillRect(p.x,p.y,1.35,1.35);}
  }
@@ -109,9 +109,9 @@ export default function ParticleReveal({chapter,model,ready}:{chapter:number;mod
    }
    if(jobs.size)raf=requestAnimationFrame(draw);
   }
-  function add(el:HTMLElement|null,behind=false){
+  function add(el:HTMLElement|null,behind=false,duration=behind?1100:860){
    if(!el)return;const rect=el.getBoundingClientRect();if(rect.width<1||rect.height<1)return;
-   jobs.set(el,{element:el,behind,grains:sample(el,rect),origins:zones.map(p=>({x:p.x*100,y:p.y*100})),start:performance.now(),duration:behind?1100:860});
+   jobs.set(el,{element:el,behind,grains:sample(el,rect),origins:zones.map(p=>({x:p.x*100,y:p.y*100})),start:performance.now(),duration});
    el.style.maskImage='linear-gradient(transparent,transparent)';
   }
   function sync(nextChapter:number,nextModel:number,isReady:boolean){
@@ -119,7 +119,7 @@ export default function ParticleReveal({chapter,model,ready}:{chapter:number;mod
    const newModel=first||nextModel!==lastModel,newChapter=first||nextChapter!==lastChapter;
    if(!reduce.matches){
     if(first)host!.querySelectorAll<HTMLElement>('[data-chrome]').forEach(el=>add(el));
-    if(newModel)add(host!.querySelector('.product-heading'),true);
+    if(newModel){add(host!.querySelector('.product-heading'),true);add(host!.querySelector('.price'),false,1100);}
     if(newChapter)for(const el of jobs.keys())if(el.closest('.hud-layer[aria-hidden=true]'))stop(el);
     if(newChapter&&nextChapter>0)add(host!.querySelector('.hud-layer[aria-hidden=false] [data-panel]'));
     if(!raf&&jobs.size)raf=requestAnimationFrame(draw);

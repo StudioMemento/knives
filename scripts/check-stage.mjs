@@ -47,7 +47,9 @@ for(const direction of [-1,1]){
 }
 
 const stageLight=createLightStage();stageLight.group.updateMatrixWorld(true);
-const stageMatrix=stageLight.group.matrixWorld.clone(),lamps=stageLight.group.children.filter(o=>o.isPointLight);
+const pointKey=stageLight.group.getObjectByName('Point key');
+const stageMatrix=stageLight.group.matrixWorld.clone(),lamps=stageLight.group.children.filter(o=>o.isPointLight && o!==pointKey);
+assert.ok(pointKey?.isPointLight && pointKey.decay===2);
 assert.ok(lamps.length>=4&&lamps.every(l=>l.intensity>0&&l.decay===2));const spot=stageLight.group.children.find(o=>o.isSpotLight);
 assert.ok(spot&&spot.penumbra>0&&spot.position.y>spot.target.position.y&&spot.decay===2);
 assert.equal(new Set(Object.values(STAGE_COLORS)).size,5);
@@ -55,13 +57,20 @@ assert.ok(lamps.every(l=>Math.abs(Math.hypot(l.position.x,l.position.z)-RAIL.rad
 for(let i=0;i<5;i++){stageLight.update(i,1);stageLight.group.updateMatrixWorld(true);assert.ok(stageMatrix.equals(stageLight.group.matrixWorld));}
 const fill=stageLight.group.children.find(light=>light.isHemisphereLight);
 const rim=stageLight.group.children.find(light=>light.isDirectionalLight);
-assert.equal(LIGHT_ORDER.length,6);
+assert.deepEqual(LIGHT_ORDER,['spotlight','penumbra','pointlight','dome','rimlight','studio']);
+assert.ok(LIGHT_PRESETS.spotlight.key.softness < LIGHT_PRESETS.penumbra.key.softness);
+assert.ok(LIGHT_PRESETS.dome.environment.dome && LIGHT_PRESETS.dome.fill.intensity > LIGHT_PRESETS.studio.fill.intensity);
 assert.equal(new Set(LIGHT_ORDER.map(id=>JSON.stringify(LIGHT_PRESETS[id].environment.cards))).size,6);
 for(const id of LIGHT_ORDER){
  const setup=LIGHT_PRESETS[id];
  stageLight.setPreset(id);
  assert.deepEqual(spot.position.toArray(),[...setup.key.position]);
  assert.equal(spot.intensity,setup.key.power);
+ assert.equal(pointKey.intensity,setup.point?.intensity ?? 0);
+ if(setup.point){
+  assert.deepEqual(pointKey.position.toArray(),[...setup.point.position]);
+  assert.equal(pointKey.color.getHexString(),setup.point.color.slice(1));assert.equal(spot.intensity,0);
+ }
  assert.equal(spot.color.getHexString(),setup.key.color.slice(1));
  assert.equal(spot.angle,setup.key.angle);assert.equal(spot.penumbra,setup.key.softness);
  assert.equal(fill.intensity,setup.fill.intensity);
@@ -82,14 +91,14 @@ const canvas=new TestCanvas(),s=createState();s.ready=[0,1,2,3,4];s.orbit=12;
 let hit=false,focusCount=0;const chapters=[];
 const unbind=bindGestures(canvas,s,{hitsProduct:()=>hit,focus:()=>focusCount++,chapter:n=>{s.target=n;chapters.push(n);},renderUI(){}});
 // Up, down, sideways and diagonal movements rotate the model without changing chapters or lighting.
-s.lightPreset='ambra';
+s.lightPreset='pointlight';
 for(const chapter of [0,1,2,3,4])for(const onModel of [true,false])for(const [dx,dy] of [[0,310],[0,-310],[290,0],[155,-205]]){
  hit=onModel;s.progress=s.target=chapter;s.rotation.identity();
  canvas.send('pointerdown',1,170,400,10);canvas.send('pointermove',1,170+dx,400+dy,90);
  assert.equal(s.target,chapter);assert.ok(s.rotation.angleTo(new Quaternion())>1);
  canvas.send('pointerup',1,170+dx,400+dy,115);
  assert.equal(s.target,chapter);assert.equal(s.knifeRequest,null);assert.equal(s.orbit,12);assert.equal(s.interacting,false);
- assert.equal(s.lightPreset,'ambra');
+ assert.equal(s.lightPreset,'pointlight');
 }
 assert.deepEqual(chapters,[]);
 hit=true;s.progress=s.target=0;s.rotation.identity();
@@ -111,7 +120,7 @@ canvas.send('pointermove',1,150,75+halfTurn,594);
 assert.ok(new Vector3(0,1,0).applyQuaternion(s.rotation).y<-.99999,'The top can rotate past the pole');
 canvas.send('pointerup',1,150,75+2*halfTurn,598);
 assert.ok(!hasManualRotation(s),'A full vertical revolution returns to the starting pose');
-assert.equal(s.target,4);assert.equal(s.lightPreset,'ambra');
+assert.equal(s.target,4);assert.equal(s.lightPreset,'pointlight');
 canvas.send('pointerdown',1,170,400,600);canvas.send('pointerdown',2,220,405,605);
 canvas.send('pointerup',2,220,405,625);canvas.send('pointerup',1,170,400,640);assert.equal(focusCount,1);
 canvas.send('pointerdown',1,180,400,700);canvas.send('pointerup',1,180,400,725);

@@ -5,7 +5,7 @@ import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/
 import ParticleReveal from './ParticleReveal';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
-import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ConfigurationSummary,ProductHeading} from './Hud';
+import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ProductReadout} from './Hud';
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 export default function Experience(){
@@ -89,13 +89,10 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main className="experience" data-version="63" data-ui-pending={ready===0&&!error}
+ return <main className="experience" data-version="64" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
-  <div className="product-info">
-   <ProductHeading name={knife} price={price}/>
-   <ConfigurationSummary model={selected} config={selectedConfig}/>
-  </div>
+  <ProductReadout model={selected} price={price} config={selectedConfig}/>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
   <header className="brand-rail">
@@ -103,12 +100,14 @@ export default function Experience(){
     onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button>
   </header>
 
-  <div className="knife-nav" role="group" aria-label="Model selection and pose">
+  <div className="stage-foreground">
+   <div className="knife-nav" role="group" aria-label="Model selection and pose">
    <button type="button" className="knife-step previous" aria-label="Previous model" title="Previous model"
     disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={44}/></button>
    <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
    <button type="button" className="knife-step next" aria-label="Next model" title="Next model"
     disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={44}/></button>
+   </div>
   </div>
 
   <footer className="control-dock">
