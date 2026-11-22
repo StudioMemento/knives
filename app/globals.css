@@ -20,9 +20,9 @@ h1,h2,h3,p{margin:0}
  --foot:max(34px,calc(env(safe-area-inset-bottom) + 10px));
  --title-size:min(11.6vw,22dvh);
  --readout-top:max(clamp(58px,8.5dvh,78px),calc(var(--top) + 44px));
- --readout-gap:clamp(7px,1.5dvh,18px);
+ --readout-gap:clamp(20px,3.2dvh,38px);
  --nav-hit:44px;
- --panel-gutter:42px;
+ --panel-gutter:clamp(54px,18vw,72px);
  --nav-height:46px;
  --tool-gap:24px;
  --row-height:clamp(44px,10.75vw,46px);
@@ -43,9 +43,11 @@ h1,h2,h3,p{margin:0}
 }
 .environment,.stage,.particle-reveal {position:absolute;inset:0;width:100%;height:100%}
 .environment {z-index:-2;pointer-events:none;background:radial-gradient(ellipse 58% 47% at 50% 59%,#171717,transparent 91%),#040405}
-.stage {z-index:1;display:block;touch-action:none;cursor:grab}
+.stage {z-index:1;display:block;touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
 .stage:active {cursor:grabbing}
-.stage:focus-visible {outline:1px solid var(--ring-light);outline-offset:-3px}
+.stage:focus,.stage:focus-visible {outline:none}
+.stage:focus-visible ~ .stage-foreground::after {content:'';position:absolute;left:50%;bottom:var(--ring-gap);
+ width:26px;height:2px;transform:translateX(-50%);background:var(--ring-light);pointer-events:none}
 .experience ::selection {background:var(--ring-light);color:#070707}
 .brand-rail,.control-dock {
  position:absolute;left:var(--safe-left);right:var(--safe-right);width:var(--ui-width);
@@ -63,7 +65,7 @@ h1,h2,h3,p{margin:0}
 .product-heading {z-index:-1;color:var(--ring-ink)}
 .product-info {
  --floor-clearance:clamp(7px,1.3dvh,18px);
- z-index:3;container:product / size;display:grid;grid-template-columns:minmax(0,1fr);
+ z-index:-1;container:product / size;display:grid;grid-template-columns:minmax(0,1fr);
  grid-template-rows:calc(var(--title-size) * .89) minmax(0,1fr);row-gap:var(--readout-gap);
  bottom:calc(100% - var(--floor-top,calc(var(--ring-line) - 16.7dvh)) + var(--floor-clearance));
 }
@@ -131,6 +133,7 @@ h1,h2,h3,p{margin:0}
 .hud-layer[aria-hidden=true] {visibility:hidden}
 .hud-layer button,.hud-layer input,.hud-layer label {pointer-events:auto}
 .hud-layer[inert] * {pointer-events:none!important}
+/* Move the two banks apart without narrowing the individual swatch targets. */
 .hud-panel {position:absolute;inset:0 calc((var(--nav-hit) - var(--panel-gutter)) / 2);display:grid;
  grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--panel-gutter);align-items:end}
 .control-group {min-width:0;container-type:inline-size}
@@ -214,21 +217,21 @@ h1,h2,h3,p{margin:0}
 @media(max-height:650px) {
  .experience {--nav-height:44px;--action-height:44px;--panel-gap:14px;--tool-gap:16px;--ring-gap:8px;
   --foot:max(16px,calc(env(safe-area-inset-bottom) + 6px))}
- .experience {--readout-top:max(52px,calc(var(--top) + 44px));--readout-gap:6px}
+ .experience {--readout-top:max(52px,calc(var(--top) + 44px));--readout-gap:clamp(14px,2.7dvh,18px)}
 }
 @media(max-height:600px) and (orientation:portrait) {
  .experience {--foot:max(8px,calc(env(safe-area-inset-bottom) + 5px));--tool-gap:10px;--panel-gap:10px}
- .experience {--readout-top:max(43px,calc(env(safe-area-inset-top) + 38px));--readout-gap:5px}
+ .experience {--readout-top:max(43px,calc(env(safe-area-inset-top) + 38px));--readout-gap:clamp(12px,2.6dvh,16px)}
 }
 @media(max-height:500px) and (orientation:landscape) {
  .experience {--top:max(1px,env(safe-area-inset-top));--foot:max(8px,env(safe-area-inset-bottom));--nav-height:36px;
-  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch:23px;--panel-gutter:32px}
+  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch:23px;--panel-gutter:58px}
  .brand {min-height:27px}.wordmark img{width:9px}
- .experience {--readout-top:max(29px,calc(var(--top) + 27px));--readout-gap:4px}
+ .experience {--readout-top:max(29px,calc(var(--top) + 27px));--readout-gap:clamp(10px,2.8dvh,14px)}
  .product-info {--floor-clearance:5px}
  .chapter-button svg {width:29px;height:29px}
  .pose-action svg {width:25px;height:25px}
- .hud-panel {inset-inline:max(0px,calc((100% - 226px) / 2));column-gap:32px}
+ .hud-panel {inset-inline:max(1px,calc((100% - 268px) / 2))}
  .bottom-veil {height:110px}
 }
 @media(max-height:350px) and (orientation:landscape) {
@@ -269,7 +272,7 @@ h1,h2,h3,p{margin:0}
 @media(forced-colors:active) {
  .atmospheric-title,.price {background:none;color:CanvasText}
  .chapter-button[aria-current=step],.chapter-button:focus-visible {color:Highlight}
- .chapter-button:focus-visible::after,.knife-nav button:focus-visible::after {background:Highlight;forced-color-adjust:none}
+ .chapter-button:focus-visible::after,.knife-nav button:focus-visible::after,.stage:focus-visible ~ .stage-foreground::after {background:Highlight;forced-color-adjust:none}
  .chapter-button[aria-current=step] svg {stroke-width:2.4}
  .choice[aria-pressed=true] .sample-outline,.choice:focus-visible .sample-outline {background:Highlight;forced-color-adjust:none}
  .technical-hud button[aria-pressed=true],.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:Highlight}

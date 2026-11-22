@@ -11,29 +11,10 @@ export const rotation=(x:number,y:number,z:number)=>new Quaternion().setFromEule
 const CANONICAL=new Quaternion(0,1,0,0);
 export const presentation=(pitch:number,yaw:number,roll:number)=>rotation(0,0,roll).multiply(rotation(pitch,yaw,0)).multiply(CANONICAL);
 
-/** The product can cross the UI gutters. Portrait reserves the actual space above each panel. */
-export function productArea(portrait:boolean,panelTop=portrait?.81:.89):ScreenRect{
- return [.10,.045,.90,Math.max(.40,Math.min(portrait?.728:.74,panelTop-.018))];
-}
-
-/** Choose a clear stage rectangle, favouring central framing when areas are close.
- * All bounds are viewport fractions. The gutters are supplied by the layout. */
-export function clearProductArea(base:ScreenRect,summaryRight:number,summaryBottom:number,priceLeft:number,priceBottom:number):ScreenRect {
- const [left,top,right,bottom]=base;
- const beside=Math.max(left,summaryRight),afterPrice=Math.max(top,priceBottom);
- const candidates:ScreenRect[]=[
-  [left,Math.max(afterPrice,summaryBottom),right,bottom],
-  [beside,afterPrice,right,bottom],
-  [beside,top,Math.min(right,priceLeft),bottom],
- ];
- let largest=0,chosen=base;
- for(const candidate of candidates){
-  const width=candidate[2]-candidate[0],height=candidate[3]-candidate[1];
-  const offset=Math.abs((candidate[0]+candidate[2])/2-.5);
-  const score=width*height*(1-1.6*offset);
-  if(width>0&&height>0&&score>largest){largest=score;chosen=candidate;}
- }
- return chosen;
+/** A centered shot. On wide displays the diagonal scales with the viewport height. */
+export function productArea(aspect:number):ScreenRect{
+ const halfWidth=Math.min(.40,.59/aspect);
+ return [.5-halfWidth,.20,.5+halfWidth,.80];
 }
 
 const envelopes=outlines as Record<string,{assembled:number[];blade:number[];folded:number[]}>;
@@ -93,10 +74,10 @@ function fittedShot(meta:ModelMeta,chapter:number,width:number,height:number,por
  return {position:new Vector3(x,y,0),rotation:presentation(pitch,yaw,roll),scale,focus,closed:chapter===2||chapter===3?1:0};
 }
 
-export function stageFrame(meta:ModelMeta,width:number,height:number,portrait:boolean,rect=productArea(portrait)){
+export function stageFrame(meta:ModelMeta,width:number,height:number,portrait:boolean,rect=productArea(width/height)){
  return fittedShot(meta,0,width,height,portrait,rect);
 }
-export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:number,height:number,portrait:boolean,rect=productArea(portrait)){
+export function chapterFrame(chapter:number,meta:ModelMeta,hero:Frame,width:number,height:number,portrait:boolean,rect=productArea(width/height)){
  return chapter===0||chapter===5?hero:fittedShot(meta,chapter,width,height,portrait,rect);
 }
 export function livingPose(time:number,pointerX:number,pointerY:number,reduced:boolean){

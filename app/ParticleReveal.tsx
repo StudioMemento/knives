@@ -119,7 +119,7 @@ export default function ParticleReveal({chapter,model,ready}:{chapter:number;mod
    const newModel=first||nextModel!==lastModel,newChapter=first||nextChapter!==lastChapter;
    if(!reduce.matches){
     if(first)host!.querySelectorAll<HTMLElement>('[data-chrome]').forEach(el=>add(el));
-    if(newModel){add(host!.querySelector('.product-heading'),true);add(host!.querySelector('.price'),false,1100);}
+    if(newModel){add(host!.querySelector('.product-heading'),true);add(host!.querySelector('.price'),true,1100);}
     if(newChapter)for(const el of jobs.keys())if(el.closest('.hud-layer[aria-hidden=true]'))stop(el);
     if(newChapter&&nextChapter>0)add(host!.querySelector('.hud-layer[aria-hidden=false] [data-panel]'));
     if(!raf&&jobs.size)raf=requestAnimationFrame(draw);

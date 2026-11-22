@@ -13,7 +13,7 @@ let count=0;
 for(const meta of metas)for(const [width,height] of sizes){
  const portrait=height>width,vh=2*Math.tan(34*Math.PI/360)*CAMERA_DISTANCE,vw=vh*width/height;
  const camera=new PerspectiveCamera(34,width/height,.05,80);camera.position.z=CAMERA_DISTANCE;camera.updateMatrixWorld();
- const rect=productArea(portrait,portrait?(height-227)/height:.9);
+ const rect=productArea(width/height);
  const stage=stageFrame(meta,vw,vh,portrait,rect);
  const shots=[0,1,2,3,4].map(i=>chapterFrame(i,meta,stage,vw,vh,portrait,rect));
  for(const [i,shot] of shots.entries()){
@@ -27,6 +27,9 @@ for(const meta of metas)for(const [width,height] of sizes){
   const eps=.001;
   assert.ok(l>=rect[0]-eps&&r<=rect[2]+eps&&t>=rect[1]-eps&&b<=rect[3]+eps,meta.id+' clips '+key);
   const fillX=(r-l)/(rect[2]-rect[0]),fillY=(b-t)/(rect[3]-rect[1]);
+  if(i===0&&width/height>2.2){
+   assert.ok((b-t)*height/((r-l)*width)<.54,'The visible ultrawide silhouette keeps its shallow diagonal');
+  }
   assert.ok(Math.max(fillX,fillY)>.998,'Every shot uses the available product area');
   const modelLabel=JSON.stringify({model:meta.id,width,height,i,fillX,fillY});
   if((i!==4||portrait)&&width/height<=3)assert.ok(Math.min(fillX,fillY)>.98,modelLabel);
@@ -39,7 +42,6 @@ for(const meta of metas)for(const [width,height] of sizes){
  assert.ok(new Vector3(0,1,0).applyQuaternion(detail.rotation).z>.83,'Details shows the upper profile');
  const axis=new Vector3(1,0,0).applyQuaternion(hero.rotation);
  assert.ok(axis.x<0&&axis.y<0);
- if(width/height>2.2)assert.ok(Math.abs(axis.y/axis.x)<.54,'Wide screens use a shallow diagonal');
  if(portrait&&height/width>1.8)assert.ok(Math.abs(axis.y/axis.x)>1,'Tall screens use a steep diagonal');
  if(!portrait)assert.ok(new Vector3(1,0,0).applyQuaternion(inspect.rotation).x<-.99,'Inspection offers a true side elevation');
  assert.equal(chapterFrame(5,meta,hero,vw,vh,portrait,rect),hero);

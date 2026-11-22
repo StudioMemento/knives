@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion,compactExplosion,type ExplodedPart} from './lib/explosion';
-import {stageFrame,chapterFrame,livingPose,presentation,productArea,clearProductArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
+import {stageFrame,chapterFrame,livingPose,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
 import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
@@ -12,7 +12,8 @@ import {MotionValue,orbitAngle} from './lib/motion';
 import {createLightStage,createStudioEnvironments,FLOOR_FADE_END} from './lib/lighting';
 import {LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {fitBoundsScale,slideTravel} from './lib/framing';
-import {alignStageCamera,focusLens} from './lib/optics';
+import {alignStageCamera,focusLens,centerLens} from './lib/optics';
+import {createSilhouetteMeter} from './lib/optical-center';
 import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
 import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
@@ -27,6 +28,7 @@ type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
  parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:{source:THREE.Mesh;image:THREE.Mesh}[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
  fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
+ measure:ReturnType<typeof createSilhouetteMeter>;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
@@ -82,7 +84,7 @@ export default function Stage({state,...callbacks}:Props){
     const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
     proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
    });
-   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),
+   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),measure:createSilhouetteMeter(meta.id,meshes),
     fold:0,explosion:0,fit:1,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,details:inspectionParts(gltf.scene,meshes,meta.focusPoints.handle[2])};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
@@ -99,10 +101,9 @@ export default function Stage({state,...callbacks}:Props){
   const host=element.parentElement!;
   const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
-  const summary=host.querySelector<HTMLElement>('.configuration')!,price=host.querySelector<HTMLElement>('.price')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
-  let shotRect:ScreenRect=productArea(false),lastRingLine=-1,cameraShift=0;
+  let shotRect:ScreenRect=productArea(1),lastRingLine=-1,cameraShift=0;
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
    const hero=stageFrame(rig.meta,viewWidth,viewHeight,portrait,shotRect);
@@ -129,11 +130,7 @@ export default function Stage({state,...callbacks}:Props){
     productCamera.copy(camera,false);productCamera.updateMatrixWorld();
     frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
    }
-   const list=summary.getBoundingClientRect(),amount=price.getBoundingClientRect();
-   const gap=THREE.MathUtils.clamp(w*.012,8,24);
-   const [left,top,right,bottom]=clearProductArea(productArea(portrait,ringLine),
-    (list.right-viewport.left+gap)/w,(list.bottom-viewport.top+gap)/h,
-    (amount.left-viewport.left-gap)/w,(amount.bottom-viewport.top+gap)/h);
+   const [left,top,right,bottom]=productArea(w/h);
    // The fitted-shot solver uses an unshifted lens. Account for the stage composition once here.
    const next:ScreenRect=[left,top+cameraShift,right,bottom+cameraShift];
    if(!changed&&next.every((v,i)=>Math.abs(v-shotRect[i])<.00001))return;
@@ -142,7 +139,7 @@ export default function Stage({state,...callbacks}:Props){
   };
   resize();
   const observer=new ResizeObserver(resize);
-  for(const observed of [element,rimAnchor,dock,summary,price])observer.observe(observed);
+  for(const observed of [element,rimAnchor,dock])observer.observe(observed);
 
   const raycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
   raycaster.layers.enableAll();
@@ -190,6 +187,15 @@ export default function Stage({state,...callbacks}:Props){
   let last=performance.now(),time=0,lastActivity=-1,frames=0,frameWindow=0;
   const visibility=()=>{last=performance.now();};document.addEventListener('visibilitychange',visibility);
   const identity=new THREE.Quaternion(),lightAim=new THREE.Vector3();
+  const subjects=['product','blade','handle','handle','product','product'] as const;
+  const center=new THREE.Vector2(),nextCenter=new THREE.Vector2(),screenPivot=new THREE.Vector3();
+  function subjectCenter(rig:Rig,chapter:number,explicitFocus:boolean,out:THREE.Vector2){
+   if(chapter===4&&explicitFocus){
+    screenPivot.copy(rig.group.position).project(productCamera);
+    return out.set(screenPivot.x,screenPivot.y);
+   }
+   return rig.measure(productCamera,subjects[chapter],out);
+  }
   let lifeTime=0,idle=livingPose(0,0,0,s.reduced);
   function animate(now:number){
    if(dead)return;
@@ -288,6 +294,13 @@ export default function Stage({state,...callbacks}:Props){
      if(inspectWeight>.001)rig.fit+=(1+(cap-1)*inspectWeight-rig.fit)*(1-Math.exp(-dt*10));
      else rig.fit=1;
      rig.group.scale.multiplyScalar(rig.fit);rig.group.updateMatrixWorld(true);
+     // Center the posed subject before the carousel adds its intentional screen travel.
+     const explicitFocus=Boolean(s.focus||macro);
+     subjectCenter(rig,chapter,explicitFocus,center);
+     if(blend>0&&(subjects[chapter]!==subjects[chapter+1]||explicitFocus)){
+      center.lerp(subjectCenter(rig,chapter+1,explicitFocus,nextCenter),blend);
+     }
+     centerLens(productCamera,center);
      if(Math.abs(delta)>.00001){
       const direction=Math.sign(delta);
       rig.group.position.x+=direction*exitFraction(delta)*slideTravel(productCamera,rig.meshes,direction);

@@ -17,11 +17,11 @@ export function Glyph({name,size=26}:{name:string;size?:number}){
 }
 type Chapter=typeof CHAPTERS[number];
 const chapterMarks:Record<Chapter,ReactNode>={
- Stage:<path d="m2 11 10-8.3L22 11m-2.8-2.3v11.6h-5V14H9.8v6.3h-5V8.7"/>,
- Blade:<><path d="m2.3 17.4 5.8-6.1 13.7-6.8c-1.8 5.7-5.3 10-12.4 13.4l-3.8-.3-1.3 1.3Z"/><path d="m8.2 14.4 8.1-5.7"/></>,
- Handle:<><path d="m3.3 14.8 10-10.4a3 3 0 0 1 4.1-.2l2.8 2.7a2.8 2.8 0 0 1 .1 4l-5.1 5.3-2.3.2-3.5 3.9a2.2 2.2 0 0 1-3.1.1l-2.8-2.6a2.1 2.1 0 0 1-.2-3Z"/><circle cx="16.5" cy="8" r="1.45"/><path d="m6.8 15.9 3.5-3.6"/></>,
- Metals:<><path d="M7.1 3.7h9.8l4.9 8.3-4.9 8.3H7.1L2.2 12Z"/><circle cx="12" cy="12" r="4"/></>,
- Inspect:<><circle cx="10.1" cy="10.1" r="6.8"/><path d="m15.2 15.2 6.1 6.1M7.1 10.1h6m-3-3v6"/></>,
+ Stage:<path d="m2.4 11.6 9.6-8.8 9.6 8.8M5.2 10.2V21h5v-6.2h3.6V21h5V10.2"/>,
+ Blade:<><path d="m20.6 3.1-1.3 7.4-7.5 7.4-8.9 3.2 4.3-9.2 9.4-8.2Z"/><path d="m5.1 18.6 11.7-11"/></>,
+ Handle:<><path d="m3 16.3 6.2-7.1 2.4-.5 4.3-5.3h2.7l2.5 2.4v3l-10.6 12H7.1L3 17.5Z"/><circle cx="17.1" cy="7.5" r="1" fill="currentColor" stroke="none"/></>,
+ Metals:<><path d="m7.2 3.7 9.6 0 4.8 8.3-4.8 8.3H7.2L2.4 12Z"/><path d="M12 8.3 15.4 10v4L12 15.7 8.6 14v-4Z"/></>,
+ Inspect:<><circle cx="10" cy="10" r="6.8"/><path d="m15 15 6.6 6.6"/></>,
 };
 export function ChapterIcon({chapter}:{chapter:Chapter}){
  return <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">

@@ -1,4 +1,4 @@
-import {PerspectiveCamera, Vector3} from 'three';
+import {PerspectiveCamera, Vector3,type Vector2} from 'three';
 import {RAIL} from './choreography.ts';
 
 // The nearest point of the annular emitter is the bottom edge of its projected ellipse.
@@ -23,5 +23,14 @@ export function focusLens(lens:PerspectiveCamera, base:PerspectiveCamera, anchor
  matrix[5] *= zoom;
  matrix[8] = zoom * matrix[8] + (zoom - 1) * screenPoint.x;
  matrix[9] = zoom * matrix[9] + (zoom - 1) * screenPoint.y;
+ lens.projectionMatrixInverse.copy(lens.projectionMatrix).invert();
+}
+
+/** Shift only the product lens. The reflected model and hit tests use this same
+ * projection, while the floor, ring and rear carousel retain the stage lens. */
+export function centerLens(lens:PerspectiveCamera,subject:Vector2){
+ const matrix=lens.projectionMatrix.elements;
+ matrix[8]+=subject.x;
+ matrix[9]+=subject.y;
  lens.projectionMatrixInverse.copy(lens.projectionMatrix).invert();
 }

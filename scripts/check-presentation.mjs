@@ -3,25 +3,20 @@ import fs from 'node:fs';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion} from '../app/lib/explosion.ts';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {AnimationMixer,LoopOnce,Vector3,Quaternion,Euler,Group,PerspectiveCamera} from 'three';
-import {stageFrame,chapterFrame,clearProductArea,productArea} from '../app/lib/presentation.ts';
+import {AnimationMixer,LoopOnce,Vector2,Vector3,Quaternion,Euler,Group,PerspectiveCamera} from 'three';
+import {stageFrame,chapterFrame,productArea} from '../app/lib/presentation.ts';
 import {compactExplosion} from '../app/lib/explosion.ts';
 import {fitBoundsScale} from '../app/lib/framing.ts';
+import {alignStageCamera,centerLens,focusLens} from '../app/lib/optics.ts';
+import {createSilhouetteMeter} from '../app/lib/optical-center.ts';
 const metas=JSON.parse(fs.readFileSync(fs.existsSync('public/models/v48/manifest.json')?'public/models/v48/manifest.json':'public/models/v46/manifest.json')).models;
 const canonical=new Quaternion(0,1,0,0),point=new Vector3();
 const rotation=(x,y,z)=>new Quaternion().setFromEuler(new Euler(x,y,z));
 const report=[];
-// The list, the right-aligned amount and the model must each have clear space.
-for(const [width,height,listRight,listBottom,priceLeft,priceBottom,ring] of [
- [390,844,225,351,235,146,570],[1440,900,462,438,869,318,608],
- [2048,774,553,384,1354,325,522],[844,390,472,178,575,124,248],
-]){
- const gap=Math.min(24,Math.max(8,width*.012)),base=productArea(height>width,ring/height);
- const left=(listRight+gap)/width,below=(listBottom+gap)/height;
- const right=(priceLeft-gap)/width,under=(priceBottom+gap)/height;
- const [x,y,x2,y2]=clearProductArea(base,left,below,right,under);
- assert.ok(x>=left||y>=below);assert.ok(x2<=right||y>=under);
- assert.ok(x>=base[0]&&y>=base[1]&&x2<=base[2]&&y2<=base[3]&&x2>x&&y2>y);
+for(const [width,height] of [[320,568],[390,844],[768,1024],[1440,900],[2048,774],[3440,1440],[3840,1080]]){
+ const [left,top,right,bottom]=productArea(width/height);
+ assert.ok(Math.abs(left+right-1)<1e-12&&Math.abs(top+bottom-1)<1e-12);
+ assert.ok((right-left)*width<=height*1.181);
 }
 for(const meta of metas){
  const bytes=fs.readFileSync(`public${meta.url}`);
@@ -31,7 +26,26 @@ for(const meta of metas){
  const mixer=new AnimationMixer(scene),open=mixer.clipAction(animations.find(c=>c.name===meta.motion.openCloseClip)),parts=createExplosion(scene,animations.find(c=>c.name===meta.motion.explodeClip),meta.motion.explodePeakTime);
  for(const action of [open]){action.setLoop(LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
  group.updateMatrixWorld(true);const compact=compactExplosion(parts,4.2);
- const meshes=[];scene.traverse(mesh=>{if(mesh.isMesh){mesh.geometry.computeBoundingBox();meshes.push(mesh);}});
+ const meshes=[];scene.traverse(mesh=>{if(mesh.isMesh){
+  mesh.geometry.computeBoundingBox();mesh.userData.surface=mesh.material.name.split('__').at(-1).toLowerCase();meshes.push(mesh);
+ }});
+ const measure=createSilhouetteMeter(meta.id,meshes),center=new Vector2();
+ for(const [w,h] of [[390,844],[768,1024],[1440,900],[3440,1440]]){
+  const base=new PerspectiveCamera(34,w/h,.05,80);base.position.z=9.5;
+  alignStageCamera(base,w,h,.64);
+  const lens=base.clone(),floorProjection=base.projectionMatrix.clone();
+  for(const [closed,exploded,zoom] of [[0,0,1],[1,0,1],[0,1,.8],[.45,.65,2.8]]){
+   open.time=closed*meta.motion.closedTime;mixer.update(0);sampleExplosion(parts,exploded*compact);
+   group.position.set(.9,-.35,0);group.quaternion.copy(rotation(.18,-.21,.56));group.updateMatrixWorld(true);
+   for(const subject of ['product','blade','handle']){
+    focusLens(lens,base,group.position,zoom);measure(lens,subject,center);
+    assert.ok(center.length()>.01,`${meta.id} ${subject} has a measurable offset`);
+    centerLens(lens,center);measure(lens,subject,center);
+    assert.ok(center.length()<1e-7,`${meta.id} ${subject} drifts from the viewport center`);
+    assert.ok(base.projectionMatrix.equals(floorProjection),'Centering a product must keep the ring in place');
+   }
+  }
+ }
  let scenarios=0,vertices=0,maxOverflow=0;
  for(const [width,height] of [[2752,1008],[1363,936],[390,844]]){
   const mobile=width<700,camera=new PerspectiveCamera(34,width/height,.05,80);camera.position.set(0,0,9.5);camera.lookAt(0,0,0);camera.updateMatrixWorld();
