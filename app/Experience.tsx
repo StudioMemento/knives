@@ -9,6 +9,7 @@ import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ProductReadout}
 import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 export default function Experience(){
+ const host=useRef<HTMLElement>(null);
  const state=useRef(createState());
  const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
  const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
@@ -36,6 +37,18 @@ export default function Experience(){
   }
  },[]);
  useEffect(()=>{
+  const root=host.current;if(!root)return;
+  const prevent=(event:Event)=>event.preventDefault();
+  const secondary=(event:MouseEvent)=>{if(event.button>0)event.preventDefault();};
+  const nativeActions=['auxclick','contextmenu','dragstart','selectstart'];
+  for(const name of nativeActions)root.addEventListener(name,prevent,true);
+  root.addEventListener('pointerdown',secondary,true);root.addEventListener('mousedown',secondary,true);
+  return ()=>{
+   for(const name of nativeActions)root.removeEventListener(name,prevent,true);
+   root.removeEventListener('pointerdown',secondary,true);root.removeEventListener('mousedown',secondary,true);
+  };
+ },[]);
+ useEffect(()=>{
   const s=state.current,reduce=matchMedia('(prefers-reduced-motion: reduce)');
   s.reduced=reduce.matches;s.paused=reduce.matches;
   try{
@@ -53,8 +66,12 @@ export default function Experience(){
   try{choices.current=catalogueChoices(JSON.parse(localStorage.getItem(CATALOGUE_KEY)||localStorage.getItem('memento-knives-ui-v51')||'null'));}catch{}
   refresh();
   const key=(e:KeyboardEvent)=>{
-   if((e.target as Element).closest('input,textarea,select')||e.altKey||e.ctrlKey||e.metaKey)return;
-   if(e.key===' '&&(e.target as Element).closest('button,a'))return;
+   const target=e.target;
+   if(target instanceof Element&&target.closest('input,textarea,select,[contenteditable=true]'))return;
+   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&!e.altKey&&!e.shiftKey&&
+      (target===document.body||(target instanceof Node&&host.current?.contains(target)))){e.preventDefault();return;}
+   if(e.altKey||e.ctrlKey||e.metaKey)return;
+   if(e.key===' '&&target instanceof Element&&target.closest('button,a'))return;
    if(e.repeat)return;
    switch(e.key){
     case 'ArrowDown':case 'PageDown':go(Math.round(s.target)+1);break;
@@ -89,7 +106,7 @@ export default function Experience(){
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
 
- return <main className="experience" data-version="66" data-ui-pending={ready===0&&!error}
+ return <main ref={host} className="experience" data-version="67" data-ui-pending={ready===0&&!error}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <ProductReadout model={selected} price={price} config={selectedConfig}/>
@@ -102,10 +119,10 @@ export default function Experience(){
 
   <div className="stage-foreground">
    <div className="knife-nav" role="group" aria-label="Model selection and pose">
-   <button type="button" className="knife-step previous" aria-label="Previous model" title="Previous model"
+   <button type="button" className="knife-step previous" aria-label="Previous model"
     disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={44}/></button>
    <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
-   <button type="button" className="knife-step next" aria-label="Next model" title="Next model"
+   <button type="button" className="knife-step next" aria-label="Next model"
     disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={44}/></button>
    </div>
   </div>
@@ -123,7 +140,7 @@ export default function Experience(){
     </section>
    </div>
    <nav className="sequence-nav" data-chrome aria-label="Showroom navigation">
-    {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name} title={name}
+    {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name}
      aria-current={section===i?'step':undefined} onClick={()=>go(nearestChapter(s.target,i))}>
      <ChapterIcon chapter={name}/>
     </button>)}

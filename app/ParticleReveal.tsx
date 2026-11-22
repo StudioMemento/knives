@@ -46,9 +46,10 @@ function sample(element:HTMLElement,rect:DOMRect){
  }
  for(const path of element.querySelectorAll<SVGGeometryElement>('svg path,svg circle')){
   const matrix=path.getScreenCTM();if(!matrix)continue;
-  if(path instanceof SVGPathElement&&path.getAttribute('fill-rule')==='evenodd'){
+  if(path instanceof SVGPathElement&&getComputedStyle(path).fill!=='none'){
    ink.save();ink.transform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.e,matrix.f);
-   ink.fill(new Path2D(path.getAttribute('d')!),'evenodd');ink.restore();continue;
+   ink.fill(new Path2D(path.getAttribute('d')!),path.getAttribute('fill-rule')==='evenodd'?'evenodd':'nonzero');ink.restore();
+   if(getComputedStyle(path).stroke==='none')continue;
   }
   const length=path.getTotalLength();
   for(let d=0;d<length;d+=.7){const p=path.getPointAtLength(d).matrixTransform(matrix);ink.fillRect(p.x,p.y,1.35,1.35);}

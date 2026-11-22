@@ -77,6 +77,8 @@ export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Call
   multiFocus=null;s.interacting=false;s.activity++;callbacks.renderUI();
  }
  function wheel(e:WheelEvent){
+  // Right and middle presses must also leave wheel motion inert.
+  if(e.buttons&6){e.preventDefault();return;}
   if(e.ctrlKey||e.metaKey||!s.ready.length)return;
   e.preventDefault();
   const unit=e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1;

@@ -14,4 +14,4 @@ const startup=`(()=>{
   const notice=document.getElementById('startup-recovery');if(notice)notice.hidden=false;
  },20000);
 })();`;
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:startup}}/></head><body>{children}<div id="startup-recovery" className="startup-recovery" role="alert" hidden><p>Loading was interrupted.</p><a href="/">Reload the showroom</a></div></body></html>;}
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en" suppressHydrationWarning><head><link rel="preload" href="/fonts/memento-ui-light.woff2" as="font" type="font/woff2" crossOrigin="anonymous"/><script dangerouslySetInnerHTML={{__html:startup}}/></head><body>{children}<div id="startup-recovery" className="startup-recovery" role="alert" hidden><p>Loading was interrupted.</p><a href="/">Reload the showroom</a></div></body></html>;}

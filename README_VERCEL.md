@@ -1,4 +1,4 @@
-# Memento Knives V66
+# Memento Knives V67
 
 This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
 
@@ -12,9 +12,13 @@ The product name, price and Blade/Handle/Metals summary share 15% side margins a
 
 The logo and navigation use a centered column at 80% of the viewport width, up to 344 px. Each navigation symbol is cut out of a square with two chamfered corners. The compact finish/color and camera/light groups align with the outside edges of the first and last tiles. Each group holds two rows of three options.
 
-The model chevrons, fold and exploded-view controls sit above the near edge of the ring. The stage draws their resting artwork between the floor and the active model. Hovering, pressing or focusing a button with the keyboard brings that button in front of the model. The same vector paths supply both layers. The controls retain their full hit targets even when the model covers the artwork.
+The model chevrons, fold and exploded-view controls sit above the near edge of the ring. The stage draws their resting artwork between the floor and the active model. Moving the pointer anywhere across the strip, pressing a control on touch or focusing the controls with a keyboard brings all four icons in front of the model. The spaces between the buttons still accept stage gestures.
 
 The 3D ring supplies the live tint for headings, swatch outlines, controls and keyboard focus. In each summary group the double slash ends at the right edge of the thumbnail. Titles and material names share a second column. Selections are saved per model. Demo prices are shown in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
+
+The option grids share one gap between thumbnails in either direction and between the heading and first row. The configuration summary uses the locally hosted Memento UI Light face at every size. The camera and light symbols use the same angular drawing style as the rest of the showroom.
+
+Fine pointers have custom artwork for the stage, clickable controls and dragging. The showroom suppresses tooltips, text selection, native image dragging, the context menu and auxiliary mouse clicks. The primary mouse button, touch, wheel zoom and keyboard controls operate the experience.
 
 ## Camera and light
 
@@ -22,4 +26,4 @@ Drag to rotate. Scroll or pinch to zoom from 0.8× to 2.8×. Changing sections, 
 
 The stage centers the projected silhouette of the active model in the viewport. The component views center the selected component, and a macro or picked point remains the inspection target. On ultrawide screens, viewport height limits the diagonal. The camera uses small measurement meshes generated from the five original GLBs. To regenerate them after changing an asset, run `node tools/assets/framing-proxies.mjs`.
 
-Use the left and right arrow keys to switch models and the up and down arrow keys to change sections. When the 3D canvas has keyboard focus, a short marker appears among the stage controls and the arrow keys rotate the model. Use Tab and Enter to select controls.
+Use the left and right arrow keys to switch models and the up and down arrow keys to change sections. When the 3D canvas has keyboard focus, the ring controls brighten and the arrow keys rotate the model. Use Tab and Enter to select controls.

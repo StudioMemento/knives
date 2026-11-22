@@ -1,21 +1,22 @@
 @font-face{font-family:Inter;src:url('/fonts/inter-400.woff2') format('woff2');font-weight:400;font-display:swap}
-@font-face{font-family:'Memento UI';src:url('/fonts/memento-ui-light.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Memento UI';src:url('/fonts/memento-ui-light.woff2') format('woff2'),url('/fonts/memento-ui-light.woff') format('woff');font-weight:300;font-style:normal;font-display:swap}
 @font-face{font-family:'Memento Figures';src:url('/fonts/memento-figures.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
 :root{color-scheme:dark;--white:#f3f2ee;--muted:#b1b1ac;--ui:'Michroma',sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030303;color:var(--white);font-family:Inter,Arial,sans-serif}
 button,input{font:inherit}
-button{border:0;background:none;padding:0;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:disabled{opacity:.3;cursor:wait}
+button{border:0;background:none;padding:0;color:inherit}
+button:disabled{opacity:.3}
 button:focus-visible,input:focus-visible{outline:1px solid #fff;outline-offset:3px}
 button svg{display:block}
 h1,h2,h3,p{margin:0}
 .experience {
- position:fixed; inset:0; isolation:isolate; overflow:hidden; touch-action:none;
+ position:fixed; inset:0; isolation:isolate; overflow:hidden; touch-action:none;overscroll-behavior:none;
+ -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;
  /* Keep the brand and controls on the original compact rail. */
  --safe-left:env(safe-area-inset-left,0px);
  --safe-right:env(safe-area-inset-right,0px);
- --ui-width:min(344px,80vw,calc(100% - var(--safe-left) - var(--safe-right) - 16px));
+ --ui-width:min(344px,80vw,calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
  --top:max(8px,env(safe-area-inset-top));
  --foot:max(34px,calc(env(safe-area-inset-bottom) + 10px));
  --title-size:min(11.6vw,22dvh);
@@ -24,15 +25,17 @@ h1,h2,h3,p{margin:0}
  --nav-hit:44px;
  --nav-mark:clamp(28px,7.8vw,32px);
  --bank-max:116px;
+ --bank-width:min(calc((var(--ui-width) - var(--nav-hit) + var(--nav-mark)) * .365),var(--bank-max));
  --nav-height:46px;
  --tool-gap:24px;
- --row-height:clamp(44px,10.75vw,46px);
- --label-size:clamp(11.5px,3.2vw,13px);
- --label-height:calc(var(--label-size) * 1.24);
- --swatch:clamp(25px,7.5vw,30px);
- --label-gap:calc(var(--row-height) - var(--swatch));
- --row-inset:calc((var(--row-height) - var(--swatch)) / 2);
- --panel-height:calc(var(--label-height) + var(--label-gap) - var(--row-inset) + 2 * var(--row-height));
+ --label-limit:clamp(11.5px,3.2vw,13px);
+ --label-size:min(var(--label-limit),calc(var(--bank-width) * .14));
+ --label-height:calc(var(--label-size) * .75);
+ --swatch-limit:clamp(25px,7.5vw,30px);
+ --swatch:min(var(--swatch-limit),calc((var(--bank-width) - 12px) / 3));
+ --option-gap:calc((var(--bank-width) - 3 * var(--swatch)) / 2);
+ --row-height:calc(var(--swatch) + var(--option-gap));
+ --panel-height:calc(var(--label-height) + var(--option-gap) / 2 + 2 * var(--row-height));
  --action-height:48px;
  --ring-gap:clamp(14px,2dvh,20px);
  --panel-gap:clamp(16px,3dvh,32px);
@@ -44,12 +47,15 @@ h1,h2,h3,p{margin:0}
 }
 .environment,.stage,.particle-reveal {position:absolute;inset:0;width:100%;height:100%}
 .environment {z-index:-2;pointer-events:none;background:radial-gradient(ellipse 58% 47% at 50% 59%,#171717,transparent 91%),#040405}
-.stage {z-index:1;display:block;touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
-.stage:active {cursor:grabbing}
+.stage {z-index:1;display:block;touch-action:none}
 .stage:focus,.stage:focus-visible {outline:none}
-.stage:focus-visible ~ .stage-foreground::after {content:'';position:absolute;left:50%;bottom:var(--ring-gap);
- width:26px;height:2px;transform:translateX(-50%);background:var(--ring-light);pointer-events:none}
-.experience ::selection {background:var(--ring-light);color:#070707}
+.stage:focus-visible ~ .stage-foreground .knife-nav svg {filter:drop-shadow(0 0 3px var(--ring-light))}
+.experience img,.experience svg {-webkit-user-drag:none}
+@media(any-pointer:fine) {
+ .experience,.experience button:disabled,.startup-recovery {cursor:url('/ui/cursor-stage.svg') 16 16,crosshair}
+ .experience button:enabled,.experience a,.startup-recovery a {cursor:url('/ui/cursor-action.svg') 16 16,crosshair}
+ .experience .stage[data-dragging=true] {cursor:url('/ui/cursor-drag.svg') 16 16,crosshair}
+}
 .brand-rail,.control-dock {
  position:absolute;left:var(--safe-left);right:var(--safe-right);width:var(--ui-width);
  margin-inline:auto;pointer-events:none;
@@ -58,7 +64,6 @@ h1,h2,h3,p{margin:0}
 .brand {width:100%;min-height:44px;display:grid;align-items:center;pointer-events:auto}
 .brand:focus-visible {outline:none}
 .brand:focus-visible .wordmark {filter:drop-shadow(0 0 3px var(--ring-ink))}
-.brand:focus-visible::after {content:'';position:absolute;inset:auto 0 4px;border-bottom:1px solid var(--ring-light)}
 .wordmark {display:flex;align-items:center;justify-content:space-between;width:100%;filter:drop-shadow(0 0 3px #ffffff38)}
 .wordmark img {display:block;width:9px;height:9px}
 
@@ -124,7 +129,7 @@ h1,h2,h3,p{margin:0}
 .chapter-button svg {width:var(--nav-mark);height:var(--nav-mark)}
 .chapter-button[aria-current=step] {color:var(--ring-light)}
 .chapter-button[aria-current=step] svg {filter:drop-shadow(0 0 2px var(--ring-glow))}
-.chapter-button:focus-visible::after {content:'';position:absolute;bottom:-3px;left:calc(50% - 6px);width:12px;height:2px;background:var(--ring-ink)}
+.chapter-button:focus-visible svg,.technical-hud button:focus-visible svg {outline:1px dashed var(--ring-pale);outline-offset:3px}
 @media(hover:hover) and (pointer:fine) {
  .chapter-button:not([aria-current]):hover {color:var(--ring-ink)}
 }
@@ -137,17 +142,18 @@ h1,h2,h3,p{margin:0}
 /* Both banks terminate at the visible outside edges of the navigation tiles.
  * Smaller tracks leave the free space in the middle of the rail. */
 .hud-panel {position:absolute;inset:0 calc((var(--nav-hit) - var(--nav-mark)) / 2);display:grid;
- grid-template-columns:repeat(2,min(36.5%,var(--bank-max)));justify-content:space-between;align-items:end}
-.control-group {min-width:0;container-type:inline-size}
-.panel-title {display:flex;align-items:baseline;justify-content:space-between;white-space:nowrap;height:var(--label-height);
- font:400 min(var(--label-size),14cqi)/1.24 var(--ui);letter-spacing:0;color:var(--ring-pale);text-shadow:0 1px 4px #000}
+ grid-template-columns:repeat(2,var(--bank-width));justify-content:space-between;align-items:end}
+.control-group {min-width:0}
+.panel-title {display:flex;align-items:flex-start;justify-content:space-between;white-space:nowrap;height:var(--label-height);
+ font:400 var(--label-size)/1 var(--ui);letter-spacing:0;color:var(--ring-pale);text-shadow:0 1px 4px #000}
+/* Michroma's capitals occupy .75em. Align their ink to the start of the grid. */
+.panel-title span {position:relative;top:-.195em}
 .choice-grid,.view-row,.lighting-grid {
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:var(--row-height);
- margin:calc(var(--label-gap) - var(--row-inset)) 0 0}
+ margin:calc(var(--option-gap) / 2) 0 0}
 .choice,.view-row button,.lighting-grid button {position:relative;display:grid;place-items:center;width:100%;height:100%;filter:none}
-.control-group button:nth-child(3n+1) {justify-items:start;--art-center:calc(var(--swatch) / 2)}
-.control-group button:nth-child(3n) {justify-items:end;--art-center:calc(100% - var(--swatch) / 2)}
-.control-dock button,.knife-nav button {-webkit-user-select:none;user-select:none}
+.control-group button:nth-child(3n+1) {justify-items:start}
+.control-group button:nth-child(3n) {justify-items:end}
 .control-dock button:focus-visible,.knife-nav button:focus-visible {outline:none}
 .sample-outline {display:block;position:relative;width:var(--swatch);aspect-ratio:1;background:color-mix(in srgb,var(--ring-pale) 62%,#242628)}
 .sample {position:absolute;inset:1px;display:block;background-color:#55585b}
@@ -177,26 +183,22 @@ h1,h2,h3,p{margin:0}
 
 .technical-hud button {color:var(--ring-pale)}
 .technical-hud svg {width:var(--swatch);height:var(--swatch)}
-.frame-corners {opacity:.55;stroke-width:1.2}
-.view-row button[aria-pressed=true] .frame-corners {opacity:1}
-.technical-hud button[aria-pressed=true] svg {color:var(--ring-light);stroke-width:2;filter:drop-shadow(0 0 2px var(--ring-glow))}
-.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:var(--ring-pale);stroke-width:2.5;filter:drop-shadow(0 0 3px var(--ring-light))}
-.technical-hud button:focus-visible::after {content:'';position:absolute;bottom:1px;left:var(--art-center,50%);
- width:10px;height:2px;transform:translateX(-50%);background:var(--ring-light)}
+.technical-hud button[aria-pressed=true] svg {color:var(--ring-light);filter:drop-shadow(0 0 2px var(--ring-glow))}
+.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:var(--ring-pale);filter:drop-shadow(0 0 3px var(--ring-light))}
 /* The transparent hit targets stay reachable when the model covers their ink. */
 .stage-foreground {position:absolute;top:var(--ring-line);left:var(--safe-left);right:var(--safe-right);
  width:var(--ui-width);height:0;margin-inline:auto;z-index:7;pointer-events:none}
 .knife-nav {position:absolute;inset:auto 0 var(--ring-gap);
  display:grid;grid-template-columns:repeat(4,var(--nav-hit));justify-content:space-between;align-items:center}
 .knife-nav svg {filter:drop-shadow(0 1px 1.5px #050506c7)}
-.knife-nav[data-depth] button:not([data-raised]) svg {opacity:0}
-.knife-nav button[data-raised] svg {filter:drop-shadow(0 1px 1px #050506) drop-shadow(0 0 3px var(--ring-glow))}
+.knife-nav[data-depth]:not([data-raised]) svg {opacity:0}
+.knife-nav[data-raised] svg {filter:drop-shadow(0 1px 1px #050506) drop-shadow(0 0 2px var(--ring-glow))}
 .knife-nav button {position:relative;width:var(--nav-hit);height:var(--action-height);background:transparent;color:var(--ring-ink)}
 .knife-nav .knife-step {color:var(--ring-light)}
 .pose-action svg {width:30px;height:30px;stroke-width:1.55}
 .knife-step svg {width:min(44px,var(--action-height));height:auto;transition:transform .16s}
 .knife-nav .pose-action[aria-pressed=true] {color:var(--ring-light);filter:drop-shadow(0 0 3px var(--ring-glow))}
-.knife-nav button:focus-visible::after {content:'';position:absolute;inset:auto 34% 0;height:2px;background:var(--ring-ink)}
+.knife-nav button:focus-visible svg {outline:1px dashed var(--ring-pale);outline-offset:2px}
 @media(hover:hover) and (pointer:fine) {
  .knife-nav button:enabled:hover {color:var(--ring-pale)}
  .knife-step.previous:enabled:hover svg {transform:translateX(-2px)}
@@ -230,7 +232,7 @@ h1,h2,h3,p{margin:0}
 }
 @media(max-height:500px) and (orientation:landscape) {
  .experience {--top:max(1px,env(safe-area-inset-top));--foot:max(8px,env(safe-area-inset-bottom));--nav-height:36px;
-  --tool-gap:12px;--row-height:30px;--label-size:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch:23px;--nav-mark:27px;--bank-max:103px}
+  --tool-gap:12px;--label-limit:10px;--action-height:36px;--panel-gap:10px;--ring-gap:4px;--swatch-limit:25px;--nav-mark:27px;--bank-max:93px}
  .brand {min-height:27px}.wordmark img{width:9px}
  .experience {--readout-top:max(29px,calc(var(--top) + 27px));--readout-gap:clamp(10px,2.8dvh,14px)}
  .product-info {--floor-clearance:5px}
@@ -238,7 +240,7 @@ h1,h2,h3,p{margin:0}
  .bottom-veil {height:110px}
 }
 @media(max-height:350px) and (orientation:landscape) {
- .experience {--nav-height:32px;--action-height:34px;--tool-gap:8px;--row-height:28px;--foot:max(5px,env(safe-area-inset-bottom))}
+ .experience {--nav-height:32px;--action-height:34px;--bank-max:89px;--tool-gap:6px;--panel-gap:6px;--foot:max(5px,env(safe-area-inset-bottom))}
  .experience {--readout-top:max(25px,calc(var(--top) + 24px))}
 }
 /* All three sections stay in the same column, including on ultrawide displays. */
@@ -252,8 +254,19 @@ h1,h2,h3,p{margin:0}
 }
 @container product (max-height:320px) {
  .configuration {--summary-chip:11px;--summary-head-gap:3px;--summary-row-gap:2px;--summary-group-gap:7px;font-size:11px}
- .configuration dd {font:400 11px/1.18 Inter,sans-serif;letter-spacing:.005em}
+ .configuration dd {line-height:1.18;letter-spacing:.005em}
  .configuration dd > span:last-child {min-height:1lh}
+}
+/* Once below the price, a narrow recap can use the space to its right. */
+@container product (max-height:320px) and (width < 330px) {
+ .configuration dd {grid-template-columns:var(--summary-chip) max-content}
+ .configuration dd > span:last-child {white-space:nowrap}
+}
+@container product (max-height:320px) and (width < 221px) {
+ .configuration > div:first-child dt {min-height:8cqi}
+}
+@container product (max-height:202px) and (width < 330px) {
+ .configuration {--summary-row-gap:1px;--summary-group-gap:5px}
 }
 @container product (max-height:175px) {
  .configuration {--summary-chip:10px;--summary-gap:4px;--summary-head-gap:2px;--summary-row-gap:1px;
@@ -267,19 +280,20 @@ h1,h2,h3,p{margin:0}
  .configuration dd + dd {margin:0}
 }
 @container product (max-height:145px) and (min-width:330px) {
- .configuration {width:min(72%,350px);--summary-gap:3px;--summary-group-gap:5px}
- .configuration > div {grid-template-columns:58px minmax(0,1fr) minmax(0,1.1fr);column-gap:5px}
+ .configuration {width:min(79%,395px);--summary-gap:3px;--summary-group-gap:3px}
+ .configuration > div {grid-template-columns:54px minmax(0,1fr) minmax(0,1.05fr);column-gap:4px}
  .configuration dt {grid-column:1;align-self:start;margin:1px 0 0;font-size:9px;letter-spacing:.055em}
+ .configuration dd {line-height:1.13}
  .configuration dd > span:last-child {min-height:2lh}
 }
 @media(forced-colors:active) {
  .atmospheric-title,.price {background:none;color:CanvasText}
  .chapter-button[aria-current=step],.chapter-button:focus-visible {color:Highlight}
- .chapter-button:focus-visible::after,.knife-nav button:focus-visible::after,.stage:focus-visible ~ .stage-foreground::after {background:Highlight;forced-color-adjust:none}
  .chapter-button {color:ButtonText}
- .chapter-button[aria-current=step]::after {content:'';position:absolute;bottom:-3px;left:calc(50% - 6px);width:12px;height:2px;background:Highlight;forced-color-adjust:none}
+ .chapter-button svg,.technical-hud svg,.knife-nav svg {forced-color-adjust:none}
+ .chapter-button:focus-visible svg,.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {outline-color:Highlight}
  .choice[aria-pressed=true] .sample-outline,.choice:focus-visible .sample-outline {background:Highlight;forced-color-adjust:none}
  .technical-hud button[aria-pressed=true],.technical-hud button:focus-visible svg,.knife-nav button:focus-visible svg {color:Highlight}
- .technical-hud button[aria-pressed=true] svg {stroke-width:2.6;color:Highlight}
+ .technical-hud button[aria-pressed=true] svg {color:Highlight}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

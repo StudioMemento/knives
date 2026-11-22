@@ -1,5 +1,6 @@
 'use client';
-import {useLayoutEffect,useRef,type CSSProperties,type ReactNode} from 'react';
+import {useLayoutEffect,useRef,type CSSProperties} from 'react';
+import TechnicalIcon from './TechnicalIcon';
 import {CATALOGUE,SURFACES,type Option} from './lib/catalogue';
 import {LIGHT_ORDER,LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {hasManualRotation,CHAPTERS,KNIVES,type DemoState,type Configuration,type Surface,type View} from './lib/state';
@@ -137,7 +138,7 @@ function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
 }){
  return <div className="control-group choice-group"><PanelTitle text={kind==='style'?partLabels[surface]:'COLOR'}/>
   <div className="choice-grid" role="group" aria-label={surface+' '+kind}>
-   {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind} title={item.name}
+   {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind}
     aria-label={item.name} aria-description={item.description} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
     <span className="sample-outline"><Sample item={item} index={i} row={row}/></span>
    </button>)}
@@ -160,38 +161,13 @@ export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof Pos
  return <>
   {(['closed','exploded'] as const).map((key,i)=>{
    const pressed=value[key]>.5;
-   const action=i?(pressed?'Reassemble model':'Explode model'):(pressed?'Open blade':'Close blade');
-   return <button type="button" key={key} className="pose-action" data-control={key} aria-label={i?'Exploded view':'Closed blade'} aria-pressed={pressed} title={action}
+   return <button type="button" key={key} className="pose-action" data-control={key} aria-label={i?'Exploded view':'Closed blade'} aria-pressed={pressed}
     onClick={()=>onValue(key,pressed?0:1)}><Glyph name={i?'explode':pressed?'bladeClosed':'blade'} size={31}/></button>;
   })}
  </>;
 }
 
 const cameraLabels:Record<View,string>={side:'Side',top:'Top',edge:'End-on',perspective:'Perspective',clip:'Pocket clip',screw:'Screw detail'};
-const cameraSymbols:Record<View|'loop',ReactNode>={
- side:<><path d="M4.6 19.2h7.6l3.3-2.7 12.2-5.8c-2.2 4.7-6.2 8.6-12.8 9.3l-2.1-.8H4.6Zm0 0-1.1-2.4 7.9-2.4 3.2 2.2"/><circle cx="10.9" cy="16.9" r=".9" fill="currentColor" stroke="none"/></>,
- top:<><path d="M16 4.6v7m-3.1-3.2 3.1 3.2 3.1-3.2M4.3 20.7l6.9-5.5h15.4l-6.9 5.5Zm0 0v2.1h15.5l6.8-5.5"/></>,
- edge:<><path d="M16 5.1c1.6 4.6 2.4 10.1 2.4 17.5L16 26l-2.4-3.4c0-7.4.8-12.9 2.4-17.5Z"/><path d="M3.3 16h6.6l-2.2-2.2m2.2 2.2-2.2 2.2m20.8-2.2H22l2.2-2.2M22 16l2.2 2.2"/></>,
- perspective:<><path d="m16 4.8 10.3 5.8v10.3L16 27l-10.3-6.1V10.6Z"/><path d="M5.7 10.6 16 16.4l10.3-5.8M16 16.4V27"/></>,
- clip:<><path d="m7.4 19.8 12-13.2a3.7 3.7 0 0 1 5.5 4.9L13.5 24.7a5.1 5.1 0 0 1-7.7-6.6l10.7-12"/><path d="m10.4 18.4 9.1-10.2"/></>,
- loop:<><path d="m4.5 15.1 13.9-9.2 6.7 1.8 2.3 8.2-14 10.1-6.9-2.1Z"/><path d="m8.6 16.1 10.5-6.8 3.1 1.1 1.1 4.2-10.8 7.7-3-1.4Z"/></>,
- screw:<><circle cx="16" cy="16" r="9.4"/><path d="m14.1 9.9 3.1-.2.5 3.7 3.8-.3.3 3.2-3.8.4.4 3.8-3.2.3-.4-3.9-3.8.4-.3-3.2 3.8-.4Z"/></>,
-};
-const lightSymbols:Record<LightPreset,ReactNode>={
- spotlight:<><path d="m7 4 9.5 4.3-2.9 6.4-9.4-4.3Zm8.2 7.3 3.8.1-2.4 5.1-2.3-2.7M7.1 5.3 4.8 4.2"/><path d="m20.3 14.1 7 3.1m-9.4.4 6 6.9m-8.5-5.2 2.1 7"/></>,
- penumbra:<><path d="M8.2 6.5h15.6l-2.6 4.7H10.7Z"/><path d="M11 14.2a9.3 9.3 0 0 0 10 0M8 18.6a15.7 15.7 0 0 0 16 0"/><path d="M4.8 23.2a21.8 21.8 0 0 0 22.4 0" strokeDasharray="1.5 3"/></>,
- pointlight:<><circle cx="16" cy="16" r="3.9"/><path d="M16 3.5v5m0 15v5M3.5 16h5m15 0h5M7 7l3.5 3.5m11 11L25 25M7 25l3.5-3.5m11-11L25 7"/></>,
- dome:<><path d="M3.2 21.4a12.8 12.8 0 0 1 25.6 0ZM2.5 25.1h27"/><path d="M9.3 18c.7-3.5 2.5-6.2 5.2-8"/></>,
- rimlight:<><path d="M19.7 5.3a10.8 10.8 0 1 0 .1 21c-4.6-1.5-7.4-5.3-7.4-10.4s2.7-9 7.3-10.6Z"/><path d="m22.7 8.3 2-2m.4 9.5h3m-5.8 7.5 2 2"/></>,
- studio:<><path d="m4.4 5.2 9.4.7 2.1 7.1-5.4 4.6-7.8-4.8Z"/><path d="m9.5 16.9-1 6.4m-4.1 3.6 4.1-3.6 3.5 3.6m8.1-17.1 7.1-2.2 1.9 6-7.1 2.3Zm4.8 6.4v7.4m-3.3 3.2 3.3-3.2 3.1 3.2"/></>,
-};
-function TechnicalIcon({symbol,framed=false}:{symbol:ReactNode;framed?:boolean}) {
- return <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor"
-  strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-  {symbol}
-  {framed&&<path className="frame-corners" d="M25 2.5h4.5V7m-27 18v4.5H7" strokeLinecap="square" strokeLinejoin="miter"/>}
- </svg>;
-}
 type TechnicalProps = {
  value: Pick<DemoState, 'view' | 'rotation'>;
  lightPreset: LightPreset;
@@ -207,9 +183,9 @@ export function TechnicalHud({value, lightPreset, model, onView, onLight}: Techn
    <div className="view-row">{(Object.keys(cameraLabels) as View[]).map(view => {
     const loop = view==='clip' && KNIVES[model]==='EDGE';
     const name = loop ? 'Rear loop' : cameraLabels[view];
-    return <button type="button" key={view} data-view={view} title={name} aria-label={name+' view'}
+    return <button type="button" key={view} data-view={view} aria-label={name+' view'}
      aria-pressed={value.view===view && !hasManualRotation(value)} onClick={() => onView(view)}>
-     <TechnicalIcon symbol={cameraSymbols[loop?'loop':view]} framed/>
+     <TechnicalIcon name={loop?'loop':view}/>
     </button>;
    })}</div>
   </div>
@@ -218,9 +194,9 @@ export function TechnicalHud({value, lightPreset, model, onView, onLight}: Techn
    <div className="lighting-grid">{LIGHT_ORDER.map(id=>{
     const setup=LIGHT_PRESETS[id];
     return <button type="button" key={id} data-light-preset={id} aria-label={setup.label+' preset'}
-     title={setup.label} aria-description={setup.description} aria-pressed={lightPreset===id}
+     aria-description={setup.description} aria-pressed={lightPreset===id}
      onClick={()=>onLight(id)}>
-     <TechnicalIcon symbol={lightSymbols[id]}/>
+     <TechnicalIcon name={id}/>
     </button>;
    })}</div>
   </div>

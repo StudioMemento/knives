@@ -26,7 +26,9 @@ export function createStageControls(nav:HTMLElement){
   const sprite=new Sprite(material);scene.add(sprite);
   return {button,svg,sprite};
  });
+ let band:DOMRect;
  function resize(viewport:DOMRect){
+  band=nav.getBoundingClientRect();
   camera.right=viewport.width;camera.top=viewport.height;camera.updateProjectionMatrix();
   for(const {button,svg,sprite} of controls){
    const hit=button.getBoundingClientRect(),icon=svg.getBoundingClientRect();
@@ -34,30 +36,35 @@ export function createStageControls(nav:HTMLElement){
    sprite.scale.set(icon.width,icon.height,1);
   }
  }
- function buttonAt(target:EventTarget|null){
-  return target instanceof Element&&nav.contains(target)?target.closest('button'):null;
- }
- let hovered=matchMedia('(hover:hover)').matches?nav.querySelector<HTMLButtonElement>('button:hover'):null;
- let held:HTMLButtonElement|null=null,heldId=-1;
- const enter=(e:PointerEvent)=>{hovered=e.pointerType==='touch'?null:buttonAt(e.target);};
- const leave=(e:PointerEvent)=>{hovered=e.pointerType==='touch'?null:buttonAt(e.relatedTarget);};
- const down=(e:PointerEvent)=>{if(e.isPrimary){held=buttonAt(e.target);heldId=e.pointerId;}};
- const up=(e:PointerEvent)=>{if(e.pointerId===heldId){held=null;heldId=-1;}};
- const reset=()=>{hovered=null;held=null;heldId=-1;};
- nav.addEventListener('pointerover',enter);nav.addEventListener('pointerout',leave);nav.addEventListener('pointerdown',down);
+ // Track the whole strip, including the space where the canvas still accepts drags.
+ let pointerX=NaN,pointerY=NaN,pressedId=-1;
+ let initialHover=matchMedia('(any-hover:hover)').matches&&nav.matches(':hover');
+ const track=(e:PointerEvent)=>{
+  initialHover=false;
+  pointerX=e.pointerType==='touch'?NaN:e.clientX;pointerY=e.clientY;
+ };
+ const reset=()=>{pointerX=NaN;initialHover=false;pressedId=-1;};
+ const exit=(e:PointerEvent)=>{if(!e.relatedTarget&&e.pointerType!=='touch')reset();};
+ const down=(e:PointerEvent)=>{track(e);if(e.button===0&&e.isPrimary)pressedId=e.pointerId;};
+ const up=(e:PointerEvent)=>{if(e.pointerId===pressedId)pressedId=-1;};
+ window.addEventListener('pointerover',track,true);window.addEventListener('pointermove',track,true);
+ window.addEventListener('pointerout',exit,true);nav.addEventListener('pointerdown',down);
  window.addEventListener('pointerup',up,true);window.addEventListener('pointercancel',up,true);window.addEventListener('blur',reset);
+ const stage=nav.closest('main')?.querySelector('canvas.stage');
  const contrast=matchMedia('(forced-colors:active)'),ring=new Color(),ink=new Color(),white=new Color(0xffffff);
  let lastTint=-1;
  function render(renderer:WebGLRenderer,tint:number){
+  const inside=band&&pointerX>=band.left&&pointerX<=band.right&&pointerY>=band.top&&pointerY<=band.bottom;
+  const raised=Boolean(inside||initialHover||pressedId!==-1||nav.querySelector(':focus-visible')||stage?.matches(':focus-visible'));
+  nav.toggleAttribute('data-depth',true);
+  nav.toggleAttribute('data-raised',raised);
+  if(raised)return;
   if(tint!==lastTint){
    ring.setHex(tint);
    ink.copy(ring).convertLinearToSRGB().lerp(white,.32).convertSRGBToLinear();
    lastTint=tint;
   }
   for(const {button,svg,sprite} of controls){
-   const raised=!button.disabled&&(button===hovered||button===held||button.matches(':focus-visible'));
-   button.toggleAttribute('data-raised',raised);sprite.visible=!raised;
-   if(raised)continue;
    const name=svg.dataset.stageGlyph as StageGlyph,material=sprite.material;
    material.map=textures.get(name)!;
    material.opacity=button.disabled ? .3 : 1;
@@ -68,14 +75,13 @@ export function createStageControls(nav:HTMLElement){
    }
   }
   renderer.render(scene,camera);
-  nav.toggleAttribute('data-depth',true);
  }
  function restore(){
-  nav.removeAttribute('data-depth');
-  for(const {button} of controls)button.removeAttribute('data-raised');
+  nav.removeAttribute('data-depth');nav.removeAttribute('data-raised');
  }
  return {resize,render,restore,dispose(){
-  restore();nav.removeEventListener('pointerover',enter);nav.removeEventListener('pointerout',leave);nav.removeEventListener('pointerdown',down);
+  restore();window.removeEventListener('pointerover',track,true);window.removeEventListener('pointermove',track,true);
+  window.removeEventListener('pointerout',exit,true);nav.removeEventListener('pointerdown',down);
   window.removeEventListener('pointerup',up,true);window.removeEventListener('pointercancel',up,true);window.removeEventListener('blur',reset);
   textures.forEach(t=>t.dispose());for(const {sprite} of controls)sprite.material.dispose();
  }};
