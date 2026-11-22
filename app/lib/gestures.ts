@@ -17,7 +17,7 @@ function zoomBy(s:DemoState, factor:number) {
  if (next !== s.zoom) {s.zoom = next;s.activity++;}
 }
 
-export function bindGestures(canvas:HTMLCanvasElement,s:DemoState,callbacks:Callbacks){
+export function bindGestures(canvas:HTMLElement,s:DemoState,callbacks:Callbacks){
  const contacts=new Map<number,Contact>();
  let mode:'tap'|'orbit'|'multi'='tap',lastTap:{point:Point;time:number}|null=null;
  let originChapter=0,settled=false,tapOnProduct=false,multiFocus:Point|null=null;

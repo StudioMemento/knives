@@ -1,8 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <defs><path id="jaws" d="m13.5 6.5-9.5 9.5 9.5 9.5m5 0 9.5-9.5-9.5-9.5"/></defs>
-  <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
-    <use href="#jaws" stroke="#101317" stroke-width="3.5"/>
-    <use href="#jaws" stroke="#eaf1f4" stroke-width="1.5"/>
-  </g>
-  <path d="m16 12.5 3.5 3.5-3.5 3.5-3.5-3.5Z" fill="#fff" stroke="#101317" stroke-width="1"/>
+ <path d="M2 2 27 19l-9 3-7-5v9l-7 4Z" fill="#b7f4ed" stroke="#10181c" stroke-width="2.2" stroke-linejoin="miter"/>
+ <path d="m3 3 22 15-8 2z" fill="#f2fffc"/>
+ <path d="m5 9 1 17 2-1V14Z" fill="#27676c"/>
 </svg>

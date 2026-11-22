@@ -11,7 +11,8 @@ import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,rese
 export default function Experience(){
  const host=useRef<HTMLElement>(null);
  const state=useRef(createState());
- const [frame,setFrame]=useState({section:0,selected:0,ready:0}),[error,setError]=useState('');
+ const [frame,setFrame]=useState({selected:0,ready:0}),[error,setError]=useState('');
+ const [artReady,setArtReady]=useState(false);
  const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
  if(choices.current===null)choices.current=catalogueChoices();
  const previous=useRef(frame),[,setRevision]=useState(0);
@@ -30,11 +31,24 @@ export default function Experience(){
   if(!s.ready.includes(mod(next)))return;
   chooseSlot(s,next);refresh();
  },[refresh]);
- const onFrame=useCallback((_progress:number,selected:number,ready:number)=>{
-  const section=sectionAt(state.current.target),last=previous.current;
-  if(last.section!==section||last.selected!==selected||last.ready!==ready){
-   previous.current={section,selected,ready};setFrame(previous.current);
+ const onFrame=useCallback((selected:number,ready:number)=>{
+  const last=previous.current;
+  if(last.selected!==selected||last.ready!==ready){
+   previous.current={selected,ready};setFrame(previous.current);
   }
+ },[]);
+ useEffect(()=>{
+  let mounted=true;
+  const atlas=new Image();atlas.src='/ui/catalogue-swatches.webp';
+  const logo=Array.from(host.current?.querySelectorAll<HTMLImageElement>('.wordmark img')??[]);
+  // Resolve failures as well: the fallback face and swatches can still be used.
+  void Promise.allSettled([
+   document.fonts.load('400 16px Michroma','HYPER CAMERA LIGHT'),
+   document.fonts.load('300 14px "Memento UI"','Blade Handle Metals'),
+   document.fonts.load('400 24px "Memento Figures"','€0123456789'),
+   atlas.decode(),...logo.map(image=>image.decode()),
+  ]).then(()=>{if(mounted)setArtReady(true);});
+  return ()=>{mounted=false;};
  },[]);
  useEffect(()=>{
   const root=host.current;if(!root)return;
@@ -66,6 +80,7 @@ export default function Experience(){
   try{choices.current=catalogueChoices(JSON.parse(localStorage.getItem(CATALOGUE_KEY)||localStorage.getItem('memento-knives-ui-v51')||'null'));}catch{}
   refresh();
   const key=(e:KeyboardEvent)=>{
+   if(host.current?.dataset.uiPending==='true')return;
    const target=e.target;
    if(target instanceof Element&&target.closest('input,textarea,select,[contenteditable=true]'))return;
    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&!e.altKey&&!e.shiftKey&&
@@ -88,7 +103,7 @@ export default function Experience(){
   window.addEventListener('keydown',key);reduce.addEventListener('change',onReduce);
   return ()=>{window.removeEventListener('keydown',key);reduce.removeEventListener('change',onReduce);};
  },[go,stepKnife,refresh]);
- const {selected,section,ready}=frame,s=state.current;
+ const {selected,ready}=frame,s=state.current,section=sectionAt(s.target);
  const isCustom=section>=1&&section<=3;
  const setRange=(key:'closed'|'exploded',value:number)=>{
   if(isCustom)(key==='closed'?s.customFold:s.customExplode)[section-1]=value;
@@ -105,11 +120,12 @@ export default function Experience(){
  const knife = KNIVES[selected];
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
+ const uiReady=ready===KNIVES.length&&artReady;
 
- return <main ref={host} className="experience" data-version="67" data-ui-pending={ready===0&&!error}
+ return <main ref={host} className="experience" data-version="68" data-ui-pending={!uiReady}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
-  <ProductReadout model={selected} price={price} config={selectedConfig}/>
+  <ProductReadout model={selected} price={price} config={selectedConfig} artReady={artReady}/>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
   <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
   <header className="brand-rail">
@@ -146,9 +162,9 @@ export default function Experience(){
     </button>)}
    </nav>
   </footer>
-  <ParticleReveal chapter={section} model={selected} ready={ready>0}/>
+  <ParticleReveal model={selected} ready={uiReady}/>
   <span className="sr-only" role="status" aria-live="polite">{KNIVES[selected]} — {CHAPTERS[section]}</span>
-  {ready<5&&!error&&<div className={'loading '+(ready?'quiet':'')} role="status"><span className="load-mark"/><span>{ready?'COLLECTION':'PREPARING'}<small>{ready} / 5</small></span></div>}
+  {!uiReady&&!error&&<div className="loading" role="status"><span className="load-mark"/>PREPARING</div>}
   {error&&<div className="error-message" role="alert"><p>{error}</p><button onClick={()=>location.reload()}>Try again</button></div>}
  </main>;
 }

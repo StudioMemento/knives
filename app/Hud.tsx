@@ -34,10 +34,11 @@ export function Brand() {
  </span>;
 }
 
-export function ProductReadout({model,price,config}:{model:number;price:number;config:Configuration}) {
+export function ProductReadout({model,price,config,artReady}:{model:number;price:number;config:Configuration;artReady:boolean}) {
  const name=KNIVES[model];
  const titleRef=useRef<HTMLHeadingElement>(null), regionRef=useRef<HTMLDivElement>(null);
  useLayoutEffect(()=>{
+  if(!artReady)return;
   const title=titleRef.current,region=regionRef.current,host=region?.parentElement;
   const summary=region?.querySelector('dl'),priceLine=region?.querySelector<HTMLElement>('.price');
   const firstLabel=summary?.querySelector<HTMLElement>('dt span:last-child');
@@ -80,9 +81,8 @@ export function ProductReadout({model,price,config}:{model:number;price:number;c
   };
   fit();
   const observer=new ResizeObserver(fit);observer.observe(region);observer.observe(summary);
-  void document.fonts.ready.then(fit);
   return ()=>{mounted=false;observer.disconnect();};
- },[name]);
+ },[name,artReady]);
  return <>
   <div className="product-heading"><h1 ref={titleRef} className="atmospheric-title" data-product-name>{name}</h1></div>
   <div ref={regionRef} className="product-info">
@@ -157,13 +157,23 @@ export function MaterialHud({surface,model,config,onChange}:{
  </div>;
 }
 type PoseValues=Pick<DemoState,'closed'|'exploded'>;
+function ExplodeGlyph({expanded}:{expanded:boolean}) {
+ return <svg className="explode-glyph" data-stage-glyph={expanded?'compose':'explode'} width="30" height="30"
+  viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="miter" aria-hidden="true">
+  <path className="plate lower" d="m3 17 10 5 10-5"/>
+  <path className="plate middle" d="m3 14 10 5 10-5"/>
+  <path className="plate upper" d="m3 11 10-5 10 5-10 5Z"/>
+  <path className="stack-arrows" d={expanded?'M28 5v7m-2.6-2.6L28 12l2.6-2.6M28 27v-7m-2.6 2.6L28 20l2.6 2.6':'M28 13V6m-2.6 2.6L28 6l2.6 2.6M28 19v7m-2.6-2.6L28 26l2.6-2.6'}/>
+ </svg>;
+}
 export function PoseHud({value,onValue}:{value:PoseValues;onValue:(key:keyof PoseValues,n:number)=>void}){
+ const closed=value.closed>.5,expanded=value.exploded>.5;
  return <>
-  {(['closed','exploded'] as const).map((key,i)=>{
-   const pressed=value[key]>.5;
-   return <button type="button" key={key} className="pose-action" data-control={key} aria-label={i?'Exploded view':'Closed blade'} aria-pressed={pressed}
-    onClick={()=>onValue(key,pressed?0:1)}><Glyph name={i?'explode':pressed?'bladeClosed':'blade'} size={31}/></button>;
-  })}
+  <button type="button" className="pose-action" data-control="closed" aria-label="Closed blade" aria-pressed={closed}
+   onClick={()=>onValue('closed',closed?0:1)}><Glyph name={closed?'bladeClosed':'blade'} size={31}/></button>
+  <button type="button" className="pose-action" data-control="exploded" aria-label="Exploded view" aria-pressed={expanded}
+   aria-description={expanded?'Reassemble the model':'Separate the parts'}
+   onClick={()=>onValue('exploded',expanded?0:1)}><ExplodeGlyph expanded={expanded}/></button>
  </>;
 }
 

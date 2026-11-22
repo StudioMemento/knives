@@ -22,7 +22,7 @@ import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './l
 import {KNIVES,mod,clamp,smooth,sectionAt,hasManualRotation,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
 
 type Props={
- state:MutableRefObject<DemoState>;onFrame:(progress:number,id:number,ready:number)=>void;
+ state:MutableRefObject<DemoState>;onFrame:(id:number,ready:number)=>void;
  onError:(message:string)=>void;onInteract:()=>void;onChapter:(target:number)=>void;
 };
 type Rig={
@@ -35,9 +35,11 @@ const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
 
 export default function Stage({state,...callbacks}:Props){
- const canvas=useRef<HTMLCanvasElement>(null);const props=useRef(callbacks);props.current=callbacks;
+ const canvas=useRef<HTMLCanvasElement>(null),floorStrip=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
+ const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
-  if(!canvas.current)return;const s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
+  if(!canvas.current||!floorStrip.current||!surface.current)return;
+  const input=surface.current,s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';let dead=false,raf=0,renderer:THREE.WebGLRenderer;
   try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
@@ -91,7 +93,7 @@ export default function Stage({state,...callbacks}:Props){
   }
   (async()=>{try{
    const response=await fetch('/models/v48/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
-   await load(0);await Promise.all([load(1),load(2)]);await Promise.all([load(3),load(4)]);if(dead)return;
+   await Promise.all(KNIVES.map((_,index)=>load(index)));if(dead)return;
    const mask=camera.layers.mask;let shaders:Promise<THREE.Object3D>,depthShaders:Promise<THREE.Object3D>;
    try{camera.layers.enableAll();shaders=renderer.compileAsync(scene,camera);scene.overrideMaterial=depthOnly;depthShaders=renderer.compileAsync(scene,camera);}
    finally{scene.overrideMaterial=null;camera.layers.mask=mask;}
@@ -101,7 +103,7 @@ export default function Stage({state,...callbacks}:Props){
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
   const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
-  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!);
+  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!,floorStrip.current,input,renderer);
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
@@ -114,7 +116,6 @@ export default function Stage({state,...callbacks}:Props){
   const resize=()=>{
    const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);
    const viewport=element.getBoundingClientRect();
-   stageControls?.resize(viewport);
    const ringLine=(rimAnchor.getBoundingClientRect().top-viewport.top)/h;
    const changed=w!==width||h!==height;
    if(changed){
@@ -125,6 +126,7 @@ export default function Stage({state,...callbacks}:Props){
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
+   stageControls.resize(viewport);
    if(changed||Math.abs(lastRingLine-ringLine)>=.00001){
     lastRingLine=ringLine;
     cameraShift=alignStageCamera(camera,w,h,ringLine);
@@ -159,17 +161,17 @@ export default function Stage({state,...callbacks}:Props){
    const local=rig.scene.worldToLocal(point);
    return local.clamp(v(rig.meta.bounds.min),v(rig.meta.bounds.max));
   }
-  const unbind=bindGestures(element,s,{
+  const unbind=bindGestures(input,s,{
    hitsProduct:(x,y)=>!!hitAt(x,y),
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
    chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
-  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls?.restore();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
+  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls.raise();props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
   element.addEventListener('webglcontextlost',lost);
   const cursor=new THREE.Vector2(),cursorX=new MotionValue(),cursorY=new MotionValue();
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
-  element.addEventListener('pointermove',cursorMove,{passive:true});element.addEventListener('pointerleave',cursorLeave);
+  input.addEventListener('pointermove',cursorMove,{passive:true});input.addEventListener('pointerleave',cursorLeave);
   const carousel=new Carousel(),scroll=new MotionValue(),zoom=new MotionValue(1),fold=new MotionValue(),explosion=new MotionValue();
   const customFold=s.customFold.map(x=>new MotionValue(x)),customExplode=s.customExplode.map(x=>new MotionValue(x));
   const viewRotation=new THREE.Quaternion(),views={side:[0,0],top:[Math.PI/2,0],edge:[0,Math.PI/2],perspective:[.38,-.52]};
@@ -204,14 +206,14 @@ export default function Stage({state,...callbacks}:Props){
    if(dead)return;
    raf=requestAnimationFrame(animate);
    const elapsed=Math.max(0,(now-last)/1000);last=now;
-   if(document.hidden)return;
+   if(document.hidden||s.ready.length<KNIVES.length)return;
    const dt=Math.min(.18,elapsed);time+=elapsed;
    if(lastActivity!==s.activity){lastActivity=s.activity;carousel.rest();}
    if(s.knifeRequest!==null){carousel.request(s.knifeRequest,s.reduced);s.knifeRequest=null;}
    s.progress=scroll.step(s.target,dt,s.reduced?25:8);
    const u=mod(s.progress),chapter=Math.floor(u),blend=smooth(u-chapter);
    const heroWeight=1-smooth(Math.min(u,5-u)),inspectWeight=1-smooth(Math.min(1,Math.abs(u-4)));
-   const auto=Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&s.ready.length===5&&warmed&&s.closed===0&&s.exploded===0&&s.zoom===1&&!hasManualRotation(s);
+   const auto=host.dataset.uiPending==='false'&&Math.abs(s.target-Math.round(s.target))<.001&&sectionAt(s.target)===0&&heroWeight>.999&&warmed&&s.closed===0&&s.exploded===0&&s.zoom===1&&!hasManualRotation(s);
    if(!auto&&s.knifeDestination===null&&!carousel.manuallyTravelling&&Math.abs(carousel.phase-Math.round(carousel.phase))>1e-5)carousel.request(Math.round(carousel.phase),s.reduced);
    const phase=carousel.step(elapsed,auto,s.paused||s.interacting,s.reduced);
    s.orbit=phase;
@@ -334,25 +336,30 @@ export default function Stage({state,...callbacks}:Props){
     renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
-    if(active&&host.dataset.uiPending!=='true')stageControls?.render(renderer,tint);
+    if(active)stageControls.beforeProduct();
     renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
     renderer.render(scene,productCamera);
-   }catch(e){stageControls?.restore();props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
-   props.current.onFrame(s.progress,s.selected,s.ready.length);
+   }catch(e){stageControls.raise();props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
+   props.current.onFrame(s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
    if(frameWindow>1){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
-   element.dataset.zoom=magnification.toFixed(3);element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);element.dataset.dragging=String(s.interacting);
+   element.dataset.zoom=magnification.toFixed(3);element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);
+   input.dataset.dragging=String(s.interacting);
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
-   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls?.dispose();document.removeEventListener('visibilitychange',visibility);
-   element.removeEventListener('pointermove',cursorMove);element.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
+   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls.dispose();document.removeEventListener('visibilitychange',visibility);
+   input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
    textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
- return <canvas className="stage" ref={canvas} tabIndex={0} aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>;
+ return <>
+  <canvas className="stage-floor-strip" ref={floorStrip} hidden aria-hidden="true"/>
+  <canvas className="stage" ref={canvas} aria-hidden="true"/>
+  <div className="stage-input" ref={surface} tabIndex={0} role="group" aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>
+ </>;
 }

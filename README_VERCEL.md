@@ -1,4 +1,4 @@
-# Memento Knives V67
+# Memento Knives V68
 
 This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
 
@@ -12,13 +12,13 @@ The product name, price and Blade/Handle/Metals summary share 15% side margins a
 
 The logo and navigation use a centered column at 80% of the viewport width, up to 344 px. Each navigation symbol is cut out of a square with two chamfered corners. The compact finish/color and camera/light groups align with the outside edges of the first and last tiles. Each group holds two rows of three options.
 
-The model chevrons, fold and exploded-view controls sit above the near edge of the ring. The stage draws their resting artwork between the floor and the active model. Moving the pointer anywhere across the strip, pressing a control on touch or focusing the controls with a keyboard brings all four icons in front of the model. The spaces between the buttons still accept stage gestures.
+The model chevrons, fold and exploded-view controls sit above the near edge of the ring. On desktop the same SVG sits between the floor and the active model at rest. Hovering over the strip or focusing it with the keyboard brings the four icons forward. They stay in front for touch so the model cannot cover the controls. The spaces between the buttons still accept stage gestures. The exploded-view toggle spreads its plates and reverses its arrows as the model separates.
 
 The 3D ring supplies the live tint for headings, swatch outlines, controls and keyboard focus. In each summary group the double slash ends at the right edge of the thumbnail. Titles and material names share a second column. Selections are saved per model. Demo prices are shown in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
 
-The option grids share one gap between thumbnails in either direction and between the heading and first row. The configuration summary uses the locally hosted Memento UI Light face at every size. The camera and light symbols use the same angular drawing style as the rest of the showroom.
+The option grids share one gap between thumbnails in either direction and between the heading and first row. The configuration summary uses the locally hosted Memento UI Light face at every size. The camera and light symbols use faceted silhouettes. Each heading has a full line box inside the panel. The models load in parallel. The scene and UI appear together after the first complete frame, with type and swatches in place and both model arrows available. Particles follow changes to the product name and price.
 
-Fine pointers have custom artwork for the stage, clickable controls and dragging. The showroom suppresses tooltips, text selection, native image dragging, the context menu and auxiliary mouse clicks. The primary mouse button, touch, wheel zoom and keyboard controls operate the experience.
+Fine pointers use a cut-metal arrow with its hotspot at the tip. It brightens over controls and changes on drag. The showroom suppresses tooltips, text selection, native image dragging, the context menu and auxiliary mouse clicks. The primary mouse button, touch, wheel zoom and keyboard controls operate the experience.
 
 ## Camera and light
 
