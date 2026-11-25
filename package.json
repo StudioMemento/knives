@@ -1,6 +1,6 @@
 {
   "name": "knifeshowroom",
-  "version": "0.72.0",
+  "version": "0.73.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit",
-    "test": "node scripts/check-experience.mjs && node tools/assets/check-runtime-sampling.mjs && node scripts/check-presentation.mjs && node scripts/check-cinematic.mjs && node scripts/check-stage.mjs && node scripts/check-pbr.mjs"
+    "test": "node scripts/check-experience.mjs && node tools/assets/check-runtime-sampling.mjs && node scripts/check-presentation.mjs && node scripts/check-cinematic.mjs && node scripts/check-stage.mjs && node scripts/check-pbr.mjs && node scripts/check-mesh-lod.mjs"
   },
   "engines": {
     "node": "24.x"

@@ -115,7 +115,7 @@ export default function Experience(){
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
  const uiReady=ready>0&&artReady;
 
- return <main ref={host} className="experience" data-version="72" data-ui-pending={!uiReady}
+ return <main ref={host} className="experience" data-version="73" data-ui-pending={!uiReady}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <ProductReadout model={selected} price={price} config={selectedConfig} artReady={artReady}/>

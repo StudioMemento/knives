@@ -6,7 +6,7 @@ import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
 import {CATALOGUE,catalogueChoices,configurationPrice,SURFACES} from '../app/lib/catalogue.ts';
 
-const metas=JSON.parse(fs.readFileSync('public/models/v72/manifest.json')).models;
+const metas=JSON.parse(fs.readFileSync('public/models/v73/manifest.json')).models;
 const hulls=JSON.parse(fs.readFileSync('app/lib/shot-outlines.json'));
 const sizes=[[320,568],[390,844],[430,932],[768,1024],[844,390],[1366,768],[1440,900],[2560,1080],[3440,1440],[3840,1080]];
 let count=0;

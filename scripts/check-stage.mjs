@@ -174,7 +174,7 @@ let area=0;for(let i=0;i<section.faces.length;i+=9){
 assert.ok(Math.abs(area-12)<1e-6);assert.ok(section.lines.length>0);
 assert.deepEqual(sectionGeometry(ring,new Plane(new Vector3(0,0,1),-3)),{lines:[],faces:[]});
 
-const manifest=JSON.parse(readFileSync('public/models/v72/manifest.json'));
+const manifest=JSON.parse(readFileSync('public/models/v73/manifest.json'));
 for(const meta of manifest.models){
  const bytes=readFileSync('public'+meta.url);
  const {scene,animations}=await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');

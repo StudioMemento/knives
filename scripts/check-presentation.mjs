@@ -9,7 +9,7 @@ import {compactExplosion} from '../app/lib/explosion.ts';
 import {fitBoundsScale} from '../app/lib/framing.ts';
 import {alignStageCamera,centerLens,focusLens} from '../app/lib/optics.ts';
 import {createSilhouetteMeter} from '../app/lib/optical-center.ts';
-const metas=JSON.parse(fs.readFileSync('public/models/v72/manifest.json')).models;
+const metas=JSON.parse(fs.readFileSync('public/models/v73/manifest.json')).models;
 const canonical=new Quaternion(0,1,0,0),point=new Vector3();
 const rotation=(x,y,z)=>new Quaternion().setFromEuler(new Euler(x,y,z));
 const report=[];

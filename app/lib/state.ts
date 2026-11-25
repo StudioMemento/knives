@@ -40,6 +40,7 @@ export function resetView(s:DemoState){s.view='side';s.rotation.identity();s.foc
 export function resetInspection(s:DemoState){s.closed=0;s.exploded=0;s.customFold=[0,1,1];s.customExplode=[0,0,0];resetView(s);}
 export type ModelMeta = {
  id:string;url:string;meshCount:number;triangles:number;outputBytes:number;
+ detail?:{url:string;meshCount:number;outputBytes:number};
  bounds:{min:number[];max:number[];center:[number,number,number];size:[number,number,number]};
  focusPoints:Record<'assembled'|'blade'|'handle'|'metals',[number,number,number]>;
  roleBounds:Record<Surface,{size:[number,number,number];min:[number,number,number];max:[number,number,number]}>;

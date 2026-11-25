@@ -5,13 +5,13 @@ import {CATALOGUE,SURFACES} from '../app/lib/catalogue.ts';
 import {MaterialBinding,materialPaths} from '../app/lib/materials.ts';
 import {parseGlb} from '../tools/assets/v48/glb.mjs';
 
-const manifest=JSON.parse(fs.readFileSync('public/models/v72/manifest.json'));
+const manifest=JSON.parse(fs.readFileSync('public/models/v73/manifest.json'));
 const images=new Set();
 let combinations=0;
 for(const meta of manifest.models){
  const mesh=fs.readFileSync('public'+meta.url);assert.equal(mesh.length,meta.outputBytes);
  const gltf=parseGlb(mesh).json;
- assert.ok(gltf.meshes.every(m=>m.primitives.every(p=>['POSITION','NORMAL','TEXCOORD_0','TEXCOORD_1','TANGENT'].every(a=>a in p.attributes))));
+ assert.ok(gltf.meshes.every(m=>m.primitives.every(p=>!('TEXCOORD_1' in p.attributes)&&['POSITION','NORMAL','TEXCOORD_0','TANGENT'].every(a=>a in p.attributes))));
  for(const role of SURFACES){
   const g=CATALOGUE[meta.id][role];
   for(let color=0;color<g.colors.length;color++)for(let style=0;style<g.styles.length;style++){
@@ -28,7 +28,7 @@ for(const meta of manifest.models){
  }
 }
 assert.equal(combinations,540);
-console.log('PASS — '+combinations+' colour/finish pairs, '+images.size+' web maps and five animated UV0/UV1 meshes');
+console.log('PASS — '+combinations+' colour/finish pairs, '+images.size+' web maps and five animated UV0 web meshes');
 
 // Force the previous selection to finish last. The final material has to keep the new set intact.
 const unblock=[];const counts=new Map();

@@ -5,6 +5,8 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {createExplosion,sampleExplosion,compactExplosion,type ExplodedPart} from './lib/explosion';
 import {stageFrame,chapterFrame,livingPose,presentation,productArea,CAMERA_DISTANCE,DISPLAY,type Frame,type ScreenRect} from './lib/presentation';
+import {AssembledHardware} from './lib/assembled-hardware';
+import {addStockCoordinates,disposeImport,MeshDetail} from './lib/mesh-detail';
 import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
@@ -30,7 +32,7 @@ type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
  parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:{source:THREE.Mesh;image:THREE.Mesh}[];materials:Record<Surface,MaterialBinding>;surfaceKeys:Record<Surface,string>;
  fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
- measure:ReturnType<typeof createSilhouetteMeter>;
+ measure:ReturnType<typeof createSilhouetteMeter>;lod:MeshDetail;hardware:AssembledHardware;
 };
 const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
@@ -67,8 +69,8 @@ export default function Stage({state,...callbacks}:Props){
   const getRole=(mesh:THREE.Mesh):Surface=>{const mat=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;const name=String(mesh.userData.materialRole||mat.name||mesh.name).toLowerCase();return name.includes('blade')?'blade':name.includes('handle')?'handle':'metals';};
   async function load(index:number){
    const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Missing model manifest for '+KNIVES[index]);
-   const gltf=await loader.loadAsync(meta.url);if(dead)return;
-   const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
+   const gltf=await loader.loadAsync(meta.url);if(dead){disposeImport(gltf.scene,true);return;}
+   const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
    const knife=KNIVES[index];
    const materials={blade:new MaterialBinding(knife,'blade',textures),handle:new MaterialBinding(knife,'handle',textures),metals:new MaterialBinding(knife,'metals',textures)};
    const level:TextureLevel='lo';
@@ -78,8 +80,9 @@ export default function Stage({state,...callbacks}:Props){
      const finish={...s.configs[index][role]};surfaceKeys[role]=[finish.color,finish.style,level].join('/');
      return materials[role].select(finish,level);
     }));
-   }catch(error){for(const binding of Object.values(materials))binding.dispose();throw error;}
-   if(dead){for(const binding of Object.values(materials))binding.dispose();return;}
+   }catch(error){disposeImport(gltf.scene,true);for(const binding of Object.values(materials))binding.dispose();throw error;}
+   if(dead){disposeImport(gltf.scene,true);for(const binding of Object.values(materials))binding.dispose();return;}
+   disposeImport(gltf.scene,false);scene.add(group);
    const meshes:THREE.Mesh[]=[],mirrors:Rig['mirrors']=[];
    gltf.scene.traverse(object=>{
     if(!(object instanceof THREE.Mesh))return;
@@ -96,21 +99,21 @@ export default function Stage({state,...callbacks}:Props){
    const open=mixer.clipAction(openClip),parts=createExplosion(gltf.scene,explodeClip,meta.motion.explodePeakTime);for(const action of [open]){action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;action.play();action.paused=true;action.setEffectiveWeight(1);}
    group.updateMatrixWorld(true);
    const toLocal=gltf.scene.matrixWorld.clone().invert();
+   const lod=new MeshDetail(meta.detail,url=>loader.loadAsync(url));
+   const mirrorByMesh=new Map(mirrors.map(({source,image})=>[source,image]));
    const fitMeshes=meshes.map(mesh=>{
-    const rest=mesh.geometry.getAttribute('position').clone() as THREE.BufferAttribute;
     const bindMatrix=new THREE.Matrix4().multiplyMatrices(toLocal,mesh.matrixWorld);
-    rest.applyMatrix4(bindMatrix);const coord=new THREE.Vector3();
-    for(let i=0;i<rest.count;i++){coord.fromBufferAttribute(rest,i).multiplyScalar(1000);rest.setXYZ(i,coord.x,coord.y,coord.z);}
-    mesh.geometry.setAttribute('stock',rest);
+    addStockCoordinates(mesh.geometry,bindMatrix);
+    lod.register(mesh,bindMatrix,mirrorByMesh.get(mesh));
     const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
-    proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
+    proxy.matrix.copy(bindMatrix);return proxy;
    });
-   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,surfaceKeys,measure:createSilhouetteMeter(meta.id,meshes),
+   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,surfaceKeys,lod,hardware:new AssembledHardware(gltf.scene,meshes),measure:createSilhouetteMeter(meta.id,meshes),
     fold:0,explosion:0,fit:1,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,details:inspectionParts(gltf.scene,meshes,meta.focusPoints.handle[2])};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
-   const response=await fetch('/models/v72/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
+   const response=await fetch('/models/v73/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
    await load(s.selected);if(dead)return;
    await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
    const adjacent=[mod(s.selected+1),mod(s.selected-1)];
@@ -220,6 +223,7 @@ export default function Stage({state,...callbacks}:Props){
      mesh.layers.set(opacity>.001?(sharp?FRONT:REAR_LAYER):4);
      if(!sharp&&opacity>.001&&opacity<.999)mesh.layers.enable(REAR_DEPTH_LAYER);
     }
+    rig.hardware.syncLayers();
    }
   }
   let railPhase=0,showBackdrop=true;
@@ -284,9 +288,11 @@ export default function Stage({state,...callbacks}:Props){
    customFold.forEach((v,i)=>v.step(s.customFold[i],dt,10));customExplode.forEach((v,i)=>v.step(s.customExplode[i],dt,9));
    mirrorMatrix.makeTranslation(0,2*RAIL.floorY,0).multiply(mirrorFlip);
    let visibleRear=false;
+   const wantsDetail=sectionAt(s.target)!==0||heroWeight<.98||s.zoom>1.05||foldValue>.01||explodeValue>.01||s.focus!==null;
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
+    rig.lod.update(front&&wantsDetail,now);
     const level:TextureLevel=front?'web':'lo';
     for(const role of SURFACES){
      const finish=s.configs[i][role],key=[finish.color,finish.style,level].join('/');
@@ -318,6 +324,7 @@ export default function Stage({state,...callbacks}:Props){
      rig.fold=THREE.MathUtils.lerp(value(chapter,customFold,foldValue),value(chapter+1,customFold,foldValue),blend);
      rig.explosion=rig.compact*THREE.MathUtils.lerp(value(chapter,customExplode,explodeValue),value(chapter+1,customExplode,explodeValue),blend);
     }
+    rig.hardware.update(front&&rig.fold<.000001&&rig.explosion<.000001,rig.lod.active);
     rig.open.time=clamp(rig.fold)*rig.meta.motion.closedTime;rig.mixer.update(0);sampleExplosion(rig.parts,rig.explosion);
     if(!front)animateBackdrop(rig.parts,s.reduced?0:.64,time,i);
     if(front){
@@ -391,6 +398,8 @@ export default function Stage({state,...callbacks}:Props){
    if(frameWindow>1){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
+   element.dataset.mergedDrawSavings=String(active?.hardware.drawSavings??0);
+   element.dataset.meshLevel=active?.lod.active?'detail':'stage';
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
    if(active)for(const role of SURFACES){
     const value=active.materials[role].material.userData.preset;
@@ -403,7 +412,7 @@ export default function Stage({state,...callbacks}:Props){
   return ()=>{
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
    input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
-   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
+   for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);rig.hardware.dispose();rig.lod.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
    textures.dispose();environments.dispose();soft.dispose();post.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
