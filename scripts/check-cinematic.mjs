@@ -6,7 +6,7 @@ import {backdropOpacity,slotOffset,railPoint,RAIL} from '../app/lib/choreography
 import {KNIVES,PREVIOUS_ORDER,IDLE_TILT_LIMIT} from '../app/lib/state.ts';
 import {CATALOGUE,catalogueChoices,configurationPrice,SURFACES} from '../app/lib/catalogue.ts';
 
-const metas=JSON.parse(fs.readFileSync('public/models/v48/manifest.json')).models;
+const metas=JSON.parse(fs.readFileSync('public/models/v72/manifest.json')).models;
 const hulls=JSON.parse(fs.readFileSync('app/lib/shot-outlines.json'));
 const sizes=[[320,568],[390,844],[430,932],[768,1024],[844,390],[1366,768],[1440,900],[2560,1080],[3440,1440],[3840,1080]];
 let count=0;
@@ -62,7 +62,7 @@ for(let i=0;i<=100;i++){
 for(const [knife,zones] of Object.entries(CATALOGUE))for(const surface of SURFACES){
  const {colors,styles,default:pair}=zones[surface];
  for(const [i,options] of [colors,styles].entries()){
-  const expected=knife==='HYPER'&&surface==='blade'&&i===1?7:6;
+  const expected=6;
   assert.equal(options.length,expected);assert.equal(new Set(options.map(o=>o.name)).size,expected);
   assert.ok(options.every(o=>o.description.length>0));assert.ok(options[pair[i]]);
  }
@@ -95,4 +95,6 @@ for(const [i,knife] of KNIVES.entries()){
  }
  assert.ok(base>=100 && maximum<=999);
 }
-console.log('PASS — each of the 181 catalogue options updates its own three-digit configuration price');
+console.log('PASS — each of the 180 catalogue options updates its own three-digit configuration price');
+
+assert.deepEqual(catalogueChoices({HYPER:{blade:{color:3,style:6}}})[0].blade,{color:3,style:5});

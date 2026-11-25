@@ -113,29 +113,20 @@ export default function Experience(){
  const knife = KNIVES[selected];
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
- const uiReady=ready===KNIVES.length&&artReady;
+ const uiReady=ready>0&&artReady;
 
- return <main ref={host} className="experience" data-version="71" data-ui-pending={!uiReady}
+ return <main ref={host} className="experience" data-version="72" data-ui-pending={!uiReady}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <ProductReadout model={selected} price={price} config={selectedConfig} artReady={artReady}/>
   <Stage state={state} onFrame={onFrame} onError={setError} onInteract={refresh} onChapter={go}/>
-  <div className="bottom-veil" aria-hidden="true"><i/><i/><i/></div>
+  <div className="bottom-veil" aria-hidden="true"><i/><i/><i/><i/><i/></div>
   <header className="brand-rail">
    <button type="button" className="brand" data-chrome aria-label="Return to stage"
     onClick={()=>go(nearestChapter(s.target,0))}><Brand/></button>
   </header>
 
-  <div className="stage-foreground">
-   <div className="knife-nav" role="group" aria-label="Model selection and pose">
-   <button type="button" className="knife-step previous" aria-label="Previous model"
-    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={44}/></button>
-   <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
-   <button type="button" className="knife-step next" aria-label="Next model"
-    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={44}/></button>
-   </div>
-  </div>
-
+  <div className="ring-anchor" aria-hidden="true"/>
   <footer className="control-dock">
    <div className="dock-tools">
     {SURFACES.map((surface,i)=>
@@ -147,6 +138,13 @@ export default function Experience(){
      <TechnicalHud value={s} lightPreset={s.lightPreset} model={selected} onView={preset}
       onLight={id=>{s.lightPreset=id;s.activity++;refresh();}}/>
     </section>
+   </div>
+   <div className="knife-nav" role="group" aria-label="Model selection and pose">
+   <button type="button" className="knife-step previous" aria-label="Previous model"
+    disabled={!s.ready.includes(mod(knifeAnchor-1))} onClick={()=>stepKnife(-1)}><Glyph name="left" size={44}/></button>
+   <PoseHud value={isCustom?{closed:s.customFold[section-1],exploded:s.customExplode[section-1]}:s} onValue={setRange}/>
+   <button type="button" className="knife-step next" aria-label="Next model"
+    disabled={!s.ready.includes(mod(knifeAnchor+1))} onClick={()=>stepKnife(1)}><Glyph name="right" size={44}/></button>
    </div>
    <nav className="sequence-nav" data-chrome aria-label="Showroom navigation">
     {CHAPTERS.map((name,i)=><button key={name} type="button" className="chapter-button" aria-label={'Go to '+name}

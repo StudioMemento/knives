@@ -9,13 +9,12 @@ import {inspectionParts,partCenter,type InspectionPart} from './lib/inspection';
 import {Carousel} from './lib/carousel';
 import {exitFraction,railVisibility,backdropOpacity,slotOffset,RAIL,railPoint,animateBackdrop} from './lib/choreography';
 import {MotionValue,orbitAngle} from './lib/motion';
-import {createLightStage,createStudioEnvironments,FLOOR_FADE_END} from './lib/lighting';
+import {createLightStage,STAGE_COLORS,createStudioEnvironments,FLOOR_FADE_END} from './lib/lighting';
 import {LIGHT_PRESETS,type LightPreset} from './lib/light-presets';
 import {fitBoundsScale,slideTravel} from './lib/framing';
 import {alignStageCamera,focusLens,centerLens} from './lib/optics';
 import {createSilhouetteMeter} from './lib/optical-center';
-import {createStageControls} from './lib/stage-controls';
-import {createStageLayers} from './lib/stage-layers';
+import {createProductPost} from './lib/product-post';
 import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
 import {MaterialBinding,TextureBank,type TextureLevel} from './lib/materials';
@@ -37,17 +36,18 @@ const v=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
 const FRONT=3;
 
 export default function Stage({state,...callbacks}:Props){
- const canvas=useRef<HTMLCanvasElement>(null),backdrop=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
+ const canvas=useRef<HTMLCanvasElement>(null),surface=useRef<HTMLDivElement>(null);
  const props=useRef(callbacks);props.current=callbacks;
  useEffect(()=>{
-  if(!canvas.current||!backdrop.current||!surface.current)return;
+  if(!canvas.current||!surface.current)return;
   const input=surface.current,s=state.current;s.ready=[];const element=canvas.current;element.dataset.boot='mounted';
-  let dead=false,raf=0,layers:ReturnType<typeof createStageLayers>;
-  try{layers=createStageLayers(element,backdrop.current);}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
-  const {renderer}=layers;
+  let dead=false,raf=0,renderer:THREE.WebGLRenderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:element,antialias:true,alpha:true,powerPreference:'high-performance'});}catch{props.current.onError('WebGL is unavailable. Open the showroom in a browser with graphics acceleration enabled.');return;}
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
+  const post=createProductPost(renderer);
   const textures=new TextureBank(Math.min(8,renderer.capabilities.getMaxAnisotropy())),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
   const lightStage=createLightStage(FRONT),environments=createStudioEnvironments(renderer);
   scene.add(lightStage.group);
@@ -71,7 +71,7 @@ export default function Stage({state,...callbacks}:Props){
    const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
    const knife=KNIVES[index];
    const materials={blade:new MaterialBinding(knife,'blade',textures),handle:new MaterialBinding(knife,'handle',textures),metals:new MaterialBinding(knife,'metals',textures)};
-   const level:TextureLevel=index===s.selected?'web':'lo';
+   const level:TextureLevel='lo';
    const surfaceKeys={blade:'',handle:'',metals:''};
    try{
     await Promise.all(SURFACES.map(role=>{
@@ -84,7 +84,7 @@ export default function Stage({state,...callbacks}:Props){
    gltf.scene.traverse(object=>{
     if(!(object instanceof THREE.Mesh))return;
     const role=getRole(object);
-    object.material=materials[role].material;object.frustumCulled=false;object.userData.surface=role;
+    object.castShadow=true;object.receiveShadow=true;object.material=materials[role].forPart(object.name);object.frustumCulled=false;object.userData.surface=role;
     object.layers.set(index===state.current.selected?FRONT:REAR_LAYER);meshes.push(object);
     if(role!=='metals'){
      const image=new THREE.Mesh(object.geometry,contact);
@@ -97,6 +97,11 @@ export default function Stage({state,...callbacks}:Props){
    group.updateMatrixWorld(true);
    const toLocal=gltf.scene.matrixWorld.clone().invert();
    const fitMeshes=meshes.map(mesh=>{
+    const rest=mesh.geometry.getAttribute('position').clone() as THREE.BufferAttribute;
+    const bindMatrix=new THREE.Matrix4().multiplyMatrices(toLocal,mesh.matrixWorld);
+    rest.applyMatrix4(bindMatrix);const coord=new THREE.Vector3();
+    for(let i=0;i<rest.count;i++){coord.fromBufferAttribute(rest,i).multiplyScalar(1000);rest.setXYZ(i,coord.x,coord.y,coord.z);}
+    mesh.geometry.setAttribute('stock',rest);
     const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
     proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
    });
@@ -105,8 +110,13 @@ export default function Stage({state,...callbacks}:Props){
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
-   const response=await fetch('/models/v71/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
-   await Promise.all(KNIVES.map((_,index)=>load(index)));if(dead)return;
+   const response=await fetch('/models/v72/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
+   await load(s.selected);if(dead)return;
+   await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
+   const adjacent=[mod(s.selected+1),mod(s.selected-1)];
+   await Promise.all(adjacent.map(load));if(dead)return;
+   await Promise.all(KNIVES.map((_,i)=>rigs[i]?Promise.resolve():load(i)));if(dead)return;
+   if(!renderer.extensions.has('KHR_parallel_shader_compile')){warmed=true;return;}
    const mask=camera.layers.mask;let shaders:Promise<THREE.Object3D>,depthShaders:Promise<THREE.Object3D>;
    try{camera.layers.enableAll();shaders=renderer.compileAsync(scene,camera);scene.overrideMaterial=depthOnly;depthShaders=renderer.compileAsync(scene,camera);}
    finally{scene.overrideMaterial=null;camera.layers.mask=mask;}
@@ -115,11 +125,11 @@ export default function Stage({state,...callbacks}:Props){
   }catch(e){if(!dead){console.error(e);props.current.onError('The 3D collection could not be loaded. Please try again.');}}})();
   let width=0,height=0,portrait=false,viewHeight=5.81,viewWidth=10.3;
   const host=element.parentElement!;
-  const rimAnchor=host.querySelector<HTMLElement>('.stage-foreground')!;
-  const stageControls=createStageControls(rimAnchor.querySelector<HTMLElement>('.knife-nav')!);
+  const rimAnchor=host.querySelector<HTMLElement>('.ring-anchor')!;
   const dock=host.querySelector<HTMLElement>('.control-dock')!;
   const floorBack=new THREE.Vector3(0,RAIL.floorY,RAIL.centerZ-FLOOR_FADE_END);
   let lastRingTint=-1;
+  let subjectTargetY=0;
   let shotRect:ScreenRect=productArea(1),lastRingLine=-1,cameraShift=0;
   const frustum=new THREE.Frustum();
   function frameShots(rig:Rig){
@@ -136,11 +146,12 @@ export default function Stage({state,...callbacks}:Props){
     const pixels=portrait?1150000:2250000;
     renderer.setPixelRatio(Math.min(devicePixelRatio,portrait?1.65:1.8,Math.sqrt(pixels/(w*h))));
     renderer.setSize(w,h,false);
-    layers.resize();
+    const drawing=renderer.getDrawingBufferSize(new THREE.Vector2());post.resize(drawing.x,drawing.y);
+    renderer.transmissionResolutionScale=portrait?.55:.72;
     viewHeight=2*Math.tan(camera.fov*Math.PI/360)*CAMERA_DISTANCE;viewWidth=viewHeight*w/h;
     soft.resize(w,h);
    }
-   stageControls.resize();
+   
    if(changed||Math.abs(lastRingLine-ringLine)>=.00001){
     lastRingLine=ringLine;
     cameraShift=alignStageCamera(camera,w,h,ringLine);
@@ -151,7 +162,11 @@ export default function Stage({state,...callbacks}:Props){
    }
    const [left,top,right,bottom]=productArea(w/h);
    // The fitted-shot solver uses an unshifted lens. Account for the stage composition once here.
-   const next:ScreenRect=[left,top+cameraShift,right,bottom+cameraShift];
+   const dockLimit=(dock.getBoundingClientRect().top-viewport.top-(portrait?16:12))/h;
+   const safeBottom=Math.min(bottom,Math.max(.43,dockLimit));
+   const safeTop=Math.min(top,Math.max(.09,safeBottom-.56));
+   subjectTargetY=1-safeTop-safeBottom;
+   const next:ScreenRect=[left,safeTop+cameraShift,right,safeBottom+cameraShift];
    if(!changed&&next.every((v,i)=>Math.abs(v-shotRect[i])<.00001))return;
    shotRect=next;
    for(const rig of rigs)if(rig)frameShots(rig);
@@ -180,8 +195,8 @@ export default function Stage({state,...callbacks}:Props){
    focus:(x,y,allowPlane)=>{const p=hitAt(x,y,allowPlane);if(p){s.focus=p.toArray() as [number,number,number];props.current.onInteract();}},
    chapter:target=>props.current.onChapter(target),renderUI:()=>props.current.onInteract(),
   });
-  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);stageControls.setLayered(false);props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
-  layers.source.addEventListener('webglcontextlost',lost);
+  const lost=(e:Event)=>{e.preventDefault();cancelAnimationFrame(raf);props.current.onError('The graphics session was interrupted. Reload to restore the showroom.');};
+  element.addEventListener('webglcontextlost',lost);
   const cursor=new THREE.Vector2(),cursorX=new MotionValue(),cursorY=new MotionValue();
   const cursorMove=(e:PointerEvent)=>{if(e.pointerType==='mouse')cursor.set(e.clientX/width*2-1,1-e.clientY/height*2);};
   const cursorLeave=()=>cursor.set(0,0);
@@ -195,7 +210,12 @@ export default function Stage({state,...callbacks}:Props){
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
     const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
-    for(const mat of Object.values(rig.materials))mat.material.opacity=opacity;
+    for(const binding of Object.values(rig.materials)){
+     for(const mat of binding.renderMaterials){
+      mat.opacity=opacity;const fade=rig!==rigs[s.selected];
+      if(mat.transparent!==fade){mat.transparent=fade;mat.needsUpdate=true;}
+     }
+    }
     for(const mesh of rig.meshes){
      mesh.layers.set(opacity>.001?(sharp?FRONT:REAR_LAYER):4);
      if(!sharp&&opacity>.001&&opacity<.999)mesh.layers.enable(REAR_DEPTH_LAYER);
@@ -220,7 +240,7 @@ export default function Stage({state,...callbacks}:Props){
    if(dead)return;
    raf=requestAnimationFrame(animate);
    const elapsed=Math.max(0,(now-last)/1000);last=now;
-   if(document.hidden||s.ready.length<KNIVES.length)return;
+   if(document.hidden||!rigs[s.selected])return;
    const dt=Math.min(.18,elapsed);time+=elapsed;
    if(lastActivity!==s.activity){lastActivity=s.activity;carousel.rest();}
    if(s.knifeRequest!==null){carousel.request(s.knifeRequest,s.reduced);s.knifeRequest=null;}
@@ -328,7 +348,7 @@ export default function Stage({state,...callbacks}:Props){
      if(blend>0&&(subjects[chapter]!==subjects[chapter+1]||explicitFocus)){
       center.lerp(subjectCenter(rig,chapter+1,explicitFocus,nextCenter),blend);
      }
-     centerLens(productCamera,center);
+     center.y-=subjectTargetY;centerLens(productCamera,center);
      if(Math.abs(delta)>.00001){
       const direction=Math.sign(delta);
       rig.group.position.x+=direction*exitFraction(delta)*slideTravel(productCamera,rig.meshes,direction);
@@ -348,39 +368,46 @@ export default function Stage({state,...callbacks}:Props){
     applyStudio(s.lightPreset);
     const tint=lightStage.update(s.selected,dt,lightAim);
     if(tint!==lastRingTint){
+     host.dataset.ringBase=STAGE_COLORS[KNIVES[s.selected]];
      host.style.setProperty('--ring-light','#'+tint.toString(16).padStart(6,'0'));
      lastRingTint=tint;
     }
     // A changed studio rig also invalidates the cached background pass.
     const depthKey=[s.ready.length,s.selected,railPhase.toFixed(4),rearAlpha.toFixed(3),tint,s.lightPreset,s.reduced?0:Math.floor(time*30)].join('/');
     scene.environmentIntensity=environmentPower;
-    renderer.info.reset();renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
+    renderer.info.reset();
+    // Initialise the shadow sampler before the first stage or rear-layer draw.
+    if(!lightStage.shadowReady())renderer.shadowMap.needsUpdate=true;
+    renderer.setRenderTarget(null);renderer.clear();camera.layers.set(0);renderer.render(scene,camera);
     renderProducts(false);soft.render(scene,camera,productCamera,visibleRear,CAMERA_DISTANCE-(active?.group.position.z??0),depthKey);
     if(!soft.enabled){camera.layers.set(REAR_LAYER);renderer.render(scene,camera);}
-    layers.beforeProduct();
-    stageControls.setLayered(layers.split);
-    renderProducts(true);if(!layers.split)renderer.clearDepth();productCamera.layers.set(FRONT);
-    renderer.render(scene,productCamera);layers.present();
-   }catch(e){stageControls.setLayered(false);props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
+
+    
+    renderProducts(true);renderer.clearDepth();productCamera.layers.set(FRONT);
+    renderer.shadowMap.needsUpdate=true;post.render(scene,productCamera);
+   }catch(e){props.current.onError('The scene could not be rendered. Reload to restore the showroom.');cancelAnimationFrame(raf);console.error(e);return;}
    props.current.onFrame(s.selected,s.ready.length);
    frames++;frameWindow+=elapsed;
    if(frameWindow>1){
     element.dataset.fps=String(Math.round(frames/frameWindow));frames=0;frameWindow=0;
    }
    element.dataset.closed=active?.fold.toFixed(3)??'0';element.dataset.exploded=active?.explosion.toFixed(3)??'0';
+   if(active)for(const role of SURFACES){
+    const value=active.materials[role].material.userData.preset;
+    if(element.dataset[role]!==value)element.dataset[role]=value;
+   }
    element.dataset.zoom=magnification.toFixed(3);element.dataset.orbit=phase.toFixed(4);element.dataset.warmed=String(warmed);
    input.dataset.dragging=String(s.interacting);
   }
   raf=requestAnimationFrame(animate);
   return ()=>{
-   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls.dispose();document.removeEventListener('visibilitychange',visibility);
-   input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);layers.source.removeEventListener('webglcontextlost',lost);
+   dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();document.removeEventListener('visibilitychange',visibility);
+   input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);element.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
-   textures.dispose();environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
+   textures.dispose();environments.dispose();soft.dispose();post.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
  return <>
-  <canvas ref={backdrop} className="stage-backdrop" hidden aria-hidden="true"/>
   <canvas className="stage" ref={canvas} aria-hidden="true"/>
   <div className="stage-input" ref={surface} tabIndex={0} role="group" aria-label="3D model. Drag or use the arrow keys to rotate. Scroll or pinch to zoom."/>
  </>;

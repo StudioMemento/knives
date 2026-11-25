@@ -20,7 +20,7 @@ export function catalogueChoices(stored:unknown=null):Configuration[] {
     typeof value==='number'&&Number.isInteger(value)&&value>=0&&value<count?value:fallback;
    result[surface]={
     color:index(saved?.color,options.colors.length,options.default[0]),
-    style:index(saved?.style,options.styles.length,options.default[1]),
+    style:index(knife==='HYPER'&&surface==='blade'&&saved?.style===6?5:saved?.style,options.styles.length,options.default[1]),
    };
   }
   return result;

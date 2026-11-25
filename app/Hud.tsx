@@ -141,7 +141,7 @@ function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
  kind:Kind;surface:Surface;options:Option[];selected:number;row:number;onSelect:(index:number)=>void
 }){
  return <div className="control-group choice-group"><PanelTitle text={kind==='style'?partLabels[surface]:'COLOR'}/>
-  <div className={options.length>6?'choice-grid extended-grid':'choice-grid'} role="group"  aria-label={surface+' '+kind}>
+  <div className="choice-grid" role="group"  aria-label={surface+' '+kind}>
    {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind}
     aria-label={item.name} aria-description={item.description} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
     <span className="sample-outline"><Sample item={item} index={i} row={row}/></span>

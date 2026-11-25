@@ -26,12 +26,12 @@ def install(project,source,model,zone,color,style):
     optflags={}
     for name,key in [('Optics','optics'),('Anisotropy','direction')]:
         if (src/(name+'.png')).exists():images[name]=rgb(name);optflags[key]=True
-    if any(im.width!=im.height for im in images.values()):raise ValueError('V71 uses square UV atlases')
+    if any(im.width!=im.height for im in images.values()):raise ValueError('V72 uses square UV atlases')
     output=root/'public/pbr'/k.lower()/s/'overrides'/(C+'_'+S);output.mkdir(exist_ok=True,parents=True)
     # Prepare the complete pair first. The catalogue registration is the final atomic write.
     with tempfile.TemporaryDirectory(dir=output) as temp:
         stage=Path(temp)
-        for level,target in [('lo',256),('web',2048 if k=='HYPER' and s=='blade' and n==7 else 1024)]:
+        for level,target in [('lo',256),('web',2048 if k=='HYPER' and s=='blade' and n==6 else 1024)]:
             (stage/level).mkdir()
             for channel,im in images.items():
                 res=min(im.width,target);scaled=im.resize((res,res),Image.Resampling.LANCZOS)

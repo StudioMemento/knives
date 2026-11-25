@@ -4,7 +4,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 import {AnimationMixer,LoopOnce,Vector3} from 'three';
 import {createExplosion,sampleExplosion} from '../../app/lib/explosion.ts';
-const path='public/models/v71/manifest.json';
+const path='public/models/v72/manifest.json';
 const meta=JSON.parse(fs.readFileSync(path)).models;
 for(const m of meta){
  const bytes=fs.readFileSync(`public${m.url}`);

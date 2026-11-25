@@ -9,16 +9,12 @@
       null,
       null,
       [
-        "Dual",
-        0.49
+        "Axial",
+        0.52
       ],
       [
         "Axial",
-        0.48
-      ],
-      [
-        "Axial",
-        0.14
+        0.27
       ]
     ],
     "handle": [
@@ -63,8 +59,8 @@
       null,
       null,
       [
-        "Dual",
-        0.49
+        "Axial",
+        0.52
       ],
       null
     ],
@@ -107,8 +103,8 @@
       null,
       null,
       [
-        "Dual",
-        0.49
+        "Axial",
+        0.52
       ],
       [
         "Axial",
@@ -158,8 +154,8 @@
       null,
       null,
       [
-        "Dual",
-        0.49
+        "Axial",
+        0.52
       ]
     ],
     "handle": [
@@ -194,8 +190,8 @@
       ],
       null,
       [
-        "Dual",
-        0.49
+        "Axial",
+        0.52
       ],
       null,
       null

@@ -1,0 +1,238 @@
+{
+  "EDGE": {
+    "triangles": 55428,
+    "inwardCornerNormalsBefore": 1456,
+    "inwardCornerNormalsAfter": 0,
+    "nonManifoldEdgesPerAssembly": 0,
+    "closedFittingBacks": 0,
+    "atlasValidation": {
+      "blade": {
+        "triangles": 4172,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "handle": {
+        "triangles": 17840,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "metals": {
+        "triangles": 33416,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      }
+    },
+    "worldSpaceNormalSamples": {
+      "Blade": {
+        "style": "S01",
+        "samplePairs": 1074,
+        "medianDegrees": 0.117,
+        "p95Degrees": 0.427
+      },
+      "Handle": {
+        "style": "S05",
+        "samplePairs": 5613,
+        "medianDegrees": 0.882,
+        "p95Degrees": 5.17
+      },
+      "Metals": {
+        "style": "S01",
+        "samplePairs": 3123,
+        "medianDegrees": 0.227,
+        "p95Degrees": 0.906
+      }
+    },
+    "remainingOpenInterfaces": []
+  },
+  "HYPER": {
+    "triangles": 154710,
+    "inwardCornerNormalsBefore": 4160,
+    "inwardCornerNormalsAfter": 0,
+    "nonManifoldEdgesPerAssembly": 0,
+    "closedFittingBacks": 0,
+    "atlasValidation": {
+      "blade": {
+        "triangles": 10218,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "handle": {
+        "triangles": 36210,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "metals": {
+        "triangles": 108282,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      }
+    },
+    "worldSpaceNormalSamples": {
+      "Blade": {
+        "style": "S06",
+        "samplePairs": 2769,
+        "medianDegrees": 0.181,
+        "p95Degrees": 0.435
+      },
+      "Handle": {
+        "style": "S06",
+        "samplePairs": 1146,
+        "medianDegrees": 0.601,
+        "p95Degrees": 2.227
+      },
+      "Metals": {
+        "style": "S01",
+        "samplePairs": 1500,
+        "medianDegrees": 0.177,
+        "p95Degrees": 0.525
+      }
+    },
+    "remainingOpenInterfaces": []
+  },
+  "QUAD": {
+    "triangles": 20912,
+    "inwardCornerNormalsBefore": 38,
+    "inwardCornerNormalsAfter": 0,
+    "nonManifoldEdgesPerAssembly": 0,
+    "closedFittingBacks": 11,
+    "atlasValidation": {
+      "blade": {
+        "triangles": 1642,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "handle": {
+        "triangles": 10696,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "metals": {
+        "triangles": 8574,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      }
+    },
+    "worldSpaceNormalSamples": {
+      "Blade": {
+        "style": "S02",
+        "samplePairs": 24,
+        "medianDegrees": 0.028,
+        "p95Degrees": 0.287
+      },
+      "Handle": {
+        "style": "S01",
+        "samplePairs": 576,
+        "medianDegrees": 0.164,
+        "p95Degrees": 1.243
+      },
+      "Metals": {
+        "style": "S01",
+        "samplePairs": 690,
+        "medianDegrees": 0.133,
+        "p95Degrees": 0.394
+      }
+    },
+    "remainingOpenInterfaces": [
+      "pivot mounts",
+      "spacers"
+    ]
+  },
+  "TRIS": {
+    "triangles": 59348,
+    "inwardCornerNormalsBefore": 6,
+    "inwardCornerNormalsAfter": 0,
+    "nonManifoldEdgesPerAssembly": 0,
+    "closedFittingBacks": 10,
+    "atlasValidation": {
+      "blade": {
+        "triangles": 2684,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "handle": {
+        "triangles": 41136,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "metals": {
+        "triangles": 15528,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      }
+    },
+    "worldSpaceNormalSamples": {
+      "Blade": {
+        "style": "S01",
+        "samplePairs": 54,
+        "medianDegrees": 0.145,
+        "p95Degrees": 0.419
+      },
+      "Handle": {
+        "style": "S01",
+        "samplePairs": 4809,
+        "medianDegrees": 0.212,
+        "p95Degrees": 1.281
+      },
+      "Metals": {
+        "style": "S01",
+        "samplePairs": 1113,
+        "medianDegrees": 0.168,
+        "p95Degrees": 0.392
+      }
+    },
+    "remainingOpenInterfaces": [
+      "pivot housing and socket floor",
+      "axle",
+      "spacers",
+      "stop pin"
+    ]
+  },
+  "VERTEX": {
+    "triangles": 16609,
+    "inwardCornerNormalsBefore": 39,
+    "inwardCornerNormalsAfter": 0,
+    "nonManifoldEdgesPerAssembly": 0,
+    "closedFittingBacks": 4,
+    "atlasValidation": {
+      "blade": {
+        "triangles": 342,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "handle": {
+        "triangles": 9892,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      },
+      "metals": {
+        "triangles": 6375,
+        "positiveAreaOverlaps": 0,
+        "outsideTile": 0
+      }
+    },
+    "worldSpaceNormalSamples": {
+      "Blade": {
+        "style": "S01",
+        "samplePairs": 39,
+        "medianDegrees": 0.141,
+        "p95Degrees": 0.41
+      },
+      "Handle": {
+        "style": "S03",
+        "samplePairs": 3183,
+        "medianDegrees": 0.177,
+        "p95Degrees": 0.457
+      },
+      "Metals": {
+        "style": "S01",
+        "samplePairs": 570,
+        "medianDegrees": 0.116,
+        "p95Degrees": 0.343
+      }
+    },
+    "remainingOpenInterfaces": [
+      "clip attachment",
+      "inner pivot seat in left scale"
+    ]
+  }
+}

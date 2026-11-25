@@ -1,37 +1,48 @@
-# Memento Knives V71
+# Memento Knives V72
 
-This Next.js showroom features Hyper, Vertex, Edge, Tris and Quad. The archive root is the Vercel project root. Use the Next.js preset for the static export to `out/`.
+La radice dell’archivio è il progetto Next.js. Per Vercel usa il preset Next.js con Node 24. La build genera un sito statico in `out/`.
 
-## Materiali V71
+```bash
+npm ci
+npm test
+npm run build
+```
 
-Le cinque mesh animate in `public/models/v71` hanno tre atlanti UV0 ciascuna. Le UV precedenti sono conservate in TEXCOORD_1. La scena carica le texture in `public/pbr`. Il modello in primo piano usa le mappe da 1024 px, con NormalGL e ORM da 2048 px per la lama Hyper S07. I modelli sullo sfondo usano mappe da 256 px. Il cambio di combinazione applica insieme tutti i canali per la zona selezionata.
+## Showroom
 
-Sulla lama di Hyper, il settimo pulsante Style seleziona **Feather Damascus**. La combinazione di anteprima usa Gunmetal, il secondo Color. Il supplemento dimostrativo di questa finitura è €34 e può essere modificato in `app/lib/catalogue-data.json`.
+Hyper, Vertex, Edge, Tris e Quad hanno ciascuno tre sezioni con sei finiture e sei colori. Ogni zona consente 36 abbinamenti. Feather Damascus occupa lo slot S06 di Hyper Blade. Una configurazione V71 salvata con il damasco S07 viene letta come S06.
 
-I master PNG e gli OBJ per Painter sono nel kit V71 separato. Per riportare una coppia personalizzata nel sito, esporta `BaseColor.png`, `NormalGL.png` e `ORM.png` da Painter. L’importatore accetta anche AO, Roughness e Metallic separati. Esegui `python tools/pbr/import_painter.py --source /percorso/export --model HYPER --zone blade --color C02 --style S07` e poi `npm run build`. Per usare l’importatore servono NumPy e Pillow.
+Dal basso verso l’alto si trovano la navbar, i quattro comandi per modello e posa e il pannello della sezione. In Inspect compaiono le sei camere e i sei set luce. Il puntatore, i tasti freccia e i gesti sul modello permettono di navigare, ruotare e modificare lo zoom. Il pannello rispetta la safe area del dispositivo.
 
-## Run locally
+## Asset e rendering
 
-Use Node.js 24.x locally and on Vercel. Run `npm ci` and `npm run dev` to start the showroom. Use `npm run build`, `npm run check` and `npm test` to validate it.
+I cinque GLB animati di produzione sono in `public/models/v72`. I quindici atlanti principali usano UV0. Le UV precedenti rimangono in TEXCOORD_1. La microtrama usa la posizione del materiale nella posa aperta e segue ogni componente anche durante la chiusura e l’esploso.
 
-## Controls
+`public/pbr/<modello>/<zona>/` contiene le mappe WebP. Il primo piano usa mappe da 1024 px, con NormalGL e ORM da 2048 px per la lama damasco di Hyper. Il primo fotogramma usa mappe da 256 px. Il primo piano passa poi alla qualità piena e i modelli secondari mantengono le mappe leggere fino alla selezione. BaseColor è in sRGB. Normali, roughness, metalness, curvature e ottica sono dati lineari. Le mappe numeriche vengono compresse in WebP lossless dopo una quantizzazione controllata. Il bake di curvature registra la geometria. Le lampade, le ombre, i riflessi e l’occlusione di contatto seguono la scena in tempo reale.
 
-The product name, price and Blade/Handle/Metals summary share 15% side margins at every viewport width. Vertex is the widest name in the showroom typeface and sets the common type size. Letter spacing brings both ends of each name to the margins. The right-aligned price uses half the name size and shares its top edge with the left-hand material summary. Blade, Handle and Metals stack vertically at every viewport width. A single gradient rises through the price and the name. The model passes in front of this text and its reveal effect.
+Il compositing usa profondità, normale della superficie, roughness e metalness. La riflessione screen-space usa il colore visibile nel fotogramma. Quando il raggio esce dal quadro la superficie conserva il riflesso dello studio. La finitura delle resine usa trasmissione, spessore locale, assorbimento e inclusioni con parallasse. Il colore del ring parte dal primo campione Handle, C01, di ciascun modello e viene normalizzato per la resa emissiva.
 
-The logo and navigation use a centered column at 80% of the viewport width, up to 344 px. Each navigation symbol is cut out of a square tile with chamfers at its upper-left and lower-right corners. The compact finish/color and camera/light groups align with the outside edges of the first and last tiles. Groups use two rows. Hyper’s blade finish bank uses four columns to accommodate Feather Damascus.
+## Verifica delle superfici
 
-The model chevrons, fold and exploded-view controls sit above the near edge of the ring. On desktop the browser composites native SVG buttons between the backdrop and the active model. One WebGL renderer produces both layers, so the SVG edges follow the display resolution at rest and on hover. Hovering over the strip or focusing it with the keyboard brings the four icons forward. They stay in front for touch so the model cannot cover the controls. The spaces between the buttons still accept stage gestures. The exploded-view toggle spreads its plates and reverses its arrows as the model separates.
+Il controllo geometrico in posa aperta copre tutte le parti animate. I quindici atlanti principali passano il controllo delle intersezioni fra triangoli UV. I campioni di cucitura confrontano le normali dopo la ricostruzione nello spazio 3D del pezzo.
 
-The 3D ring supplies the live tint for headings, swatch outlines, controls and keyboard focus. In each summary group the double slash ends at the right edge of the thumbnail. Titles and material names share a second column. Selections are saved per model. Demo prices are shown in whole euros. Base prices are in `app/lib/catalogue.ts` and option prices are in `app/lib/catalogue-data.json`.
+| Modello | Intervento verificato |
+| --- | --- |
+| Hyper | Rimosse facce coincidenti e ricalcolati i raccordi su manico, pivot e minuteria. La mesh assemblata è chiusa. |
+| Vertex | Ripuliti lembi sovrapposti sulle superfici, risolte le giunzioni non manifold e chiusi quattro fondi di minuteria. |
+| Edge | Chiuse due fessure sulla lama e corretti i raccordi di viti, guancette e liner. La mesh assemblata è chiusa. |
+| Tris | Raccordate le triangolazioni delle due guancette. Entrambe risultano chiuse quando i pannelli sono assemblati. Chiusi dieci fondi di minuteria. |
+| Quad | Chiusi undici fondi di minuteria visibili nella vista esplosa. Calcolato il rilievo per ogni essenza. |
 
-The option grids share one gap between thumbnails in either direction and between the heading and first row. The configuration summary uses the locally hosted Memento UI Light face at every size. The camera icons depict side, top, end-on and three-quarter views of one stylized knife. Two close-ups show the pocket clip (rear loop on Edge) and pivot screw. Keyboard focus adds a small mark beneath the active control. Lighting presets show the source or its effect, including the spotlight, the sky dome and the two studio stands. Each heading has a full line box inside the panel. The models load in parallel. The scene and UI appear together after the first complete frame, with type and swatches in place and both model arrows available. Particles follow changes to the product name and price.
+Le interfacce aperte ancora presenti riguardano il fissaggio della clip e la sede interna di Vertex, i supporti e i distanziali di Quad e alcuni componenti del pivot e dei distanziali di Tris. Le sedi e i passaggi tra componenti sono conservati. I risultati numerici sono in `tools/assets/v72-surface-audit.json`.
 
-The mouse pointer is a 14 × 16 px white dart. A short glow follows its motion in the current ring color and fades at rest. Reduced-motion mode retains the white tip and suppresses the trail. Touch and keyboard navigation use their native input behavior. The showroom suppresses tooltips, text selection, native image dragging, the context menu and auxiliary mouse clicks. The primary mouse button, touch, wheel zoom and keyboard controls operate the experience.
+## Override da Substance 3D Painter
 
-## Camera and light
+I cinque kit Painter contengono le mesh OBJ nella posa aperta, i master PNG e le maschere. Per appiattire una combinazione e reimportarla, segui `LEGGIMI.md` del kit. Lo showroom carica un override solo per la coppia scelta. Le altre combinazioni mantengono le proprie mappe.
 
-Drag to rotate. Scroll or pinch to zoom from 0.8× to 2.8×. Changing sections, models or camera views restores the reference framing. Inspect offers six camera views and six light presets. Spotlight uses a focused beam. Penumbra softens the beam and spreads the reflections. Point light uses a local omnidirectional lamp with inverse-square decay. Dome combines hemispherical illumination with a continuous sky-to-ground reflection. Rim light uses rear strip reflections and a directional rim. Studio light is the default three-point setup. The selected light applies to all five models during the session. Presets are defined in `app/lib/light-presets.ts`.
+```bash
+python tools/pbr/import_painter.py --source Export/HYPER_C02_S06 --model HYPER --zone blade --color C02 --style S06
+npm run build
+```
 
-The stage centers the projected silhouette of the active model in the viewport. The component views center the selected component, and a macro or picked point remains the inspection target. On ultrawide screens, viewport height limits the diagonal. The camera uses small measurement meshes generated from the five original GLBs. To regenerate them after changing an asset, run `node tools/assets/framing-proxies.mjs`.
-
-Use the left and right arrow keys to switch models and the up and down arrow keys to change sections. When the 3D canvas has keyboard focus, the ring controls brighten and the arrow keys rotate the model. Use Tab and Enter to select controls.
+L’importatore usa NumPy e Pillow e accetta BaseColor, NormalGL e ORM, oppure i tre canali AO, Roughness e Metallic separati. Accetta anche le mappe Optics e Anisotropy. La copia a qualità web e l’anteprima vengono esportate insieme.

@@ -5,7 +5,7 @@ import {CATALOGUE,SURFACES} from '../app/lib/catalogue.ts';
 import {MaterialBinding,materialPaths} from '../app/lib/materials.ts';
 import {parseGlb} from '../tools/assets/v48/glb.mjs';
 
-const manifest=JSON.parse(fs.readFileSync('public/models/v71/manifest.json'));
+const manifest=JSON.parse(fs.readFileSync('public/models/v72/manifest.json'));
 const images=new Set();
 let combinations=0;
 for(const meta of manifest.models){
@@ -18,7 +18,7 @@ for(const meta of manifest.models){
    combinations++;
    for(const level of ['lo','web']){
     const m=materialPaths(meta.id,role,{color,style},level);
-    for(const f of [m.base,m.normal,m.orm,m.optics,m.direction]){
+    for(const f of [m.base,m.normal,m.orm,m.optics,m.direction,m.curvature,m.timber]){
      if(!f||images.has(f))continue;
      const bytes=fs.readFileSync('public'+f);assert.equal(bytes.toString('ascii',8,12),'WEBP');images.add(f);
     }
@@ -27,7 +27,7 @@ for(const meta of manifest.models){
   for(const item of [...g.colors,...g.styles])if(item.sample)assert.ok(fs.statSync('public'+item.sample).size>0);
  }
 }
-assert.equal(combinations,546);
+assert.equal(combinations,540);
 console.log('PASS — '+combinations+' colour/finish pairs, '+images.size+' web maps and five animated UV0/UV1 meshes');
 
 // Force the previous selection to finish last. The final material has to keep the new set intact.
@@ -40,10 +40,10 @@ const bank={acquire(url){
 }};
 const binding=new MaterialBinding('HYPER','blade',bank);
 const first=binding.select({color:0,style:1},'web'),previous=unblock.splice(0);
-const second=binding.select({color:1,style:6},'web');unblock.splice(0).forEach(f=>f());await second;
+const second=binding.select({color:1,style:5},'web');unblock.splice(0).forEach(f=>f());await second;
 previous.forEach(f=>f());await first;
-assert.ok(binding.material.map.name.endsWith('C02_BaseColor.webp')&&binding.material.normalMap.name.endsWith('S07_NormalGL.webp'));
-assert.ok(binding.material.metalnessMap===binding.material.roughnessMap&&binding.material.aoMap===binding.material.roughnessMap);
-assert.equal(binding.material.anisotropy,.14);
+assert.ok(binding.material.map.name.endsWith('C02_BaseColor.webp')&&binding.material.normalMap.name.endsWith('S06_NormalGL.webp'));
+assert.ok(binding.material.metalnessMap===binding.material.roughnessMap&&binding.material.aoMap===null);
+assert.equal(binding.material.anisotropy,.27);
 binding.dispose();assert.ok([...counts.values()].every(n=>n===0));
 console.log('PASS — out-of-order texture requests and GPU lease cleanup');

@@ -66,38 +66,38 @@
         {
           "name": "Linear satin",
           "description": "The highlight follows the length of the blade.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/hyper-blade-s01.webp"
         },
         {
           "name": "DLC gloss",
           "description": "A narrow, unbroken highlight runs along the face.",
-          "surcharge": 18
+          "surcharge": 18,
+          "sample": "/ui/finishes/hyper-blade-s02.webp"
         },
         {
           "name": "Fine bead blast",
           "description": "Light spreads evenly across the surface.",
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/hyper-blade-s03.webp"
         },
         {
           "name": "Fine stonewash",
           "description": "Backlighting reveals a fine pattern of marks.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/hyper-blade-s04.webp"
         },
         {
           "name": "Dual satin",
           "description": "Two bands of light turn independently.",
-          "surcharge": 22
-        },
-        {
-          "name": "Fine brushed",
-          "description": "The band of light stays visible even from the side.",
-          "surcharge": 10
+          "surcharge": 22,
+          "sample": "/ui/finishes/hyper-blade-s05.webp"
         },
         {
           "name": "Feather Damascus",
           "description": "Folded graphite and nickel-silver plumes flow into a polished cutting edge.",
           "surcharge": 34,
-          "sample": "/ui/hyper-feather-damascus.webp"
+          "sample": "/ui/finishes/hyper-blade-s06.webp"
         }
       ]
     },
@@ -266,34 +266,40 @@
       ],
       "styles": [
         {
-          "name": "Fine satin",
+          "name": "Satin titanium",
           "description": "A thin highlight runs along the clip.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/hyper-metals-s01.webp"
         },
         {
-          "name": "Selective polish",
+          "name": "Polished PVD",
           "description": "Only the contours catch sharp highlights.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/hyper-metals-s02.webp"
         },
         {
-          "name": "Fine bead blast",
+          "name": "Vapour blast",
           "description": "The pivot stays defined from several angles.",
-          "surcharge": 5
+          "surcharge": 5,
+          "sample": "/ui/finishes/hyper-metals-s03.webp"
         },
         {
-          "name": "Circular brushed",
+          "name": "Lathe polish",
           "description": "The highlight circles the pivot head.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/hyper-metals-s04.webp"
         },
         {
-          "name": "Fine stonewash",
+          "name": "Tumbled steel",
           "description": "The finish breaks up reflections on the clip.",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/hyper-metals-s05.webp"
         },
         {
           "name": "Cross satin",
           "description": "The clip catches light in two directions.",
-          "surcharge": 15
+          "surcharge": 15,
+          "sample": "/ui/finishes/hyper-metals-s06.webp"
         }
       ]
     }
@@ -366,32 +372,38 @@
         {
           "name": "Gloss film",
           "description": "The hue shifts with the viewing angle.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/vertex-blade-s01.webp"
         },
         {
           "name": "Silk satin",
           "description": "The finish draws the band of color into a long highlight.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/vertex-blade-s02.webp"
         },
         {
           "name": "Fine bead blast",
           "description": "A softer, wider highlight mutes the color.",
-          "surcharge": 13
+          "surcharge": 13,
+          "sample": "/ui/finishes/vertex-blade-s03.webp"
         },
         {
           "name": "Wave Damascus",
           "description": "The pattern stays fixed as the color shifts.",
-          "surcharge": 35
+          "surcharge": 35,
+          "sample": "/ui/finishes/vertex-blade-s04.webp"
         },
         {
           "name": "Split finish",
           "description": "One face reflects light while the other diffuses it.",
-          "surcharge": 22
+          "surcharge": 22,
+          "sample": "/ui/finishes/vertex-blade-s05.webp"
         },
         {
           "name": "Light stonewash",
           "description": "Fine marks interrupt the highlight.",
-          "surcharge": 15
+          "surcharge": 15,
+          "sample": "/ui/finishes/vertex-blade-s06.webp"
         }
       ]
     },
@@ -566,32 +578,38 @@
         {
           "name": "Wave titanium",
           "description": "The wave pattern stays fixed on the surface.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/vertex-metals-s01.webp"
         },
         {
-          "name": "Gloss film",
+          "name": "Polished oxide",
           "description": "The dominant hue changes with the viewing angle.",
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/vertex-metals-s02.webp"
         },
         {
-          "name": "Anodized silk",
+          "name": "Silk anodized",
           "description": "An elongated highlight softens the color.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/vertex-metals-s03.webp"
         },
         {
-          "name": "Crystalline",
+          "name": "Crystal titanium",
           "description": "Light appears in angular patches.",
-          "surcharge": 22
+          "surcharge": 22,
+          "sample": "/ui/finishes/vertex-metals-s04.webp"
         },
         {
-          "name": "Radial pivot",
+          "name": "Turned titanium",
           "description": "The highlight stays centered on the pivot.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/vertex-metals-s05.webp"
         },
         {
-          "name": "Fine bead blast",
+          "name": "Ceramic blast",
           "description": "The pin catches a softer highlight.",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/vertex-metals-s06.webp"
         }
       ]
     }
@@ -664,32 +682,38 @@
         {
           "name": "Silk satin",
           "description": "A soft, continuous highlight runs across the face.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/quad-blade-s01.webp"
         },
         {
           "name": "Laminated wave",
           "description": "Polished and satin bands alternate along the veins.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/quad-blade-s02.webp"
         },
         {
           "name": "Mirror polish",
           "description": "The edges of the softbox reflect sharply.",
-          "surcharge": 20
+          "surcharge": 20,
+          "sample": "/ui/finishes/quad-blade-s03.webp"
         },
         {
           "name": "Dual satin",
           "description": "The light picks out the bevel.",
-          "surcharge": 15
+          "surcharge": 15,
+          "sample": "/ui/finishes/quad-blade-s04.webp"
         },
         {
           "name": "Silk stonewash",
           "description": "Fine marks break up the reflection with little contrast.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/quad-blade-s05.webp"
         },
         {
           "name": "Pearl blast",
           "description": "A pearlescent haze softens the face.",
-          "surcharge": 17
+          "surcharge": 17,
+          "sample": "/ui/finishes/quad-blade-s06.webp"
         }
       ]
     },
@@ -707,7 +731,8 @@
             "#D8C49F",
             "#E4D7B4"
           ],
-          "surcharge": 4
+          "surcharge": 4,
+          "sample": "/ui/finishes/quad-handle-c01.webp"
         },
         {
           "name": "Olive wood",
@@ -716,7 +741,8 @@
             "#C8A069",
             "#8B663F"
           ],
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/quad-handle-c02.webp"
         },
         {
           "name": "Walnut",
@@ -725,7 +751,8 @@
             "#856449",
             "#564234"
           ],
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/quad-handle-c03.webp"
         },
         {
           "name": "Santos",
@@ -734,7 +761,8 @@
             "#875540",
             "#4E332C"
           ],
-          "surcharge": 11
+          "surcharge": 11,
+          "sample": "/ui/finishes/quad-handle-c04.webp"
         },
         {
           "name": "Macassar",
@@ -744,7 +772,8 @@
             "#8B6647",
             "#302A28"
           ],
-          "surcharge": 17
+          "surcharge": 17,
+          "sample": "/ui/finishes/quad-handle-c05.webp"
         },
         {
           "name": "Dark oak",
@@ -752,7 +781,8 @@
           "hex": [
             "#37312D"
           ],
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/quad-handle-c06.webp"
         }
       ],
       "styles": [
@@ -859,34 +889,40 @@
       ],
       "styles": [
         {
-          "name": "Silk satin",
+          "name": "Satin nickel",
           "description": "The highlight stretches across the warm metal.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/quad-metals-s01.webp"
         },
         {
           "name": "Jewelry polish",
           "description": "Pin heads reflect sharp points of light.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/quad-metals-s02.webp"
         },
         {
           "name": "Veined mokume",
           "description": "The veins stand out as the model tilts.",
-          "surcharge": 27
+          "surcharge": 27,
+          "sample": "/ui/finishes/quad-metals-s03.webp"
         },
         {
-          "name": "Fine radial",
+          "name": "Radial brass",
           "description": "The ring of light stays centered.",
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/quad-metals-s04.webp"
         },
         {
-          "name": "Pearl blast",
+          "name": "Pearl silver",
           "description": "The spacers give a soft, diffuse reflection.",
-          "surcharge": 15
+          "surcharge": 15,
+          "sample": "/ui/finishes/quad-metals-s05.webp"
         },
         {
-          "name": "Polished edge",
+          "name": "Polished rim",
           "description": "A polished highlight follows the perimeter.",
-          "surcharge": 18
+          "surcharge": 18,
+          "sample": "/ui/finishes/quad-metals-s06.webp"
         }
       ]
     }
@@ -958,32 +994,38 @@
         {
           "name": "Machine satin",
           "description": "The band of light stays straight.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/edge-blade-s01.webp"
         },
         {
           "name": "Stonewash",
           "description": "The marks are visible from several angles.",
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/edge-blade-s02.webp"
         },
         {
           "name": "Dark stonewash",
           "description": "Pale marks stand out against the dark ground.",
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/edge-blade-s03.webp"
         },
         {
           "name": "Fine bead blast",
           "description": "The reflection spreads over a broad area.",
-          "surcharge": 10
+          "surcharge": 10,
+          "sample": "/ui/finishes/edge-blade-s04.webp"
         },
         {
           "name": "Dual satin",
           "description": "Raking light brings out the bevel.",
-          "surcharge": 18
+          "surcharge": 18,
+          "sample": "/ui/finishes/edge-blade-s05.webp"
         },
         {
           "name": "Coarse brushed",
           "description": "The brush lines are visible even at medium zoom.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/edge-blade-s06.webp"
         }
       ]
     },
@@ -1150,34 +1192,40 @@
       ],
       "styles": [
         {
-          "name": "Radial turned",
+          "name": "Turned steel",
           "description": "The highlight circles the pivot axis.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/edge-metals-s01.webp"
         },
         {
-          "name": "Linear satin",
+          "name": "Machine satin",
           "description": "A thin highlight runs along the side.",
-          "surcharge": 5
+          "surcharge": 5,
+          "sample": "/ui/finishes/edge-metals-s02.webp"
         },
         {
-          "name": "Fine bead blast",
+          "name": "Fine bead steel",
           "description": "The pivot and loop give broad reflections.",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/edge-metals-s03.webp"
         },
         {
-          "name": "Medium stonewash",
+          "name": "Tumbled titanium",
           "description": "The finish breaks up the reflection on flat faces.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/edge-metals-s04.webp"
         },
         {
-          "name": "Fine crosshatch",
+          "name": "Cross-honed steel",
           "description": "Two grain directions are visible on the liner.",
-          "surcharge": 13
+          "surcharge": 13,
+          "sample": "/ui/finishes/edge-metals-s05.webp"
         },
         {
-          "name": "Polished edge",
+          "name": "Chrome polish",
           "description": "The rim of the loop catches the light first.",
-          "surcharge": 15
+          "surcharge": 15,
+          "sample": "/ui/finishes/edge-metals-s06.webp"
         }
       ]
     }
@@ -1249,32 +1297,38 @@
         {
           "name": "Raindrop",
           "description": "Raking light reveals the rings.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/tris-blade-s01.webp"
         },
         {
           "name": "Ladder",
           "description": "Each change of band breaks the reflection.",
-          "surcharge": 22
+          "surcharge": 22,
+          "sample": "/ui/finishes/tris-blade-s02.webp"
         },
         {
           "name": "Pearl satin",
           "description": "A long, soft band of light crosses the face.",
-          "surcharge": 10
+          "surcharge": 10,
+          "sample": "/ui/finishes/tris-blade-s03.webp"
         },
         {
           "name": "Selective polish",
           "description": "Polished islands catch the light.",
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/tris-blade-s04.webp"
         },
         {
           "name": "Fine mist",
           "description": "The edges of the highlight soften.",
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/tris-blade-s05.webp"
         },
         {
           "name": "Dual satin",
           "description": "The face and bevel catch the light in turn.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/tris-blade-s06.webp"
         }
       ]
     },
@@ -1292,7 +1346,8 @@
             "#805B40",
             "#C58B4B"
           ],
-          "surcharge": 5
+          "surcharge": 5,
+          "sample": "/ui/finishes/tris-handle-c01.webp"
         },
         {
           "name": "Lagoon",
@@ -1301,7 +1356,8 @@
             "#976A4B",
             "#377977"
           ],
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/tris-handle-c02.webp"
         },
         {
           "name": "Opal",
@@ -1311,7 +1367,8 @@
             "#B9C4B0",
             "#DDE1CB"
           ],
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/tris-handle-c03.webp"
         },
         {
           "name": "Burgundy",
@@ -1320,7 +1377,8 @@
             "#674735",
             "#88414D"
           ],
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/tris-handle-c04.webp"
         },
         {
           "name": "Smoke",
@@ -1329,7 +1387,8 @@
             "#66534A",
             "#777E80"
           ],
-          "surcharge": 11
+          "surcharge": 11,
+          "sample": "/ui/finishes/tris-handle-c05.webp"
         },
         {
           "name": "Sapphire",
@@ -1339,7 +1398,8 @@
             "#345A82",
             "#638A9C"
           ],
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/tris-handle-c06.webp"
         }
       ],
       "styles": [
@@ -1448,34 +1508,40 @@
       ],
       "styles": [
         {
-          "name": "Gloss resin",
+          "name": "Cast resin / steel",
           "description": "The insert glows softly beneath the reflection.",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/tris-metals-s01.webp"
         },
         {
-          "name": "Silk resin",
+          "name": "Silk resin / nickel",
           "description": "The color stays visible in the midtones.",
-          "surcharge": 6
+          "surcharge": 6,
+          "sample": "/ui/finishes/tris-metals-s02.webp"
         },
         {
-          "name": "Clouded resin",
+          "name": "Opal / titanium",
           "description": "Milky patches show up in backlight.",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/tris-metals-s03.webp"
         },
         {
           "name": "Metal weave",
           "description": "Metal strands reflect light from inside the resin.",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/tris-metals-s04.webp"
         },
         {
           "name": "Mirror edge",
           "description": "A bright line frames the insert.",
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/tris-metals-s05.webp"
         },
         {
           "name": "Satin drop",
           "description": "The islands follow the curve of the clip.",
-          "surcharge": 19
+          "surcharge": 19,
+          "sample": "/ui/finishes/tris-metals-s06.webp"
         }
       ]
     }
