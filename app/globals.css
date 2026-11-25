@@ -179,16 +179,6 @@ h1,h2,h3,p{margin:0}
  .technical-hud button:not([aria-pressed=true]):hover svg {color:var(--ring-ink)}
 }
 /* The handle guide describes the finishes in words. These are flat UI symbols. */
-.motif-matte{background:linear-gradient(155deg,#858785,#56595a)}
-.motif-polish{background:linear-gradient(142deg,#55595a 15%,#ced0c9 48%,#646769 58%,#33373b)}
-.motif-brush{background:repeating-linear-gradient(158deg,#797c7c 0 1px,#505459 1px 3px)}
-.motif-grain,.motif-pore{background:radial-gradient(#b7b8b1 .7px,transparent 1px) 0 0/3px 3px,#676b6a}
-.motif-pore{background-size:4px 5px;background-color:#4e5352}
-.motif-stone{background:repeating-linear-gradient(37deg,transparent 0 4px,#a2a6a12e 4px 5px),repeating-linear-gradient(-41deg,#575c60 0 3px,#858987 3px 4px)}
-.motif-weave{background:repeating-conic-gradient(from 45deg,#808584 0 25%,#42484b 0 50%) 0 0/5px 5px}
-.motif-wave,.motif-wood,.motif-vein{background:repeating-radial-gradient(ellipse at 12% 130%,#55595b 0 3px,#8e928e 4px 5px,#575b5d 6px 8px)}
-.motif-wood{background:repeating-radial-gradient(ellipse at 5% 175%,#777770 0 4px,#9c9a90 5px,#686a68 6px 8px)}
-.motif-vein{background:repeating-linear-gradient(151deg,#787c7e 0 5px,#b1b2a9 6px,#61676a 8px 10px)}
 
 
 .technical-hud button {color:var(--ring-pale)}
@@ -304,3 +294,10 @@ h1,h2,h3,p{margin:0}
  .technical-hud button[aria-pressed=true] svg {color:Highlight}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Hyper's seventh finish fits a fourth column inside the rail. All chapter panels keep two rows. */
+.sample.photo-sample {background-size:cover;background-position:center}
+.choice-group:has(.extended-grid) {width:calc(var(--bank-width) + var(--swatch) + var(--option-gap))}
+.choice-grid.extended-grid {grid-template-columns:repeat(4,var(--swatch));column-gap:var(--option-gap)}
+.choice-grid.extended-grid button {justify-items:center}
+.choice-grid.extended-grid button:focus-visible::after {left:50%}

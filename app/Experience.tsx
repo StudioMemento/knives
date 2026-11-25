@@ -1,21 +1,19 @@
 'use client';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import Stage from './Stage';
-import {CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/catalogue';
+import {CATALOGUE,CATALOGUE_KEY,SURFACES,catalogueChoices,configurationPrice} from './lib/catalogue';
 import ParticleReveal from './ParticleReveal';
 import RingCursor from './RingCursor';
 import {nearestChapter} from './lib/navigation';
 import {chooseSlot} from './lib/gestures';
 import {Brand,ChapterIcon,Glyph,MaterialHud,PoseHud,TechnicalHud,ProductReadout} from './Hud';
-import {CHAPTERS,KNIVES,PREVIOUS_ORDER,createState,defaultConfiguration,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
+import {CHAPTERS,KNIVES,createState,mod,resetView,sectionAt,type Surface,type View} from './lib/state';
 
 export default function Experience(){
  const host=useRef<HTMLElement>(null);
  const state=useRef(createState());
  const [frame,setFrame]=useState({selected:0,ready:0}),[error,setError]=useState('');
  const [artReady,setArtReady]=useState(false);
- const choices=useRef<ReturnType<typeof catalogueChoices>|null>(null);
- if(choices.current===null)choices.current=catalogueChoices();
  const previous=useRef(frame),[,setRevision]=useState(0);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
  const go=useCallback((target:number)=>{
@@ -42,12 +40,15 @@ export default function Experience(){
   let mounted=true;
   const atlas=new Image();atlas.src='/ui/catalogue-swatches.webp';
   const logo=Array.from(host.current?.querySelectorAll<HTMLImageElement>('.wordmark img')??[]);
+  const initial=CATALOGUE[KNIVES[state.current.selected]];
+  const samples=SURFACES.flatMap(role=>initial[role].styles.flatMap(option=>option.sample?[option.sample]:[]));
+  const images=samples.map(url=>{const image=new Image();image.src=url;return image;});
   // Resolve failures as well: the fallback face and swatches can still be used.
   void Promise.allSettled([
    document.fonts.load('400 16px Michroma','HYPER CAMERA LIGHT'),
    document.fonts.load('300 14px "Memento UI"','Blade Handle Metals'),
    document.fonts.load('400 24px "Memento Figures"','€0123456789'),
-   atlas.decode(),...logo.map(image=>image.decode()),
+   atlas.decode(),...[...logo,...images].map(image=>image.decode()),
   ]).then(()=>{if(mounted)setArtReady(true);});
   return ()=>{mounted=false;};
  },[]);
@@ -67,18 +68,9 @@ export default function Experience(){
   const s=state.current,reduce=matchMedia('(prefers-reduced-motion: reduce)');
   s.reduced=reduce.matches;s.paused=reduce.matches;
   try{
-   const stored=JSON.parse(localStorage.getItem('memento-knives-v46')||'null');
-   if(Array.isArray(stored)&&stored.length===KNIVES.length)s.configs=KNIVES.map(id=>{
-    const c=stored[PREVIOUS_ORDER.indexOf(id)];
-    const next=defaultConfiguration();
-    for(const k of ['blade','handle','metals'] as const){
-     if(Number.isInteger(c?.[k]?.color)&&c[k].color>=0&&c[k].color<8)next[k].color=c[k].color;
-     if(Number.isInteger(c?.[k]?.style)&&c[k].style>=0&&c[k].style<4)next[k].style=c[k].style;
-    }
-    return next;
-   });
+   const keyed=localStorage.getItem(CATALOGUE_KEY)||localStorage.getItem('memento-knives-ui-v51');
+   s.configs=catalogueChoices(keyed?JSON.parse(keyed):null);
   }catch{}
-  try{choices.current=catalogueChoices(JSON.parse(localStorage.getItem(CATALOGUE_KEY)||localStorage.getItem('memento-knives-ui-v51')||'null'));}catch{}
   refresh();
   const key=(e:KeyboardEvent)=>{
    if(host.current?.dataset.uiPending==='true')return;
@@ -112,18 +104,18 @@ export default function Experience(){
   s.activity++;refresh();
  };
  const material=(surface:Surface,key:'color'|'style',value:number)=>{
-  choices.current![selected][surface][key]=value;
-  try{localStorage.setItem(CATALOGUE_KEY,JSON.stringify(Object.fromEntries(KNIVES.map((id,i)=>[id,choices.current![i]]))));}catch{}
+  s.configs[selected][surface][key]=value;s.activity++;
+  try{localStorage.setItem(CATALOGUE_KEY,JSON.stringify(Object.fromEntries(KNIVES.map((id,i)=>[id,s.configs[i]]))));}catch{}
   refresh();
  };
  const preset=(v:View)=>{resetView(s);s.view=v;s.activity++;refresh();};
- const selectedConfig=choices.current[selected];
+ const selectedConfig=s.configs[selected];
  const knife = KNIVES[selected];
  const price = configurationPrice(knife, selectedConfig);
  const knifeAnchor = s.knifeDestination ?? Math.round(s.orbit);
  const uiReady=ready===KNIVES.length&&artReady;
 
- return <main ref={host} className="experience" data-version="70" data-ui-pending={!uiReady}
+ return <main ref={host} className="experience" data-version="71" data-ui-pending={!uiReady}
   data-section={CHAPTERS[section].toLowerCase()} data-model={knife}>
   <div className="environment" aria-hidden="true"/>
   <ProductReadout model={selected} price={price} config={selectedConfig} artReady={artReady}/>

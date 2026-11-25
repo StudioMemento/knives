@@ -105,8 +105,9 @@ function PanelTitle({text}: {text:string}) {
 
 type Kind='color'|'style';
 function Sample({item,index,row}:{item:Option;index:number;row:number}){
- const style:CSSProperties=item.motif?{}:{backgroundPosition:index*20+'% '+(row/24*100)+'%'};
- return <span className={item.motif?'sample motif-'+item.motif:'sample atlas'} style={style}/>;
+ if(item.sample)return <span className="sample photo-sample" style={{backgroundImage:'url('+item.sample+')'}}/>;
+ const style:CSSProperties={backgroundPosition:index*20+'% '+(row/24*100)+'%'};
+ return <span className="sample atlas" style={style}/>;
 }
 
 const partLabels = {blade: 'BLADE', handle: 'HANDLE', metals: 'METALS'};
@@ -140,7 +141,7 @@ function ChoiceGroup({kind,surface,options,selected,row,onSelect}:{
  kind:Kind;surface:Surface;options:Option[];selected:number;row:number;onSelect:(index:number)=>void
 }){
  return <div className="control-group choice-group"><PanelTitle text={kind==='style'?partLabels[surface]:'COLOR'}/>
-  <div className="choice-grid" role="group" aria-label={surface+' '+kind}>
+  <div className={options.length>6?'choice-grid extended-grid':'choice-grid'} role="group"  aria-label={surface+' '+kind}>
    {options.map((item,i)=><button key={item.name} type="button" className={'choice '+kind}
     aria-label={item.name} aria-description={item.description} aria-pressed={i===selected} onClick={()=>onSelect(i)}>
     <span className="sample-outline"><Sample item={item} index={i} row={row}/></span>

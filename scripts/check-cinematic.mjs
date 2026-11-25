@@ -59,10 +59,11 @@ for(let i=0;i<=100;i++){
  assert.equal(Math.abs(slotOffset(1,phase)-(1-phase))<1e-8,true);
  const p=railPoint(phase*2*Math.PI);assert.ok(Math.abs(Math.hypot(p.x,p.z-RAIL.centerZ)-RAIL.radius)<1e-8);assert.equal(p.y,RAIL.floorY);
 }
-for(const zones of Object.values(CATALOGUE))for(const surface of SURFACES){
+for(const [knife,zones] of Object.entries(CATALOGUE))for(const surface of SURFACES){
  const {colors,styles,default:pair}=zones[surface];
  for(const [i,options] of [colors,styles].entries()){
-  assert.equal(options.length,6);assert.equal(new Set(options.map(o=>o.name)).size,6);
+  const expected=knife==='HYPER'&&surface==='blade'&&i===1?7:6;
+  assert.equal(options.length,expected);assert.equal(new Set(options.map(o=>o.name)).size,expected);
   assert.ok(options.every(o=>o.description.length>0));assert.ok(options[pair[i]]);
  }
 }
@@ -94,4 +95,4 @@ for(const [i,knife] of KNIVES.entries()){
  }
  assert.ok(base>=100 && maximum<=999);
 }
-console.log('PASS — each of the 180 catalogue options updates its own three-digit configuration price');
+console.log('PASS — each of the 181 catalogue options updates its own three-digit configuration price');

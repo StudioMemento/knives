@@ -1,14 +1,14 @@
 import catalogue from './catalogue-data.json' with {type:'json'};
 import {KNIVES, PREVIOUS_ORDER, type Configuration, type Surface} from './state.ts';
 
-export type Option = {name:string; description:string; surcharge:number; motif?:string; hex?:string[]};
+export type Option = {name:string; description:string; surcharge:number; sample?:string; hex?:string[]};
 export type Collection = {swatchRow:number; default:number[]; colors:Option[]; styles:Option[]};
 type Knife = typeof KNIVES[number];
 export const CATALOGUE:Record<Knife,Record<Surface,Collection>>=catalogue;
 export const CATALOGUE_KEY='memento-knives-ui-v52';
 export const SURFACES=['blade','handle','metals'] as const;
 
-/** V51 choices belong to the UI catalogue. The previous 3D look has its own storage. */
+/** Restore named catalogue selections, including the original V51 array order. */
 export function catalogueChoices(stored:unknown=null):Configuration[] {
  return KNIVES.map(knife=>{
   const result={} as Configuration;

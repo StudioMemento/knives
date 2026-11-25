@@ -18,7 +18,8 @@ import {createStageControls} from './lib/stage-controls';
 import {createStageLayers} from './lib/stage-layers';
 import {contactMaterial} from './lib/reflection';
 import {bindGestures} from './lib/gestures';
-import {makeMaterial,makeTextures,finishMaterial} from './lib/materials';
+import {MaterialBinding,TextureBank,type TextureLevel} from './lib/materials';
+import {SURFACES} from './lib/catalogue';
 import {createSoftLayers,REAR_LAYER,REFLECTION_LAYER,REAR_DEPTH_LAYER} from './lib/soft-layers';
 import {KNIVES,mod,clamp,smooth,sectionAt,hasManualRotation,resetInspection,type DemoState,type ModelMeta,type Surface} from './lib/state';
 
@@ -28,7 +29,7 @@ type Props={
 };
 type Rig={
  meta:ModelMeta;group:THREE.Group;content:THREE.Group;scene:THREE.Group;mixer:THREE.AnimationMixer;open:THREE.AnimationAction;
- parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:{source:THREE.Mesh;image:THREE.Mesh}[];materials:Record<Surface,THREE.MeshStandardMaterial>;key:string;
+ parts:ExplodedPart[];meshes:THREE.Mesh[];mirrors:{source:THREE.Mesh;image:THREE.Mesh}[];materials:Record<Surface,MaterialBinding>;surfaceKeys:Record<Surface,string>;
  fold:number;explosion:number;fit:number;visibility:number;compact:number;shots:Frame[];fitMeshes:THREE.Mesh[];details:Record<'clip'|'screw',InspectionPart>;
  measure:ReturnType<typeof createSilhouetteMeter>;
 };
@@ -47,7 +48,7 @@ export default function Stage({state,...callbacks}:Props){
   renderer.info.autoReset=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.setClearColor('#000000',0);renderer.autoClear=false;
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.05,80);camera.position.set(0,0,CAMERA_DISTANCE);
   const productCamera=camera.clone(),reflectionProjection={value:1},contact=contactMaterial(reflectionProjection);
-  const textures=makeTextures(),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
+  const textures=new TextureBank(Math.min(8,renderer.capabilities.getMaxAnisotropy())),soft=createSoftLayers(renderer),rigs:(Rig|undefined)[]=Array(5),reflectionGroup=new THREE.Group();scene.add(reflectionGroup);
   const lightStage=createLightStage(FRONT),environments=createStudioEnvironments(renderer);
   scene.add(lightStage.group);
   let appliedPreset:LightPreset|null=null,environmentPower=1;
@@ -68,13 +69,22 @@ export default function Stage({state,...callbacks}:Props){
    const meta=metas.find(m=>m.id===KNIVES[index]);if(!meta)throw Error('Missing model manifest for '+KNIVES[index]);
    const gltf=await loader.loadAsync(meta.url);if(dead)return;
    const group=new THREE.Group(),scaleGroup=new THREE.Group(),content=new THREE.Group();group.add(scaleGroup);scaleGroup.add(content);content.add(gltf.scene);scene.add(group);scaleGroup.scale.setScalar(DISPLAY/meta.bounds.size[0]);content.position.copy(v(meta.bounds.center)).negate();
-   const materials={blade:makeMaterial('blade'),handle:makeMaterial('handle'),metals:makeMaterial('metals')};
-   for(const role of ['blade','handle','metals'] as const){const m=materials[role];m.transparent=true;m.depthWrite=true;m.forceSinglePass=true;finishMaterial(m,role,state.current.configs[index][role],textures);}
+   const knife=KNIVES[index];
+   const materials={blade:new MaterialBinding(knife,'blade',textures),handle:new MaterialBinding(knife,'handle',textures),metals:new MaterialBinding(knife,'metals',textures)};
+   const level:TextureLevel=index===s.selected?'web':'lo';
+   const surfaceKeys={blade:'',handle:'',metals:''};
+   try{
+    await Promise.all(SURFACES.map(role=>{
+     const finish={...s.configs[index][role]};surfaceKeys[role]=[finish.color,finish.style,level].join('/');
+     return materials[role].select(finish,level);
+    }));
+   }catch(error){for(const binding of Object.values(materials))binding.dispose();throw error;}
+   if(dead){for(const binding of Object.values(materials))binding.dispose();return;}
    const meshes:THREE.Mesh[]=[],mirrors:Rig['mirrors']=[];
    gltf.scene.traverse(object=>{
     if(!(object instanceof THREE.Mesh))return;
     const role=getRole(object);
-    object.material=materials[role];object.frustumCulled=false;object.userData.surface=role;
+    object.material=materials[role].material;object.frustumCulled=false;object.userData.surface=role;
     object.layers.set(index===state.current.selected?FRONT:REAR_LAYER);meshes.push(object);
     if(role!=='metals'){
      const image=new THREE.Mesh(object.geometry,contact);
@@ -90,12 +100,12 @@ export default function Stage({state,...callbacks}:Props){
     const proxy=new THREE.Mesh(mesh.geometry,depthOnly);proxy.matrixAutoUpdate=false;
     proxy.matrix.multiplyMatrices(toLocal,mesh.matrixWorld);return proxy;
    });
-   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,key:JSON.stringify(s.configs[index]),measure:createSilhouetteMeter(meta.id,meshes),
+   const rig:Rig={meta,group,content,scene:gltf.scene,mixer,open,parts,meshes,mirrors,materials,surfaceKeys,measure:createSilhouetteMeter(meta.id,meshes),
     fold:0,explosion:0,fit:1,visibility:1,compact:compactExplosion(parts,DISPLAY),shots:[],fitMeshes,details:inspectionParts(gltf.scene,meshes,meta.focusPoints.handle[2])};
    rigs[index]=rig;frameShots(rig);s.ready.push(index);s.ready.sort();
   }
   (async()=>{try{
-   const response=await fetch('/models/v48/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
+   const response=await fetch('/models/v71/manifest.json');if(!response.ok)throw Error('Could not read the model manifest');metas=(await response.json()).models;
    await Promise.all(KNIVES.map((_,index)=>load(index)));if(dead)return;
    const mask=camera.layers.mask;let shaders:Promise<THREE.Object3D>,depthShaders:Promise<THREE.Object3D>;
    try{camera.layers.enableAll();shaders=renderer.compileAsync(scene,camera);scene.overrideMaterial=depthOnly;depthShaders=renderer.compileAsync(scene,camera);}
@@ -185,7 +195,7 @@ export default function Stage({state,...callbacks}:Props){
    for(const rig of rigs){
     if(!rig?.group.visible)continue;
     const opacity=rig===rigs[s.selected]?(sharp?1:0):(sharp?0:rig.visibility);
-    for(const mat of Object.values(rig.materials))mat.opacity=opacity;
+    for(const mat of Object.values(rig.materials))mat.material.opacity=opacity;
     for(const mesh of rig.meshes){
      mesh.layers.set(opacity>.001?(sharp?FRONT:REAR_LAYER):4);
      if(!sharp&&opacity>.001&&opacity<.999)mesh.layers.enable(REAR_DEPTH_LAYER);
@@ -257,6 +267,15 @@ export default function Stage({state,...callbacks}:Props){
    for(let i=0;i<rigs.length;i++){
     const rig=rigs[i];if(!rig)continue;
     const front=i===s.selected,wasVisible=rig.group.visible;
+    const level:TextureLevel=front?'web':'lo';
+    for(const role of SURFACES){
+     const finish=s.configs[i][role],key=[finish.color,finish.style,level].join('/');
+     if(key===rig.surfaceKeys[role])continue;
+     rig.surfaceKeys[role]=key;
+     void rig.materials[role].select({...finish},level).catch(error=>{
+      if(!dead){console.error(error);props.current.onError('A material could not be loaded. Please reload the showroom.');}
+     });
+    }
     const delta=slotOffset(i,phase),railSlot=slotOffset(i,railPhase);
     rig.visibility=front?1:rearAlpha*railVisibility(railSlot);
     rig.group.visible=rig.visibility>.001;
@@ -317,8 +336,6 @@ export default function Stage({state,...callbacks}:Props){
     }
     rig.group.updateMatrixWorld(true);
     if(!front&&!visibleRear)visibleRear=rig.meshes.some(mesh=>frustum.intersectsObject(mesh));
-    const configKey=JSON.stringify(s.configs[i]);
-    if(configKey!==rig.key){for(const role of ['blade','handle','metals'] as const)finishMaterial(rig.materials[role],role,s.configs[i][role],textures);rig.key=configKey;}
     for(const {source,image} of rig.mirrors) {
      image.visible=front;
      if(!front)continue;
@@ -359,7 +376,7 @@ export default function Stage({state,...callbacks}:Props){
    dead=true;cancelAnimationFrame(raf);observer.disconnect();unbind();stageControls.dispose();document.removeEventListener('visibilitychange',visibility);
    input.removeEventListener('pointermove',cursorMove);input.removeEventListener('pointerleave',cursorLeave);layers.source.removeEventListener('webglcontextlost',lost);
    for(const rig of rigs)if(rig){rig.mixer.stopAllAction();rig.mixer.uncacheRoot(rig.scene);for(const mesh of rig.meshes)mesh.geometry.dispose();Object.values(rig.materials).forEach(m=>m.dispose());}
-   textures.forEach(t=>t.dispose());environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
+   textures.dispose();environments.dispose();soft.dispose();lightStage.dispose();depthOnly.dispose();contact.dispose();renderer.dispose();
   };
  },[state]);
  return <>

@@ -1,4 +1,5 @@
 import {Euler,Quaternion} from 'three';
+import catalogue from './catalogue-data.json' with {type:'json'};
 import type {LightPreset} from './light-presets';
 export const KNIVES = ['HYPER','VERTEX','EDGE','TRIS','QUAD'] as const;
 export const PREVIOUS_ORDER = ['HYPER','VERTEX','QUAD','EDGE','TRIS'] as const;
@@ -9,14 +10,10 @@ export type Surface = 'blade'|'handle'|'metals';
 export type View = 'side'|'top'|'edge'|'perspective'|'clip'|'screw';
 export type Finish = {color:number;style:number};
 export type Configuration = Record<Surface,Finish>;
-export const COLORS = [
- {name:'Silver',hex:'#bfc3c6'}, {name:'Titanium',hex:'#777e82'},
- {name:'Graphite',hex:'#35383c'}, {name:'Black',hex:'#141619'},
- {name:'Champagne',hex:'#b89c72'}, {name:'Copper',hex:'#ae6950'},
- {name:'Burgundy',hex:'#66313e'}, {name:'Midnight blue',hex:'#273f58'},
-];
-export const STYLES = ['Satin','Brushed','Stonewash','Carbon fiber'];
-export const defaultConfiguration = ():Configuration => ({blade:{color:0,style:1},handle:{color:3,style:3},metals:{color:1,style:0}});
+export function defaultConfiguration(knife:typeof KNIVES[number]='HYPER'):Configuration{
+ const make=(role:Surface)=>{const [color,style]=catalogue[knife][role].default;return {color,style};};
+ return {blade:make('blade'),handle:make('handle'),metals:make('metals')};
+}
 export type DemoState = {
  target:number; progress:number; selected:number; orbit:number; knifeRequest:number|null; knifeDestination:number|null;
  paused:boolean; reduced:boolean; interacting:boolean; activity:number;

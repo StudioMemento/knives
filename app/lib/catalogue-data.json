@@ -92,6 +92,12 @@
           "name": "Fine brushed",
           "description": "The band of light stays visible even from the side.",
           "surcharge": 10
+        },
+        {
+          "name": "Feather Damascus",
+          "description": "Folded graphite and nickel-silver plumes flow into a polished cutting edge.",
+          "surcharge": 34,
+          "sample": "/ui/hyper-feather-damascus.webp"
         }
       ]
     },
@@ -161,38 +167,38 @@
         {
           "name": "Matte DLC",
           "description": "A dark coating with an almost imperceptible grain.",
-          "motif": "matte",
-          "surcharge": 6
+          "surcharge": 6,
+          "sample": "/ui/finishes/hyper-handle-s01.webp"
         },
         {
           "name": "Gloss DLC",
           "description": "A smooth coating with a narrow highlight.",
-          "motif": "polish",
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/hyper-handle-s02.webp"
         },
         {
           "name": "Satin",
           "description": "Fine lengthwise lines with very little relief.",
-          "motif": "brush",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/hyper-handle-s03.webp"
         },
         {
           "name": "Fine bead blast",
           "description": "A fine, even grain in the titanium.",
-          "motif": "grain",
-          "surcharge": 11
+          "surcharge": 11,
+          "sample": "/ui/finishes/hyper-handle-s04.webp"
         },
         {
           "name": "Stonewash",
           "description": "Short, overlapping marks run in every direction.",
-          "motif": "stone",
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/hyper-handle-s05.webp"
         },
         {
           "name": "Carbon fiber",
           "description": "A subtly textured 2×2 twill under resin.",
-          "motif": "weave",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/hyper-handle-s06.webp"
         }
       ]
     },
@@ -457,38 +463,38 @@
         {
           "name": "Anodized",
           "description": "Smooth titanium with an even optical film.",
-          "motif": "polish",
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/vertex-handle-s01.webp"
         },
         {
           "name": "Matte anodized",
           "description": "A film over bead-blasted titanium gives a broad highlight.",
-          "motif": "matte",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/vertex-handle-s02.webp"
         },
         {
           "name": "Timascus",
           "description": "Bands of titanium alloy with almost no surface relief.",
-          "motif": "wave",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/vertex-handle-s03.webp"
         },
         {
           "name": "Brushed",
           "description": "Parallel lines run beneath the thin film.",
-          "motif": "brush",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/vertex-handle-s04.webp"
         },
         {
           "name": "Stonewash",
           "description": "Random fine marks soften the reflected light.",
-          "motif": "stone",
-          "surcharge": 11
+          "surcharge": 11,
+          "sample": "/ui/finishes/vertex-handle-s05.webp"
         },
         {
           "name": "Carbon fiber",
           "description": "Colored layers sit beneath satin resin.",
-          "motif": "weave",
-          "surcharge": 18
+          "surcharge": 18,
+          "sample": "/ui/finishes/vertex-handle-s06.webp"
         }
       ]
     },
@@ -753,38 +759,38 @@
         {
           "name": "Satin",
           "description": "Fine pores with a soft, continuous highlight.",
-          "motif": "brush",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/quad-handle-s01.webp"
         },
         {
           "name": "Oiled",
           "description": "Elongated open pores give the grain more contrast.",
-          "motif": "wood",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/quad-handle-s02.webp"
         },
         {
           "name": "Waxed",
           "description": "Muted pores with a silky reflection.",
-          "motif": "matte",
-          "surcharge": 10
+          "surcharge": 10,
+          "sample": "/ui/finishes/quad-handle-s03.webp"
         },
         {
           "name": "Open pore",
           "description": "Broken grooves follow the grain.",
-          "motif": "pore",
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/quad-handle-s04.webp"
         },
         {
           "name": "Stabilized",
           "description": "Filled pores give the wood a close, even surface.",
-          "motif": "wave",
-          "surcharge": 21
+          "surcharge": 21,
+          "sample": "/ui/finishes/quad-handle-s05.webp"
         },
         {
           "name": "Polished",
           "description": "Pores are barely visible under raking light.",
-          "motif": "polish",
-          "surcharge": 17
+          "surcharge": 17,
+          "sample": "/ui/finishes/quad-handle-s06.webp"
         }
       ]
     },
@@ -1045,38 +1051,38 @@
         {
           "name": "Glass blast",
           "description": "Fine, closely spaced speckles give a broad reflection.",
-          "motif": "grain",
-          "surcharge": 8
+          "surcharge": 8,
+          "sample": "/ui/finishes/edge-handle-s01.webp"
         },
         {
           "name": "Sandblast",
           "description": "A more open grain softens the edge of the highlight.",
-          "motif": "pore",
-          "surcharge": 11
+          "surcharge": 11,
+          "sample": "/ui/finishes/edge-handle-s02.webp"
         },
         {
           "name": "Brushed",
           "description": "Parallel lines run in one direction.",
-          "motif": "brush",
-          "surcharge": 6
+          "surcharge": 6,
+          "sample": "/ui/finishes/edge-handle-s03.webp"
         },
         {
           "name": "Stonewash",
           "description": "Fine, crossing scratches cluster in patches.",
-          "motif": "stone",
-          "surcharge": 14
+          "surcharge": 14,
+          "sample": "/ui/finishes/edge-handle-s04.webp"
         },
         {
           "name": "Milled",
           "description": "A milled grid on the face forms evenly spaced ridges.",
-          "motif": "weave",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/edge-handle-s05.webp"
         },
         {
           "name": "Polished",
           "description": "A smooth face reflects the outline of the softbox sharply.",
-          "motif": "polish",
-          "surcharge": 19
+          "surcharge": 19,
+          "sample": "/ui/finishes/edge-handle-s06.webp"
         }
       ]
     },
@@ -1340,38 +1346,38 @@
         {
           "name": "Satin",
           "description": "Fine wood pores and satin resin gently diffuse the light.",
-          "motif": "wood",
-          "surcharge": 0
+          "surcharge": 0,
+          "sample": "/ui/finishes/tris-handle-s01.webp"
         },
         {
           "name": "Polished",
           "description": "Smooth pools of resin give sharp reflections with little diffusion.",
-          "motif": "polish",
-          "surcharge": 7
+          "surcharge": 7,
+          "sample": "/ui/finishes/tris-handle-s02.webp"
         },
         {
           "name": "Opalescent",
           "description": "Milky resin scatters more light beneath the surface.",
-          "motif": "wave",
-          "surcharge": 16
+          "surcharge": 16,
+          "sample": "/ui/finishes/tris-handle-s03.webp"
         },
         {
           "name": "Silk resin",
           "description": "A fine, even grain covers the resin alone.",
-          "motif": "matte",
-          "surcharge": 12
+          "surcharge": 12,
+          "sample": "/ui/finishes/tris-handle-s04.webp"
         },
         {
           "name": "Veined",
           "description": "Soft clouds sit beneath a smooth surface.",
-          "motif": "vein",
-          "surcharge": 20
+          "surcharge": 20,
+          "sample": "/ui/finishes/tris-handle-s05.webp"
         },
         {
           "name": "Open grain",
           "description": "Glossy resin contrasts with porous wood at 0.46–0.56 roughness.",
-          "motif": "pore",
-          "surcharge": 9
+          "surcharge": 9,
+          "sample": "/ui/finishes/tris-handle-s06.webp"
         }
       ]
     },
